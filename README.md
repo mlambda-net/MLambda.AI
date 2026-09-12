@@ -31,13 +31,14 @@ package, that file and one `ItemGroup` per project are the whole migration.
 ```bash
 dotnet build MLambda.AI.slnx
 dotnet test MLambda.AI.slnx
-dotnet run --project src/MLambda.AI.Logic
+dotnet run --project src/MLambda.AI.Logic     # list the logic samples
+dotnet run --project src/MLambda.AI.Agent     # list the agents
 ```
 
 `HilbertProofStrict` is on, so a theorem that stops checking fails the build and `sorry` is not
 available.
 
-What the last command prints:
+What a logic sample prints:
 
 ```
 What is fluffy?      cat animal
@@ -54,12 +55,13 @@ And what the build checked before this program was allowed to run:
 | Project | Subject | Dialects |
 |---|---|---|
 | [`MLambda.AI.Logic`](src/MLambda.AI.Logic/) | theorem proving: arithmetic, modal and sortal logic | `.hs` `.hp` |
-| `MLambda.AI.Agent` | BDI agents | `.ha` `.hs` `.hp` |
+| [`MLambda.AI.Agent`](src/MLambda.AI.Agent/) | BDI agents | `.ha` `.hs` `.hp` |
 | `MLambda.AI.ML` | machine learning | `.hb` |
 | `MLambda.AI.Learning` | reinforcement learning | `.hb` `.hp` |
 | `MLambda.AI.Actuarial` | house-purchase risk, from `houses.csv` | all four |
 
-`MLambda.AI.Logic` exists today, with one sample in it; the rest arrive in later plans.
+`MLambda.AI.Logic` (six samples) and `MLambda.AI.Agent` (three agents and the theory beneath
+them) exist today; the rest arrive in later plans.
 
 ## Where to start
 

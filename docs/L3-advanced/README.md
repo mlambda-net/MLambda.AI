@@ -6,7 +6,7 @@ You want to prove things about the systems, not only build them — and to know 
 | Subject | Page |
 |---|---|
 | Logic | [logic.md](logic.md) |
-| Agents | arriving with `MLambda.AI.Agent` |
+| Agents | [agent.md](agent.md) |
 | Machine learning | arriving with `MLambda.AI.ML` |
 | Reinforcement learning | arriving with `MLambda.AI.Learning` |
 

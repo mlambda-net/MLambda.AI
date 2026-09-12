@@ -6,7 +6,7 @@ which choices are real choices, and which restrictions are the language telling 
 | Subject | Page |
 |---|---|
 | Logic | [logic.md](logic.md) |
-| Agents | arriving with `MLambda.AI.Agent` |
+| Agents | [agent.md](agent.md) |
 | Machine learning | arriving with `MLambda.AI.ML` |
 | Reinforcement learning | arriving with `MLambda.AI.Learning` |
 

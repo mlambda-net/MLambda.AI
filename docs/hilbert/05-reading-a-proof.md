@@ -85,4 +85,15 @@ public static ProvedClaim ACatIsAnAnimal { get; } = new(
 Your program can read these and print what it was shown to satisfy, without running a prover — the
 checking already happened, at build time.
 
+Or it can run the prover. The class also embeds the `.hp` it came from (and the `.hs` theories), and
+`Prove` does the work again: it parses both, elaborates the script, and lets the kernel replay the term.
+
+```csharp
+Judged verdict = AnimalsProofs.Prove("a_cat_is_an_animal");
+// verdict.Status == "Proved" — decided now, not read back
+```
+
+A name the file does not state throws `ArgumentException`. The prover is the `MLambda.Hilbert.Proof`
+library; the proof targets add the reference for you, so there is no compiler at run time.
+
 Next: [diagnostics](06-diagnostics.md).
