@@ -2,5 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/MLambda.AI.Logic/MLambda.AI.Logic.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/MLambda.AI.Logic.Tests/MLambda.AI.Logic.Tests.csproj" />
+  </Folder>
 </Solution>
