@@ -97,3 +97,64 @@ declares `(kind, who?)` but its body atom is `(who, kind)`. `Members("animal")` 
 query's parameters, inputs first and the `?` output last. The reverse query in `Animals.hs` is
 commented out rather than worked around, because the workaround needs a reversed relation and a
 first sample is the wrong place to teach one.
+
+## Writing an agent: three things the language insists on
+
+None of these is a bug. Each is the `.ha` dialect taking a position, and the error message says so.
+
+### `HS0060` — no commitment strategy
+
+```
+error HS0060: 'Thermostat' declares no commitment strategy;
+write `commit blind`, `commit single_minded` or `commit open_minded`.
+```
+
+**You may not write an agent that does not say how long its intentions survive.** The three answers
+are the three in the literature:
+
+| Strategy | The intention survives until |
+|---|---|
+| `blind` | you believe the goal achieved — come what may |
+| `single_minded` | achieved, **or** believed impossible |
+| `open_minded` | achieved, or you stop holding the goal — reconsidered as beliefs change |
+
+Kinny and Georgeff's result is the reason this is forced rather than defaulted: a **bold** agent that
+rarely reconsiders wins in a world that changes slowly and loses badly in one that changes fast.
+Commitment is not a virtue, it is a bet about the world, and a language that let you leave the bet
+unstated would be hiding it.
+
+### `HS0063` — an attention that was never declared
+
+```
+error HS0063: 'Blocked' is not an attention this agent declares.
+```
+
+`when … attend Blocked` may only name a focus the agent has. Declare it:
+
+```
+attention Cleaning initially
+attention Blocked
+```
+
+So the set of things an agent can be about is fixed and readable at the top of the file, rather than
+accumulating from wherever the rules happen to point.
+
+### `HS0001` on `impossible` — the reason is not optional
+
+```
+error HS0001: expected 'because' and the reason a person will read,
+found the end of the line
+```
+
+**An agent may not declare its goal impossible without saying why**, in a sentence somebody can
+read, and the `because` must be on the same line as the condition:
+
+```
+impossible Spotless when B(self) dirt(r) ∧ B(self) blocked(r) because "there is dirt in a room I cannot get to"
+```
+
+**One limit worth knowing today:** the reason is required by the parser and then **discarded**. The
+generated `UnreachableFact` carries the subject and the goal, and the sentence lives only in the
+source. So a test can assert *that* a goal was abandoned, and cannot yet assert *why* — see
+[`CleanerTests.cs`](../../test/MLambda.AI.Agent.Tests/CleanerTests.cs). The keyword still earns its
+place: it makes the reason a required part of the agent rather than a comment somebody might omit.
