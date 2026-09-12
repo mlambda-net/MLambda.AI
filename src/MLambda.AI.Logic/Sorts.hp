@@ -1,0 +1,96 @@
+-- Sorts.hp — subsumption, disjointness, and why identity is sort-relative.
+--
+-- THE RESULT THE SUBJECT EXISTS FOR IS THE ONE THAT IS NOT HERE. See the non-theorem at the foot of
+-- this file: sameness climbs the sort hierarchy and does not descend, and no rearrangement of the
+-- laws in `Sorts.hs` proves that it does.
+--
+-- Sources: Gupta, The Logic of Common Nouns (Yale 1980) ch. 2; Wiggins, Sameness and Substance
+-- Renewed (CUP 2001) §1.1–1.3.
+open Sorts
+axioms [sub_refl, sub_trans, inst_sub, disjoint_symm, disjoint_down, disjoint_excludes, same_refl, same_symm, same_trans, same_up]
+
+-- ── the subsumption order ──────────────────────────────────────────────────────────────────────
+
+theorem a_declared_kind_falls_under_itself : ∀ s, kind(s) ⇒ sub(s, s)
+proof
+  intro s declared
+  apply sub_refl [declared]
+qed
+
+theorem subsumption_composes : ∀ s t v, sub(s, t) ⇒ sub(t, v) ⇒ sub(s, v)
+proof
+  intro s t v first second
+  apply sub_trans [first, second]
+qed
+
+-- ── classification climbs the order ────────────────────────────────────────────────────────────
+
+theorem an_instance_climbs : ∀ x s t, inst(x, s) ⇒ sub(s, t) ⇒ inst(x, t)
+proof
+  intro x s t member below
+  apply inst_sub [member, below]
+qed
+
+theorem an_instance_climbs_twice : ∀ x s t v, inst(x, s) ⇒ sub(s, t) ⇒ sub(t, v) ⇒ inst(x, v)
+proof
+  intro x s t v member first second
+  have higher : inst(x, t) by apply inst_sub [member, first]
+  apply inst_sub [higher, second]
+qed
+
+-- ── disjointness excludes ──────────────────────────────────────────────────────────────────────
+
+theorem nothing_is_both : ∀ x s t, disjoint(s, t) ⇒ inst(x, s) ⇒ inst(x, t) ⇒ absurd(x)
+proof
+  intro x s t apart here there
+  apply disjoint_excludes [apart, here, there]
+qed
+
+-- DISJOINTNESS IS INHERITED DOWNWARD. If cats and birds are disjoint, so are tabbies and birds.
+theorem disjointness_inherits : ∀ s t u, disjoint(s, t) ⇒ sub(u, s) ⇒ disjoint(u, t)
+proof
+  intro s t u apart below
+  apply disjoint_down [apart, below]
+qed
+
+-- AND A THING IN A SUBSORT OF ONE HALF IS STILL EXCLUDED. Two steps: inherit the disjointness
+-- downward, then apply it. This is the shape a description-logic reasoner spends its life on.
+theorem a_subsort_still_excludes : ∀ x s t u, disjoint(s, t) ⇒ sub(u, s) ⇒ inst(x, u) ⇒ inst(x, t) ⇒ absurd(x)
+proof
+  intro x s t u apart below here there
+  have narrower : disjoint(u, t) by apply disjoint_down [apart, below]
+  apply disjoint_excludes [narrower, here, there]
+qed
+
+-- ── identity, and the direction it goes ────────────────────────────────────────────────────────
+
+theorem sameness_climbs : ∀ x y s t, same(x, y, s) ⇒ sub(s, t) ⇒ same(x, y, t)
+proof
+  intro x y s t alike below
+  apply same_up [alike, below]
+qed
+
+theorem sameness_is_symmetric : ∀ x y s, same(x, y, s) ⇒ same(y, x, s)
+proof
+  intro x y s alike
+  apply same_symm [alike]
+qed
+
+theorem sameness_composes : ∀ x y z s, same(x, y, s) ⇒ same(y, z, s) ⇒ same(x, z, s)
+proof
+  intro x y z s first second
+  apply same_trans [first, second]
+qed
+
+-- ── THE NON-THEOREM ────────────────────────────────────────────────────────────────────────────
+--
+-- SAMENESS DOES NOT DESCEND, and this is the point of the entire subject:
+--
+--     ∀ x y s t, same(x, y, t) ⇒ sub(s, t) ⇒ same(x, y, s)
+--
+-- Two people may be the same passenger and different people. The claim above is FALSE, and no
+-- rearrangement of the laws in `Sorts.hs` proves it — `same_up` goes one way only, deliberately.
+--
+-- IT IS RECORDED HERE AS A COMMENT AND IN `SortsTests.cs` AS AN ASSERTION THAT NO PROOF OF IT
+-- EXISTS. It is NOT written as `sorry`: strictness would reject that, and rightly. `sorry` means
+-- "not proved yet"; this is "not provable, on purpose", and the two must not look alike.
