@@ -102,14 +102,25 @@ What is fluffy?      cat animal
 
 - Fluffy is a cat — what you said survives.
 - Fluffy is an animal — what you did not say is concluded.
-- An animal is **not** a cat: the rule climbs, it does not descend.
+- Fluffy is *exactly* a cat and an animal, and nothing else.
+- Tweety is a bird and therefore an animal — but **not** a cat, though a cat is a kind of animal
+  too. The rule climbs and never descends.
 - A chain of three is walked: fluffy → cat → animal → living thing.
 - A fact asserted later is derived over: the engine learns and answers again.
+- A creature nobody classified has no kinds at all.
 - Every theorem in `Animals.hp` came back `Proved`.
 
-That third one is worth a moment. "Every cat is an animal" does not make every animal a cat, and a
-rule engine that got this wrong would be useless. Nothing in the theory says "do not run backwards"
-— it simply never says you may.
+The tweety one is worth a moment. "A cat is a kind of animal" does not make every animal a cat, and
+a rule engine that got this wrong would be useless. Nothing in the theory says "do not run
+backwards" — it simply never says you may.
+
+**And a word on how that test is written**, because it is a trap worth seeing once. The obvious
+version asks whether `"cat"` appears among the kinds of `"animal"`. It does not — but only because
+*nothing* appears there: nobody said what an animal is, so the answer is the empty list, and the
+test would pass just as happily against an engine that had stopped working entirely. A test that
+only looks for an absence proves nothing unless you know the answer was not empty to begin with.
+So this one asks about tweety, who *has* kinds, and pins the whole answer set instead of probing
+for one gap.
 
 ## Try it yourself
 
