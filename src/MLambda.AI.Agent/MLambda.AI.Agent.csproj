@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>MLambda.AI.Agent</RootNamespace>
     <Description>BDI agents in `.ha` — belief, desire and intention as keywords rather than as a
       record and a match, over a theory that says what those words mean.</Description>
