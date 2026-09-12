@@ -1,0 +1,37 @@
+-- Chains.hp — the rule, and what chaining it gives.
+--
+-- THE ENGINE CHAINS ONE PARTICULAR SET OF CLAIMS; these theorems chain ANY claims at all. That is
+-- the difference between the two dialects, and this is the smallest file in which it is visible.
+open Chains
+axioms [ponens]
+
+theorem one_step : ∀ p q, holds(p) ⇒ says(p, q) ⇒ holds(q)
+proof
+  intro p q true_p implies
+  apply ponens [true_p, implies]
+qed
+
+-- TWO STEPS, AND THE SHAPE OF EVERY LONGER CHAIN. Each step needs the previous conclusion, so the
+-- `have` is not a convenience -- it is the only way to hand `ponens` its first premise.
+theorem two_steps : ∀ p q r, holds(p) ⇒ says(p, q) ⇒ says(q, r) ⇒ holds(r)
+proof
+  intro p q r true_p first second
+  have true_q : holds(q) by apply ponens [true_p, first]
+  apply ponens [true_q, second]
+qed
+
+theorem three_steps : ∀ p q r s, holds(p) ⇒ says(p, q) ⇒ says(q, r) ⇒ says(r, s) ⇒ holds(s)
+proof
+  intro p q r s true_p first second third
+  have true_q : holds(q) by apply ponens [true_p, first]
+  have true_r : holds(r) by apply ponens [true_q, second]
+  apply ponens [true_r, third]
+qed
+
+-- FOUND RATHER THAN WRITTEN. Same claim as `two_steps`, and `auto` finds the intermediate step
+-- without being told which law to use.
+theorem two_steps_found_automatically : ∀ p q r, holds(p) ⇒ says(p, q) ⇒ says(q, r) ⇒ holds(r)
+proof
+  intro p q r true_p first second
+  auto
+qed
