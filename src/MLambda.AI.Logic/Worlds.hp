@@ -1,0 +1,66 @@
+-- Worlds.hp — what each frame condition buys, and what comes free.
+--
+-- THE INTERESTING THEOREMS ARE THE ONES NOBODY GIVES YOU. From T and 5 alone, both B and 4 follow
+-- — which is why S5's accessibility is an EQUIVALENCE relation, and why S5 contains S4 and B
+-- without being handed either.
+open Worlds
+axioms [refl, trans, euclid, symm]
+
+-- ── what each condition says, applied ──────────────────────────────────────────────────────────
+
+-- T, AS THIS THEORY CAN STATE IT. Not "every world sees itself" but "every world the host declared
+-- sees itself" -- because a Horn head may not invent a world. See `Worlds.hs` on `place`.
+theorem t_gives_every_declared_world_itself : ∀ w, place(w) ⇒ sees(w, w)
+proof
+  intro w here
+  apply refl [here]
+qed
+
+theorem four_composes : ∀ w u v, sees(w, u) ⇒ sees(u, v) ⇒ sees(w, v)
+proof
+  intro w u v a b
+  apply trans [a, b]
+qed
+
+theorem five_relates_what_a_world_sees : ∀ w u v, sees(w, u) ⇒ sees(w, v) ⇒ sees(u, v)
+proof
+  intro w u v a b
+  apply euclid [a, b]
+qed
+
+theorem b_reverses : ∀ w u, sees(w, u) ⇒ sees(u, w)
+proof
+  intro w u a
+  apply symm [a]
+qed
+
+-- ── and what comes free: S5 is T + 5, and both B and 4 follow ──────────────────────────────────
+--
+-- B FROM T AND 5. Take euclid at (w, u, w): from `sees(w,u)` and `sees(w,w)` — which T gives for
+-- nothing — it concludes `sees(u,w)`. So a reflexive euclidean relation is symmetric, and S5 has
+-- axiom B without anyone stating it.
+theorem b_from_t_and_5 : ∀ w u, place(w) ⇒ sees(w, u) ⇒ sees(u, w)
+proof
+  intro w u declared a
+  have here : sees(w, w) by apply refl [declared]
+  apply euclid [a, here]
+qed
+
+-- 4 FROM T AND 5, and the step that is easy to get wrong. Turning `sees(w,u)` into `sees(u,w)`
+-- needs euclid at (w, u, w), whose SECOND premise is `sees(w,w)` — which T supplies and which
+-- nothing else does. `euclid [a, a]` would conclude `sees(u,u)`, not `sees(u,w)`.
+theorem four_from_t_and_5 : ∀ w u v, place(w) ⇒ sees(w, u) ⇒ sees(u, v) ⇒ sees(w, v)
+proof
+  intro w u v declared a b
+  have here : sees(w, w) by apply refl [declared]
+  have back : sees(u, w) by apply euclid [a, here]
+  apply euclid [back, b]
+qed
+
+-- A reflexive euclidean relation relates everything a world sees, in both directions — the shape
+-- that makes S5's `□` an "everywhere in this cluster" operator.
+theorem s5_cluster : ∀ w u, sees(w, u) ⇒ sees(u, u)
+proof
+  intro w u a
+  apply euclid [a, a]
+qed

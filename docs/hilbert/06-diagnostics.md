@@ -29,9 +29,33 @@ I(i) p ⇒ D(i) p          -- HS0020
 **The fix is correspondence theory:** state it as relation *inclusion* rather than as a formula. The
 desire relation is contained in the intention relation, and that is expressible.
 
-This is also why a proving theory is not always a lowerable one: an axiom schema like
+### The `⊤ ⇒` case, which is easy to walk into
+
+A law with no premise is written `⊤ ⇒ …`, and **it does not lower**:
+
+```
+law refl = ∀ w, ⊤ ⇒ sees(w, w)        -- HS0020: 'w' is not bound by any positive body atom
+```
+
+`⊤` is not an atom, so nothing binds `w`, and the head would have to invent a world. Reflexivity is
+the usual victim, because "every world sees itself, from nothing" is exactly how a textbook states
+it.
+
+**The fix is a generator relation** — the same shape seriality already needs:
+
+```
+def place(id: Place)
+law refl = ∀ w, place(w) ⇒ sees(w, w)
+```
+
+The claim weakens honestly, from *every world* to *every world the host declared*, and the theorem
+should say so: `∀ w, place(w) ⇒ sees(w, w)`. See
+[`src/MLambda.AI.Logic/Worlds.hs`](../../src/MLambda.AI.Logic/Worlds.hs).
+
+**Or keep the unbound form and do not lower the theory.** An axiom schema like
 `⊤ ⇒ holds(imp(p, imp(q, p)))` has head variables nothing binds, so it is fine to *reason about* and
-`HS0020` to *run*. Import only the Proof targets for such a theory.
+`HS0020` to *run*. A theory like that imports only the Proof targets — which is what a proof corpus
+does, and why a theory that proves is not always a theory that runs.
 
 ## `HS0022` — an existential in a head
 
