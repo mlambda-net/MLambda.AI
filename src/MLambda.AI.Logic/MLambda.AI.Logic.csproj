@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>MLambda.AI.Logic</RootNamespace>
     <Description>Logic first, because everything above it is logic wearing a costume. Theories in
       `.hs` that an engine runs, and proofs in `.hp` that the build checks.</Description>
