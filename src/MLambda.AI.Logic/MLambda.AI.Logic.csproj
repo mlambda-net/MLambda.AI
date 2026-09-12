@@ -25,4 +25,17 @@
        checks `Animals.hp` and fails the build if a theorem does not. -->
   <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
   <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+
+  <ItemGroup>
+    <!-- COUNTING PROVES BUT DOES NOT RUN, and this one line is how a project says so.
+         `Counting.hs` quantifies over `Double` so that `ring` and `linarith` have numbers to work
+         with. The proof checker is happy: it only parses the theory. The Shin lowering is not —
+         `Double` is a built-in sort and may not be a theory's own (HS0040) — and it is right not
+         to be, because there is no engine worth having here. Every claim in `Counting.hp` is
+         decided by a certificate; none of them is a rule anything could run.
+
+         Removing it from the Shin inputs leaves it in the Proof inputs, which is exactly the split
+         upstream gets by importing only the Proof targets in its corpus project. -->
+    <HilbertShinFile Remove="$(MSBuildProjectDirectory)\Counting.hs" />
+  </ItemGroup>
 </Project>

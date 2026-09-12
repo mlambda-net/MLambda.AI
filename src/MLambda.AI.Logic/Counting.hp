@@ -1,0 +1,59 @@
+-- Counting.hp — arithmetic that is CHECKED rather than trusted.
+--
+-- NO AXIOMS AND NO LEMMAS. `axioms []` is not an oversight. Every theorem stands on its own
+-- certificate and nothing below leans on the one above it.
+--
+-- HOW A LINARITH CERTIFICATE IS CHECKED, which is the only part that has to be believed. Each
+-- premise says some polynomial is `≥ 0` (or `> 0`); so does the negated goal. A non-negative
+-- combination of them is itself `≥ 0`. If every variable cancels and a NEGATIVE constant is left,
+-- the premises cannot all have held — so the goal was true. The kernel adds the combination up with
+-- its own exact rational arithmetic and looks at the sign; it never runs the search that found it.
+--
+-- STRICTNESS IS PART OF THE ARITHMETIC. A sum of non-strict bounds has to reach a strictly negative
+-- constant; when a strict premise takes part, zero is already impossible.
+open Counting
+axioms []
+
+-- ── identities, decided by `ring` ──────────────────────────────────────────────────────────────
+
+theorem adding_then_taking_away : a + b - b = a
+proof
+  ring
+qed
+
+theorem doubling_is_adding_twice : 2 * a = a + a
+proof
+  ring
+qed
+
+theorem the_square_of_a_sum : (a + b) * (a + b) = a * a + 2 * a * b + b * b
+proof
+  ring
+qed
+
+theorem halfway_between : a + (1 / 2) * (b - a) = (a + b) / 2
+proof
+  ring
+qed
+
+-- ── order, decided by `linarith` ───────────────────────────────────────────────────────────────
+
+theorem at_most_composes : ∀ x y z, x <= y ⇒ y <= z ⇒ x <= z
+proof
+  intro x y z first second
+  linarith
+qed
+
+-- A STRICT STEP SURVIVES A SLACK ONE. The combination reaches exactly zero, and only the strict
+-- premise makes zero a contradiction — which is the whole of the strictness bookkeeping.
+theorem a_strict_step_survives : ∀ x y z, x < y ⇒ y <= z ⇒ x < z
+proof
+  intro x y z first second
+  linarith
+qed
+
+theorem four_steps_compose : ∀ w x y z, w <= x ⇒ x <= y ⇒ y <= z ⇒ w <= z
+proof
+  intro w x y z a b c
+  linarith
+qed
