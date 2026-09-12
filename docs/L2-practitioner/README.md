@@ -1,0 +1,14 @@
+# L2 — practitioner
+
+You can read a theory and follow a proof. What you want now is to know what the notation *buys* you:
+which choices are real choices, and which restrictions are the language telling you something true.
+
+| Subject | Page |
+|---|---|
+| Logic | [logic.md](logic.md) |
+| Agents | arriving with `MLambda.AI.Agent` |
+| Machine learning | arriving with `MLambda.AI.ML` |
+| Reinforcement learning | arriving with `MLambda.AI.Learning` |
+
+At this level a sample may open any Prelude module it needs, and may use notation L1 avoided — `⊤`,
+`≠`, sorts declared outside a theory, and proofs discharged by certificate rather than by law.

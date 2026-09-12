@@ -5,8 +5,8 @@ The samples are explained at three levels, and every subject appears at each of 
 | Level | Who it is for |
 |---|---|
 | [L1 novice](L1-novice/) | You have never written a rule for a computer to reason with. |
-| L2 practitioner | You can read a theory and want to know what the notation buys you. |
-| L3 advanced | You want to prove things about the systems, not only build them. |
+| [L2 practitioner](L2-practitioner/) | You can read a theory and want to know what the notation buys you. |
+| [L3 advanced](L3-advanced/) | You want to prove things about the systems, not only build them. |
 
 First, though: [how Hilbert works](hilbert/). Six short pages, and every sample assumes them.
 
