@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MLambda.AI.Agent</RootNamespace>
+    <Description>BDI agents in `.ha` — belief, desire and intention as keywords rather than as a
+      record and a match, over a theory that says what those words mean.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- NOT UNDER $(HilbertRoot): lowering produces code over the Shin runtime, and every generated
+         engine opens with `using static MLambda.Church.Semantic.AstHelpers;` even though no
+         hand-written file here mentions it. Both are reached through $(GenesisRoot), which is why
+         the seam has two properties. -->
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Shin\src\MLambda.Shin.Runtime\MLambda.Shin.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Church\src\MLambda.Church.Semantic\MLambda.Church.Semantic.csproj" />
+  </ItemGroup>
+
+  <!-- THE SHIN TARGETS COMPILE BOTH `.hs` AND `.ha`. An agent lowers to a theory inside the
+       pipeline, which is why one import covers both. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>

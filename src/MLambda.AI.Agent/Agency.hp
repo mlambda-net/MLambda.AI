@@ -1,0 +1,71 @@
+-- Agency.hp — what holds of any agent over this theory, whatever it believes.
+--
+-- THE ENGINE ANSWERS ABOUT ONE AGENT'S FACTS; these theorems hold of every agent at once. That is
+-- the division of labour between the two dialects, and in a BDI system it matters more than
+-- anywhere else: an agent's beliefs change constantly, and what is true OF believing does not.
+open Agency
+axioms [serialB, serialD, serialI, transB, euclidB, realism]
+
+-- ── belief's introspection ─────────────────────────────────────────────────────────────────────
+
+-- AN AGENT KNOWS WHAT IT BELIEVES — axiom 4, and the first half of why belief is KD45.
+theorem belief_composes : ∀ i w u v, believes(i, w, u) ⇒ believes(i, u, v) ⇒ believes(i, w, v)
+proof
+  intro i w u v first second
+  apply transB [first, second]
+qed
+
+-- AND KNOWS WHAT IT DOES NOT BELIEVE — axiom 5, the second half.
+theorem belief_is_euclidean : ∀ i w u v, believes(i, w, u) ⇒ believes(i, w, v) ⇒ believes(i, u, v)
+proof
+  intro i w u v first second
+  apply euclidB [first, second]
+qed
+
+-- INTROSPECTION COMPOSES WITH ITSELF. Nothing here is available for desire or intention, which is
+-- the whole content of "belief is KD45 and the other two are KD".
+theorem belief_reaches_three_deep : ∀ i w u v x, believes(i, w, u) ⇒ believes(i, u, v) ⇒ believes(i, v, x) ⇒ believes(i, w, x)
+proof
+  intro i w u v x first second third
+  have onward : believes(i, u, x) by apply transB [second, third]
+  apply transB [first, onward]
+qed
+
+-- ── realism, and what it gives ─────────────────────────────────────────────────────────────────
+--
+-- WHAT AN AGENT DESIRES, IT INTENDS. Read back through the modal translation this is `I(i) p ⇒
+-- D(i) p`: the desire relation is contained in the intention relation, so anything true throughout
+-- the intended worlds is true throughout the desired ones. The inclusion is the frame condition;
+-- the implication between modalities is what it MEANS.
+theorem what_is_desired_is_intended : ∀ i w u, desires(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u wanted
+  apply realism [wanted]
+qed
+
+-- A SEEDED DESIRE IS THEREFORE AN INTENTION, in two steps: seriality makes the seed a desire, and
+-- realism carries it across. This is the shape every "an agent that wants X will try for X" claim
+-- reduces to, and it is worth seeing it reduce.
+theorem a_seeded_desire_is_intended : ∀ i w u, desireSucc(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u seeded
+  have wanted : desires(i, w, u) by apply serialD [seeded]
+  apply realism [wanted]
+qed
+
+-- ── seriality, and what it does NOT say ────────────────────────────────────────────────────────
+--
+-- THIS IS THE WHOLE OF AXIOM D AS THIS THEORY CAN STATE IT: a seeded successor IS an accessible
+-- world. What it does not say -- and what no theorem here can say -- is that every world HAS one.
+-- That is a precondition on the runtime, and `Agency.hs` says so in those words.
+theorem a_seeded_belief_is_accessible : ∀ i w u, beliefSucc(i, w, u) ⇒ believes(i, w, u)
+proof
+  intro i w u seeded
+  apply serialB [seeded]
+qed
+
+theorem an_intention_seeded_is_held : ∀ i w u, intentionSucc(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u seeded
+  apply serialI [seeded]
+qed
