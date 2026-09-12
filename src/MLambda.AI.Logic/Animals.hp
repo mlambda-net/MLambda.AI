@@ -1,0 +1,50 @@
+-- Animals.hp — the proofs that go with Animals.hs, CHECKED BY THE BUILD.
+--
+-- THE SAME THEORY, ASKED A DIFFERENT QUESTION. `Animals.hs` compiles to an engine that answers
+-- "what is Fluffy?" about the creatures somebody asserted. This file proves things that hold
+-- whatever anybody asserts. One theory, two dialects reading it, and neither holds a copy of the
+-- other's declarations.
+--
+-- `HilbertProofStrict` is true in this project, so a theorem that stops checking FAILS THE BUILD
+-- rather than turning into a note somebody meant to finish.
+open Animals
+axioms [directly, climbing]
+
+-- ── what `directly` gives ──────────────────────────────────────────────────────────────────────
+
+theorem what_is_known_is_so : ∀ x k, known(x, k) ⇒ is_a(x, k)
+proof
+  intro x k said
+  apply directly [said]
+qed
+
+-- ── and what climbing gives on top of it ───────────────────────────────────────────────────────
+--
+-- A CAT IS A KIND OF ANIMAL, AND FLUFFY IS A CAT. The proof shows where the second step enters:
+-- `climbing` needs an `is_a` for its first premise, and `directly` is what turns being *told*
+-- Fluffy is a cat into Fluffy *being* one.
+theorem a_cat_is_an_animal : ∀ x c a, known(x, c) ⇒ kind_of(c, a) ⇒ is_a(x, a)
+proof
+  intro x c a said wider
+  have surely : is_a(x, c) by apply directly [said]
+  apply climbing [surely, wider]
+qed
+
+theorem classification_climbs_twice : ∀ x c a l, known(x, c) ⇒ kind_of(c, a) ⇒ kind_of(a, l) ⇒ is_a(x, l)
+proof
+  intro x c a l said wider widest
+  have cat : is_a(x, c) by apply directly [said]
+  have animal : is_a(x, a) by apply climbing [cat, wider]
+  apply climbing [animal, widest]
+qed
+
+-- ── found rather than written ──────────────────────────────────────────────────────────────────
+--
+-- `auto` searches the theory's own laws and the hypotheses in scope. It finds the two-step
+-- derivation above without being told which laws to use, and the kernel checks the term it builds
+-- exactly as it checks a hand-written one.
+theorem an_animal_found_automatically : ∀ x c a, known(x, c) ⇒ kind_of(c, a) ⇒ is_a(x, a)
+proof
+  intro x c a said wider
+  auto
+qed

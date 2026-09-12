@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MLambda.AI.Logic</RootNamespace>
+    <Description>Logic first, because everything above it is logic wearing a costume. Theories in
+      `.hs` that an engine runs, and proofs in `.hp` that the build checks.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops, so a reader
+         never finds a theorem that quietly became something somebody meant to prove. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WHAT A `.hs` CONSUMER REFERENCES, and it is NOT under $(HilbertRoot): lowering produces
+         code over the Shin runtime, and every generated engine opens with
+         `using static MLambda.Genesis.Semantic.AstHelpers;` even though no hand-written file here
+         mentions it. Both are load-bearing; neither compiler is a run-time dependency. -->
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Shin\src\MLambda.Shin.Runtime\MLambda.Shin.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Church\src\MLambda.Church.Semantic\MLambda.Church.Semantic.csproj" />
+  </ItemGroup>
+
+  <!-- TWO DIALECTS OVER ONE THEORY: Shin lowers `Animals.hs` to an engine that answers, Proof
+       checks `Animals.hp` and fails the build if a theorem does not. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>

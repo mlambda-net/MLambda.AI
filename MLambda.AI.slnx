@@ -1,4 +1,6 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/MLambda.AI.Logic/MLambda.AI.Logic.csproj" />
+  </Folder>
   <Folder Name="/test/" />
 </Solution>
