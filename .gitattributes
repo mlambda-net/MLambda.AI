@@ -1,0 +1,4 @@
+# A mixed tree makes diffs lie -- the reasoning is inherited from MLambda.Hilbert.
+* text=auto eol=lf
+*.png binary
+*.csv text eol=lf

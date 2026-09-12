@@ -1,0 +1,27 @@
+<Project>
+  <!-- THE ONLY FILE THAT KNOWS WHERE HILBERT LIVES. Every project writes $(HilbertRoot)\… or
+       $(GenesisRoot)\… and nothing else, so migrating to NuGet later is a change here plus one
+       ItemGroup per project. -->
+  <PropertyGroup>
+    <GenesisRoot Condition="'$(GenesisRoot)' == ''">$(MSBuildThisFileDirectory)..\MLambda.Genesis</GenesisRoot>
+    <HilbertRoot Condition="'$(HilbertRoot)' == ''">$(GenesisRoot)\modules\MLambda.Hilbert</HilbertRoot>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- A MISSING GENESIS CHECKOUT IS ONE SENTENCE, NOT NINE MISSING-PROJECT ERRORS.
+       BOTH HOOKS ARE LOAD-BEARING. `PrepareForBuild` is early in a build, but restore runs before
+       any of it and walks every ProjectReference path — so once those paths point into Genesis,
+       restore would fail first with its own wording. `CollectPackageReferences` gets this message
+       in front of that too. -->
+  <Target Name="MLambdaAiCheckHilbert" BeforeTargets="CollectPackageReferences;PrepareForBuild">
+    <Error Condition="!Exists('$(HilbertRoot)\src\MLambda.Hilbert.Compiler\MLambda.Hilbert.targets')"
+           Text="MLambda.AI needs an MLambda.Genesis checkout beside it. Expected Hilbert at '$(HilbertRoot)'. Clone MLambda.Genesis (with --recurse-submodules) next to this repository, or pass -p:GenesisRoot=PATH." />
+  </Target>
+</Project>
