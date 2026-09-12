@@ -1,0 +1,35 @@
+-- Families.hp — what holds of the theory whatever family anybody asserts.
+open Families
+axioms [direct, indirect]
+
+theorem a_parent_is_an_ancestor : ∀ a c, parent(a, c) ⇒ ancestor(a, c)
+proof
+  intro a c born
+  apply direct [born]
+qed
+
+-- A GRANDPARENT IS AN ANCESTOR, and the proof shows where the recursion enters: `indirect` needs an
+-- `ancestor` for its second premise, and `direct` is what turns the second `parent` into one.
+theorem a_grandparent_is_an_ancestor : ∀ a b c, parent(a, b) ⇒ parent(b, c) ⇒ ancestor(a, c)
+proof
+  intro a b c first second
+  have onward : ancestor(b, c) by apply direct [second]
+  apply indirect [first, onward]
+qed
+
+theorem three_generations_compose : ∀ a b c d, parent(a, b) ⇒ parent(b, c) ⇒ parent(c, d) ⇒ ancestor(a, d)
+proof
+  intro a b c d first second third
+  have last : ancestor(c, d) by apply direct [third]
+  have middle : ancestor(b, d) by apply indirect [second, last]
+  apply indirect [first, middle]
+qed
+
+-- ANCESTRY EXTENDS AT THE FRONT: one more parent above an ancestor chain is still an ancestor.
+-- This is `indirect` exactly, and it is worth stating because it is the induction the engine
+-- performs and nothing in `Families.hs` says out loud.
+theorem a_parent_of_an_ancestor_is_an_ancestor : ∀ a b c, parent(a, b) ⇒ ancestor(b, c) ⇒ ancestor(a, c)
+proof
+  intro a b c step rest
+  apply indirect [step, rest]
+qed
