@@ -198,3 +198,35 @@ is treated as a product of two terms. It is not the mathematics — `ring` accep
 
 `IdentitiesTests` pins the refusal against inline source, with a control proving the other spellings
 through the same harness — so the day Hilbert fixes it, a test fails and says the workaround can go.
+
+## `CS0117` inside `Generated/Hilbert` — a `fn` calling another `fn`
+
+```
+error CS0117: 'Math' does not contain a definition for 'Scatter01'
+error CS0117: 'Tensor' does not contain a definition for 'Scatter01'
+```
+
+The error is **C#**, in a generated file — but the cause is in the `.hb`:
+
+```
+fn scatter01(price, seed) ↦ …
+fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)     -- does not compile
+```
+
+A `fn` that calls another `fn` in the same file is accepted by the Hilbert compiler, and the emitter
+then routes the call to `System.Math.Scatter01` in the `double` overload and
+`MLambda.Hilbert.Runtime.Tensor.Scatter01` in the tensor ones — as though your function were a built-in
+like `floor` or `exp`.
+
+**The shape that fixes it:** a helper that other definitions call is a `def`.
+
+```
+def scatter01(price, seed) ≔ …
+fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)     -- compiles
+```
+
+That is how every Prelude module is written: `def` for anything reused, `fn` for what a caller calls.
+
+**Whatever the intended rule, the silence is a defect.** A program the Hilbert compiler accepts should
+not produce C# that fails to compile, and the error should name the `.hb` line rather than a generated
+one. Found writing [`Credit.hb`](../../src/MLambda.AI.Actuarial/Credit.hb).
