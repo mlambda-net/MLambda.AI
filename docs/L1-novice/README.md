@@ -9,6 +9,6 @@ seen a proof that those consequences always follow.
 | Logic | [logic.md](logic.md) |
 | Agents | [agent.md](agent.md) |
 | Machine learning | [ml.md](ml.md) |
-| Reinforcement learning | arriving with `MLambda.AI.Learning` |
+| Reinforcement learning | [learning.md](learning.md) |
 
 At this level a sample uses no notation it has not introduced: `∀`, `⇒` and `∧`, and nothing else.
