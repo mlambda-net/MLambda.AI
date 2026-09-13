@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>MLambda.AI.Learning</RootNamespace>
     <Description>Reinforcement learning as `.hb` models, and a `.hp` corpus proving the algebra those
       models rely on. The pairing is the argument for this repository.</Description>
