@@ -132,11 +132,33 @@ public class AnimalsTests
         Assert.Empty(await Kinds(engine, "mystery"));
     }
 
+    // ── Animals.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
     [Fact]
-    public void Every_theorem_in_this_sample_was_proved()
+    public void Theorem_what_is_known_is_so() => Theorem.Proved(AnimalsProofs.Prove("what_is_known_is_so"));
+
+    [Fact]
+    public void Theorem_a_cat_is_an_animal() => Theorem.Proved(AnimalsProofs.Prove("a_cat_is_an_animal"));
+
+    [Fact]
+    public void Theorem_classification_climbs_twice() => Theorem.Proved(AnimalsProofs.Prove("classification_climbs_twice"));
+
+    [Fact]
+    public void Theorem_an_animal_found_automatically() => Theorem.Proved(AnimalsProofs.Prove("an_animal_found_automatically"));
+
+    [Fact]
+    public void Every_theorem_in_Animals_hp_has_a_test_above()
     {
-        Assert.Equal(4, AnimalsProofs.All.Count);
-        Assert.All(AnimalsProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "what_is_known_is_so",
+            "a_cat_is_an_animal",
+            "classification_climbs_twice",
+            "an_animal_found_automatically",
+        ];
+
+        Assert.Equal(tested, AnimalsProofs.All.Select(claim => claim.Name));
     }
 
     [Fact]

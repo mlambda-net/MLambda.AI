@@ -89,11 +89,33 @@ public class ChainsTests
         Assert.Contains("stay_home", await Sorted(engine.Truths()));
     }
 
+    // ── Chains.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
     [Fact]
-    public void Every_theorem_was_proved()
+    public void Theorem_one_step() => Theorem.Proved(ChainsProofs.Prove("one_step"));
+
+    [Fact]
+    public void Theorem_two_steps() => Theorem.Proved(ChainsProofs.Prove("two_steps"));
+
+    [Fact]
+    public void Theorem_three_steps() => Theorem.Proved(ChainsProofs.Prove("three_steps"));
+
+    [Fact]
+    public void Theorem_two_steps_found_automatically() => Theorem.Proved(ChainsProofs.Prove("two_steps_found_automatically"));
+
+    [Fact]
+    public void Every_theorem_in_Chains_hp_has_a_test_above()
     {
-        Assert.Equal(4, ChainsProofs.All.Count);
-        Assert.All(ChainsProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "one_step",
+            "two_steps",
+            "three_steps",
+            "two_steps_found_automatically",
+        ];
+
+        Assert.Equal(tested, ChainsProofs.All.Select(claim => claim.Name));
     }
 
     [Fact]
@@ -102,22 +124,6 @@ public class ChainsTests
         // The engine chained one particular set of weather claims; the proof chains any p, q, r, s.
         // That is the difference between the two dialects, in one assertion.
         Assert.Contains("∀", ChainsProofs.ThreeSteps.Claim);
-        Assert.Equal("Proved", ChainsProofs.ThreeSteps.Verdict);
-    }
-
-    [Fact]
-    public void One_step_is_proved_again_when_asked()
-    {
-        // NOT THE BUILD'S VERDICT READ BACK: `Prove` parses Chains.hp and Chains.hs, runs `intro`
-        // and `apply ponens`, and the kernel replays the term -- in this test, now.
-        var verdict = ChainsProofs.Prove("one_step");
-
-        Assert.Equal("Proved", verdict.Status);
-    }
-
-    [Fact]
-    public void Every_theorem_is_proved_again_when_asked()
-    {
-        Assert.All(ChainsProofs.All, claim => Assert.Equal("Proved", ChainsProofs.Prove(claim.Name).Status));
+        Theorem.Proved(ChainsProofs.Prove("three_steps"));
     }
 }

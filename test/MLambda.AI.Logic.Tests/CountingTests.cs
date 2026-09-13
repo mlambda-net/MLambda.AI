@@ -10,11 +10,45 @@ using MLambda.AI.Logic;
 
 public class CountingTests
 {
+    // ── Counting.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
     [Fact]
-    public void Every_certificate_checked()
+    public void Theorem_adding_then_taking_away() => Theorem.Proved(CountingProofs.Prove("adding_then_taking_away"));
+
+    [Fact]
+    public void Theorem_doubling_is_adding_twice() => Theorem.Proved(CountingProofs.Prove("doubling_is_adding_twice"));
+
+    [Fact]
+    public void Theorem_the_square_of_a_sum() => Theorem.Proved(CountingProofs.Prove("the_square_of_a_sum"));
+
+    [Fact]
+    public void Theorem_halfway_between() => Theorem.Proved(CountingProofs.Prove("halfway_between"));
+
+    [Fact]
+    public void Theorem_at_most_composes() => Theorem.Proved(CountingProofs.Prove("at_most_composes"));
+
+    [Fact]
+    public void Theorem_a_strict_step_survives() => Theorem.Proved(CountingProofs.Prove("a_strict_step_survives"));
+
+    [Fact]
+    public void Theorem_four_steps_compose() => Theorem.Proved(CountingProofs.Prove("four_steps_compose"));
+
+    [Fact]
+    public void Every_theorem_in_Counting_hp_has_a_test_above()
     {
-        Assert.Equal(7, CountingProofs.All.Count);
-        Assert.All(CountingProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "adding_then_taking_away",
+            "doubling_is_adding_twice",
+            "the_square_of_a_sum",
+            "halfway_between",
+            "at_most_composes",
+            "a_strict_step_survives",
+            "four_steps_compose",
+        ];
+
+        Assert.Equal(tested, CountingProofs.All.Select(claim => claim.Name));
     }
 
     [Fact]
@@ -51,7 +85,7 @@ public class CountingTests
     {
         // The certificate reaches exactly zero here, and only the strict premise makes zero a
         // contradiction. It is the case that needs the strictness bookkeeping to be real.
-        Assert.Equal("Proved", CountingProofs.AStrictStepSurvives.Verdict);
+        Theorem.Proved(CountingProofs.Prove("a_strict_step_survives"));
         Assert.Contains("<", CountingProofs.AStrictStepSurvives.Claim);
     }
 }

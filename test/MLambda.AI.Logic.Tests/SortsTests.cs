@@ -117,11 +117,57 @@ public class SortsTests
         Assert.DoesNotContain("person", shared);
     }
 
+    // ── Sorts.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
     [Fact]
-    public void Every_theorem_was_proved()
+    public void Theorem_a_declared_kind_falls_under_itself() => Theorem.Proved(SortsProofs.Prove("a_declared_kind_falls_under_itself"));
+
+    [Fact]
+    public void Theorem_subsumption_composes() => Theorem.Proved(SortsProofs.Prove("subsumption_composes"));
+
+    [Fact]
+    public void Theorem_an_instance_climbs() => Theorem.Proved(SortsProofs.Prove("an_instance_climbs"));
+
+    [Fact]
+    public void Theorem_an_instance_climbs_twice() => Theorem.Proved(SortsProofs.Prove("an_instance_climbs_twice"));
+
+    [Fact]
+    public void Theorem_nothing_is_both() => Theorem.Proved(SortsProofs.Prove("nothing_is_both"));
+
+    [Fact]
+    public void Theorem_disjointness_inherits() => Theorem.Proved(SortsProofs.Prove("disjointness_inherits"));
+
+    [Fact]
+    public void Theorem_a_subsort_still_excludes() => Theorem.Proved(SortsProofs.Prove("a_subsort_still_excludes"));
+
+    [Fact]
+    public void Theorem_sameness_climbs() => Theorem.Proved(SortsProofs.Prove("sameness_climbs"));
+
+    [Fact]
+    public void Theorem_sameness_is_symmetric() => Theorem.Proved(SortsProofs.Prove("sameness_is_symmetric"));
+
+    [Fact]
+    public void Theorem_sameness_composes() => Theorem.Proved(SortsProofs.Prove("sameness_composes"));
+
+    [Fact]
+    public void Every_theorem_in_Sorts_hp_has_a_test_above()
     {
-        Assert.Equal(10, SortsProofs.All.Count);
-        Assert.All(SortsProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "a_declared_kind_falls_under_itself",
+            "subsumption_composes",
+            "an_instance_climbs",
+            "an_instance_climbs_twice",
+            "nothing_is_both",
+            "disjointness_inherits",
+            "a_subsort_still_excludes",
+            "sameness_climbs",
+            "sameness_is_symmetric",
+            "sameness_composes",
+        ];
+
+        Assert.Equal(tested, SortsProofs.All.Select(claim => claim.Name));
     }
 
     [Fact]

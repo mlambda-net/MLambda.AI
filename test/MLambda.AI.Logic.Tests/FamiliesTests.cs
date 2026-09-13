@@ -88,10 +88,32 @@ public class FamiliesTests
         Assert.Empty(await Sorted(Family().SiblingsOf("dave")));
     }
 
+    // ── Families.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
     [Fact]
-    public void Every_theorem_was_proved()
+    public void Theorem_a_parent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_parent_is_an_ancestor"));
+
+    [Fact]
+    public void Theorem_a_grandparent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_grandparent_is_an_ancestor"));
+
+    [Fact]
+    public void Theorem_three_generations_compose() => Theorem.Proved(FamiliesProofs.Prove("three_generations_compose"));
+
+    [Fact]
+    public void Theorem_a_parent_of_an_ancestor_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_parent_of_an_ancestor_is_an_ancestor"));
+
+    [Fact]
+    public void Every_theorem_in_Families_hp_has_a_test_above()
     {
-        Assert.Equal(4, FamiliesProofs.All.Count);
-        Assert.All(FamiliesProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "a_parent_is_an_ancestor",
+            "a_grandparent_is_an_ancestor",
+            "three_generations_compose",
+            "a_parent_of_an_ancestor_is_an_ancestor",
+        ];
+
+        Assert.Equal(tested, FamiliesProofs.All.Select(claim => claim.Name));
     }
 }

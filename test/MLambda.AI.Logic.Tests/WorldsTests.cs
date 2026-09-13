@@ -82,18 +82,57 @@ public class WorldsTests
     public void S5_gets_B_and_4_without_being_handed_either()
     {
         // THE THEOREMS WORTH HAVING ARE THE ONES NOBODY GIVES YOU. T and 5 alone yield both.
-        Assert.Equal("Proved", WorldsProofs.BFromTAnd5.Verdict);
-        Assert.Equal("Proved", WorldsProofs.FourFromTAnd5.Verdict);
+        Theorem.Proved(WorldsProofs.Prove("b_from_t_and_5"));
+        Theorem.Proved(WorldsProofs.Prove("four_from_t_and_5"));
     }
 
     [Fact]
     public void And_every_theorem_records_which_axioms_it_leaned_on()
     {
         // "Proved under T and 5" is a different statement from "proved".
-        Assert.Equal(7, WorldsProofs.All.Count);
-        Assert.All(WorldsProofs.All, claim => Assert.Equal("Proved", claim.Verdict));
         Assert.Contains("refl", WorldsProofs.BFromTAnd5.Axioms);
         Assert.Contains("euclid", WorldsProofs.BFromTAnd5.Axioms);
+    }
+
+    // ── Worlds.hp, theorem by theorem: each one proved by the kernel while the test runs ──
+
+    [Fact]
+    public void Theorem_t_gives_every_declared_world_itself() => Theorem.Proved(WorldsProofs.Prove("t_gives_every_declared_world_itself"));
+
+    [Fact]
+    public void Theorem_four_composes() => Theorem.Proved(WorldsProofs.Prove("four_composes"));
+
+    [Fact]
+    public void Theorem_five_relates_what_a_world_sees() => Theorem.Proved(WorldsProofs.Prove("five_relates_what_a_world_sees"));
+
+    [Fact]
+    public void Theorem_b_reverses() => Theorem.Proved(WorldsProofs.Prove("b_reverses"));
+
+    [Fact]
+    public void Theorem_b_from_t_and_5() => Theorem.Proved(WorldsProofs.Prove("b_from_t_and_5"));
+
+    [Fact]
+    public void Theorem_four_from_t_and_5() => Theorem.Proved(WorldsProofs.Prove("four_from_t_and_5"));
+
+    [Fact]
+    public void Theorem_s5_cluster() => Theorem.Proved(WorldsProofs.Prove("s5_cluster"));
+
+    [Fact]
+    public void Every_theorem_in_Worlds_hp_has_a_test_above()
+    {
+        // A THEOREM ADDED TO THE FILE WITHOUT A TEST HERE FAILS THIS, so the list above stays whole.
+        string[] tested =
+        [
+            "t_gives_every_declared_world_itself",
+            "four_composes",
+            "five_relates_what_a_world_sees",
+            "b_reverses",
+            "b_from_t_and_5",
+            "four_from_t_and_5",
+            "s5_cluster",
+        ];
+
+        Assert.Equal(tested, WorldsProofs.All.Select(claim => claim.Name));
     }
 
     [Fact]
