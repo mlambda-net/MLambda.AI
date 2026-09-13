@@ -1,0 +1,104 @@
+-- Identities.hp — what every temporal-difference method agrees on, CHECKED.
+--
+-- THE ALGEBRA A TEXTBOOK DOES ON A WHITEBOARD, and an implementation silently assumes. `QTable.hb`
+-- and `Sarsa.hb` compute targets and subtract estimates; this file proves the identities those
+-- computations stand on, and the build refuses to finish if one of them stops holding.
+--
+-- NO AXIOMS AND NO LEMMAS. Each theorem stands on its own certificate: `ring` normalises both sides
+-- of an identity to the same polynomial, and `linarith` refutes the negation of an inequality with a
+-- non-negative combination the kernel adds up itself. Nothing below leans on the one above it.
+--
+-- WHAT IS NOT HERE, AND WHY — because a corpus that quietly stopped short would be worse than one
+-- that says so:
+--
+--   * THE CONVERGENCE OF VALUE ITERATION is a statement about a LIMIT: the backup is a γ-contraction
+--     in the sup norm, so Banach gives a unique fixed point. The sup-norm step needs a maximum over a
+--     finite index and a limit, and this language's tactics are propositional, modal, inductive,
+--     linear-arithmetic and algebraic. Claiming the theorem would be claiming a proof nobody wrote.
+--   * Q-LEARNING'S ALMOST-SURE CONVERGENCE (Robbins–Monro) is further still, and is not attempted.
+--   * THE GEOMETRIC SUM AT EVERY n wants induction over a Nat-indexed sum. The two-step instances
+--     below are the identities that family is made of, and they are decided rather than assumed.
+--   * A DIVISION BY A VARIABLE is outside a polynomial ring, so 1/(1 − γ) appears only at LITERAL
+--     denominators.
+--   * AN INEQUALITY NEEDING A PRODUCT OF HYPOTHESES is outside a linear certificate. "A step never
+--     overshoots its target" at a SYMBOLIC step size is one; it is proved below at a literal one,
+--     where the product vanishes. The kernel's refusal of the general form is quoted beside it.
+--
+-- Sources: Sutton & Barto, Reinforcement Learning: An Introduction, 2nd ed. (MIT Press 2018) §6.1 for
+-- the temporal-difference error, §12.1 for the λ-return.
+open Identities
+axioms []
+
+-- ── the temporal-difference error ──────────────────────────────────────────────────────────────
+--
+-- THE SINGLE MOST IMPORTANT QUANTITY IN THE FIELD is a backup less the current estimate, and both
+-- halves are written independently in `Prelude/Temporal.hb`. This says they agree — which is
+-- exactly the kind of thing that quietly stops being true.
+
+theorem the_td_error_is_the_backup_less_the_estimate : r + g * v - c = (r + g * v) - c
+proof
+  ring
+qed
+
+-- ── what a step size means ─────────────────────────────────────────────────────────────────────
+--
+-- AT α = 1 NOTHING IS REMEMBERED and at α = 0 nothing is learned. An update rule without both
+-- properties would be mixing in something it never said it was mixing.
+
+theorem a_full_step_replaces_the_estimate : c + 1 * (t - c) = t
+proof
+  ring
+qed
+
+theorem a_null_step_changes_nothing : c + 0 * (t - c) = c
+proof
+  ring
+qed
+
+-- `GridworldTests` spends this one: at rate 0.5 an entry moves exactly halfway to its target.
+theorem a_half_step_lands_halfway : c + (1 / 2) * (t - c) = (c + t) / 2
+proof
+  ring
+qed
+
+-- ── discounting ────────────────────────────────────────────────────────────────────────────────
+
+-- A TWO-STEP RETURN UNROLLS. The discounted value of two rewards and a bootstrap is the rewards
+-- weighted by powers of γ -- the shape every n-step return generalises.
+theorem a_two_step_return_unrolls : r1 + g * (r2 + g * v) = r1 + g * r2 + g * g * v
+proof
+  ring
+qed
+
+-- ── ε-greedy is a distribution ─────────────────────────────────────────────────────────────────
+--
+-- THE TERM EVERY BRANCHING IMPLEMENTATION FORGETS. Over four actions the greedy one is chosen with
+-- 1 − ε + ε/4 and each other with ε/4, and those four chances sum to one. `BanditTests` measures the
+-- three-action version of the same fact; this proves the four-action one for every ε at once.
+-- Stated at a LITERAL four, because ε/n is a division by a variable at any symbolic n.
+theorem an_epsilon_greedy_row_sums_to_one : (1 - e + e / 4) + e / 4 + e / 4 + e / 4 = 1
+proof
+  ring
+qed
+
+-- ── order is preserved, at a literal step size ────────────────────────────────────────────────
+--
+-- A STEP TOWARD A LARGER TARGET NEVER OVERSHOOTS IT -- which is why a tabular learner with rewards
+-- bounded above cannot run away upward. Proved at the step size `GridworldTests` uses, a half.
+--
+-- ONLY AT A LITERAL, on purpose. At a SYMBOLIC step size `a`, `c + a · (t − c) ≤ t` needs the product
+-- of two hypotheses, `(1 − a) · (t − c) ≥ 0`, and a Farkas certificate only ever adds hypotheses
+-- together. The kernel says so exactly: "`linarith` found no linear combination that refutes
+-- c + a · (t - c) ≤ t". There is no `nlinarith` in this language (HP0003).
+--
+-- AND SPELLED `(t − c) / 2`, NOT `(1 / 2) * (t − c)`, for a reason that is Hilbert's and not the
+-- mathematics'. Today `linarith` does not fold `1 / 2` into a constant when it MULTIPLIES something,
+-- so `(1 / 2) · c ≤ (1 / 2) · t` from `c ≤ t` is refused as if it were nonlinear -- while `0.5 · c`,
+-- `2 · c` and `c / 2` all prove, and `ring` accepts `(1 / 2) * (t − c)` in `a_half_step_lands_halfway`
+-- above. The two spellings are the same number. `IdentitiesTests` pins the refusal, so the day it is
+-- fixed a test fails and says this comment can go.
+theorem a_half_step_does_not_pass_its_target : ∀ c t, c <= t ⇒ c + (t - c) / 2 <= t
+proof
+  intro c t below
+  linarith
+qed

@@ -158,3 +158,43 @@ generated `UnreachableFact` carries the subject and the goal, and the sentence l
 source. So a test can assert *that* a goal was abandoned, and cannot yet assert *why* — see
 [`CleanerTests.cs`](../../test/MLambda.AI.Agent.Tests/CleanerTests.cs). The keyword still earns its
 place: it makes the reason a required part of the agent rather than a comment somebody might omit.
+
+## `HP0020` from `linarith` on a claim that is plainly linear
+
+```
+error HP0020: 'a_half_step_does_not_pass_its_target' is not proved:
+`linarith` found no linear combination that refutes c + 1 / 2 · (t - c) ≤ t.
+```
+
+**Two very different causes produce this message, and it matters which one you have.**
+
+### The claim really is nonlinear
+
+At a symbolic step size `a`, the claim `c + a · (t − c) ≤ t` needs the product of two hypotheses —
+`(1 − a) · (t − c) ≥ 0` — and a Farkas certificate only ever **adds** hypotheses together. No spelling
+fixes that, and there is no `nlinarith` (`HP0003: 'nlinarith' is not a tactic`).
+
+**The shape that fixes it:** state the claim at a literal, where the product disappears. `Identities.hp`
+does this for the step size and for ε-greedy over four actions.
+
+### The claim is linear and `1 / 2` is in the wrong place — a gap in Hilbert
+
+Measured, one spelling at a time, all from `c ≤ t`:
+
+| Written as | `linarith` |
+|---|---|
+| `c / 2 ≤ t / 2` | proves |
+| `0.5 * c ≤ 0.5 * t` | proves |
+| `2 * (t − c) ≥ 0` | proves |
+| `c + (t − c) / 2 ≤ t` | proves |
+| `(1 / 2) * c ≤ (1 / 2) * t` | **refused** |
+| `c + (1 / 2) * (t − c) ≤ t` | **refused** |
+
+Today `linarith` does not fold `1 / 2` into a constant when it **multiplies** something, so `(1/2) · c`
+is treated as a product of two terms. It is not the mathematics — `ring` accepts
+`(1 / 2) * (t − c)` without complaint, and `0.5 * c` goes through `linarith` fine.
+
+**The shape that fixes it:** write the half as a divisor, `(t − c) / 2`, or as a decimal.
+
+`IdentitiesTests` pins the refusal against inline source, with a control proving the other spellings
+through the same harness — so the day Hilbert fixes it, a test fails and says the workaround can go.
