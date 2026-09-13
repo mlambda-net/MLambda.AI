@@ -66,4 +66,71 @@ public class LineTests
         Assert.Equal("slopeOf", Line.SlopeOfGraph.Name);
         Assert.Single(Line.SlopeOfGraph.Nodes);
     }
+
+    // ── the fit ────────────────────────────────────────────────────────────────────────────────
+    //
+    // THE DESIGN MATRIX CARRIES A COLUMN OF ONES, which is how a straight line gets an intercept
+    // out of a method that only knows how to weight columns. Column one is x; column two is 1; so
+    // the coefficients come back as [slope, intercept].
+
+    /// <summary>Points from y = 3x + 1, exactly.</summary>
+    private static Matrix Inputs() => new double[,]
+    {
+        { 1d, 1d },
+        { 2d, 1d },
+        { 3d, 1d },
+        { 4d, 1d },
+    };
+
+    private static Vector Outputs() => new double[] { 4d, 7d, 10d, 13d };
+
+    [Fact]
+    public void A_fit_recovers_a_line_it_was_given()
+    {
+        // THE STRONGEST TEST A FIT CAN HAVE. Points from a line with no noise in them, fitted, and
+        // the line comes back. A fit that cannot do this is not a fit, whatever else it does.
+        var line = Line.LineOf(Inputs(), Outputs());
+
+        Assert.Equal(3d, line.Values[0], 6);
+        Assert.Equal(1d, line.Values[1], 6);
+    }
+
+    [Fact]
+    public void And_predicts_where_the_line_goes_next()
+    {
+        var line = Line.LineOf(Inputs(), Outputs());
+        Matrix further = new double[,] { { 10d, 1d } };
+
+        var predicted = Line.PredictWith((Tensor)line, (Tensor)further);
+
+        Assert.Equal(31d, predicted.Values[0], 6);
+    }
+
+    [Fact]
+    public void A_line_with_nothing_left_over_has_no_spread()
+    {
+        // NO NOISE IN, NO SPREAD OUT. The corpus agrees with itself perfectly about these points.
+        Assert.Equal(0d, Line.SpreadOf(Inputs(), Outputs()).Values[0], 6);
+    }
+
+    [Fact]
+    public void And_data_that_disagrees_with_itself_has_some()
+    {
+        // NON-VACUOUS, and the reason spread is reported beside the fit at all. An offer two
+        // thousand above fair value means one thing on a spread of thirty thousand and quite
+        // another on a spread of five hundred.
+        Vector noisy = new double[] { 4d, 8d, 9d, 13d };
+
+        var spread = Line.SpreadOf(Inputs(), noisy).Values[0];
+
+        Assert.True(spread > 0.1d, $"expected the residuals to spread, got {spread}");
+    }
+
+    [Fact]
+    public void The_fitted_values_are_the_line_read_back_at_the_inputs()
+    {
+        var fitted = Line.FittedTo(Inputs(), Outputs());
+
+        Assert.Equal([4d, 7d, 10d, 13d], fitted.Values.Select(v => Math.Round(v, 6)));
+    }
 }
