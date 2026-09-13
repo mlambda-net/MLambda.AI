@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MLambda.AI.Learning</RootNamespace>
+    <Description>Reinforcement learning as `.hb` models, and a `.hp` corpus proving the algebra those
+      models rely on. The pairing is the argument for this repository.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(HilbertRoot)\src\MLambda.Hilbert.Runtime\MLambda.Hilbert.Runtime.csproj" />
+  </ItemGroup>
+
+  <!-- BOTH DIALECTS: `.hb` models that learn, and `.hp` theorems about what they compute. No Shin:
+       nothing in this project is a theory an engine runs. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\MLambda.Hilbert.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>
