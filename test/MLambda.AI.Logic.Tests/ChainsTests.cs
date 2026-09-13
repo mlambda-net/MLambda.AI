@@ -104,4 +104,20 @@ public class ChainsTests
         Assert.Contains("∀", ChainsProofs.ThreeSteps.Claim);
         Assert.Equal("Proved", ChainsProofs.ThreeSteps.Verdict);
     }
+
+    [Fact]
+    public void One_step_is_proved_again_when_asked()
+    {
+        // NOT THE BUILD'S VERDICT READ BACK: `Prove` parses Chains.hp and Chains.hs, runs `intro`
+        // and `apply ponens`, and the kernel replays the term -- in this test, now.
+        var verdict = ChainsProofs.Prove("one_step");
+
+        Assert.Equal("Proved", verdict.Status);
+    }
+
+    [Fact]
+    public void Every_theorem_is_proved_again_when_asked()
+    {
+        Assert.All(ChainsProofs.All, claim => Assert.Equal("Proved", ChainsProofs.Prove(claim.Name).Status));
+    }
 }

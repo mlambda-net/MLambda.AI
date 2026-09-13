@@ -8,6 +8,7 @@
 // EVERY CLAIM PRINTED BELOW IS HILBERT'S. Nothing here decides that fluffy is an animal or that
 // dave is alice's descendant -- the theories say what follows and the engines work it out.
 using MLambda.AI.Logic;
+using MLambda.Hilbert.Proof;
 
 using Zoo = MLambda.AI.Logic.Animals;
 using Kin = MLambda.AI.Logic.Families;
@@ -57,14 +58,16 @@ static async Task Answer(string question, IAsyncEnumerable<string> rows)
     Console.WriteLine($"  {question,-42} {(found.Count == 0 ? "(nothing)" : string.Join(", ", found))}");
 }
 
-static void Verdicts(string title, IReadOnlyList<ProvedClaim> claims)
+// TWO VERDICTS PER CLAIM. The first is what the build checked before this program was allowed to
+// run; the second is `Prove`, the elaborator and the kernel doing that work again, here and now.
+static void Verdicts(string title, IReadOnlyList<ProvedClaim> claims, Func<string, Judged> prove)
 {
     Console.WriteLine();
-    Console.WriteLine($"And what the build checked before this program was allowed to run ({title}):");
+    Console.WriteLine($"And the theorems ({title}) -- as the build checked them, and proved again now:");
 
     foreach (var claim in claims)
     {
-        Console.WriteLine($"  {claim.Verdict,-8} {claim.Name}");
+        Console.WriteLine($"  build {claim.Verdict,-8} now {prove(claim.Name).Status,-8} {claim.Name}");
         Console.WriteLine($"           {claim.Claim}");
     }
 }
@@ -87,7 +90,7 @@ static async Task Animals()
     await Answer("What is fluffy?", zoo.Kinds("fluffy"));
     Console.WriteLine("  'animal' is in that list and nobody put it there.");
 
-    Verdicts("Animals", AnimalsProofs.All);
+    Verdicts("Animals", AnimalsProofs.All, AnimalsProofs.Prove);
 }
 
 static async Task Families()
@@ -114,7 +117,7 @@ static async Task Families()
     Console.WriteLine("  Without it the rule matches bob twice as a child of alice.");
     await Answer("And dave's?", family.SiblingsOf("dave"));
 
-    Verdicts("Families", FamiliesProofs.All);
+    Verdicts("Families", FamiliesProofs.All, FamiliesProofs.Prove);
 }
 
 static async Task Chains()
@@ -135,7 +138,7 @@ static async Task Chains()
     Console.WriteLine("  One was asserted. The other three followed, from a rule that never says");
     Console.WriteLine("  how long a chain may be.");
 
-    Verdicts("Chains", ChainsProofs.All);
+    Verdicts("Chains", ChainsProofs.All, ChainsProofs.Prove);
 }
 
 static async Task Worlds()
@@ -160,7 +163,7 @@ static async Task Worlds()
     Console.WriteLine("  OF FRAME CONDITIONS IS THE CHOICE OF LOGIC: open a different set and");
     Console.WriteLine("  this answer changes.");
 
-    Verdicts("Worlds", WorldsProofs.All);
+    Verdicts("Worlds", WorldsProofs.All, WorldsProofs.Prove);
 }
 
 static void Counting()
@@ -169,7 +172,7 @@ static void Counting()
     Console.WriteLine("Every claim below was decided by a certificate the kernel checked, with");
     Console.WriteLine("`axioms []` — nothing assumed, so nothing here to take on trust.");
 
-    Verdicts("Counting", CountingProofs.All);
+    Verdicts("Counting", CountingProofs.All, CountingProofs.Prove);
 }
 
 static async Task Sorts()
@@ -207,5 +210,5 @@ static async Task Sorts()
     Console.WriteLine("  'person' is NOT there. Sameness climbs and does not descend — two people");
     Console.WriteLine("  can share a seat reservation. No law proves otherwise, on purpose.");
 
-    Verdicts("Sorts", SortsProofs.All);
+    Verdicts("Sorts", SortsProofs.All, SortsProofs.Prove);
 }
