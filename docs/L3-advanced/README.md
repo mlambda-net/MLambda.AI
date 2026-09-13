@@ -14,6 +14,5 @@ At this level a sample may state a **non-theorem** — a claim the corpus delibe
 because knowing what fails is the lesson. It is recorded as a commented claim plus a test asserting
 no proof of it exists, never as `sorry`, which `HilbertProofStrict` rejects.
 
-After this level comes the actuarial capstone — three agents disagreeing about one house
-purchase — which spends everything above on a single decision. It arrives with
-`MLambda.AI.Actuarial`.
+After this level: [the actuarial capstone](../actuarial/) — three agents disagreeing about one real house
+purchase — which spends everything above on a single decision.

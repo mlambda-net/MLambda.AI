@@ -35,6 +35,7 @@ dotnet run --project src/MLambda.AI.Logic     # list the logic samples
 dotnet run --project src/MLambda.AI.Agent     # list the agents
 dotnet run --project src/MLambda.AI.ML        # list the models
 dotnet run --project src/MLambda.AI.Learning  # list the learners
+dotnet run --project src/MLambda.AI.Actuarial # one house, three agents, one verdict
 ```
 
 `HilbertProofStrict` is on, so a theorem that stops checking fails the build and `sorry` is not
@@ -60,11 +61,12 @@ And what the build checked before this program was allowed to run:
 | [`MLambda.AI.Agent`](src/MLambda.AI.Agent/) | BDI agents | `.ha` `.hs` `.hp` |
 | [`MLambda.AI.ML`](src/MLambda.AI.ML/) | machine learning | `.hb` |
 | [`MLambda.AI.Learning`](src/MLambda.AI.Learning/) | reinforcement learning | `.hb` `.hp` |
-| `MLambda.AI.Actuarial` | house-purchase risk, from `houses.csv` | all four |
+| [`MLambda.AI.Actuarial`](src/MLambda.AI.Actuarial/) | house-purchase risk, from `houses.csv` | all four |
 
-`MLambda.AI.Logic` (six samples), `MLambda.AI.Agent` (three agents and the theory beneath them),
-`MLambda.AI.ML` (four models) and `MLambda.AI.Learning` (a bandit, two cliff learners and the algebra
-they rely on) exist today; `MLambda.AI.Actuarial` arrives last.
+All five exist: `MLambda.AI.Logic` (six samples), `MLambda.AI.Agent` (three agents and the theory
+beneath them), `MLambda.AI.ML` (four models), `MLambda.AI.Learning` (a bandit, two cliff learners and the
+algebra they rely on), and the capstone, `MLambda.AI.Actuarial` — three agents, one real house, one
+verdict. Read [docs/actuarial](docs/actuarial/) last.
 
 ## Where to start
 
