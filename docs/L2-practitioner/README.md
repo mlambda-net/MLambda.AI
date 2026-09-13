@@ -7,7 +7,7 @@ which choices are real choices, and which restrictions are the language telling 
 |---|---|
 | Logic | [logic.md](logic.md) |
 | Agents | [agent.md](agent.md) |
-| Machine learning | arriving with `MLambda.AI.ML` |
+| Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | arriving with `MLambda.AI.Learning` |
 
 At this level a sample may open any Prelude module it needs, and may use notation L1 avoided — `⊤`,

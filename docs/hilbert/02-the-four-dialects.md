@@ -51,16 +51,26 @@ See [reading a proof](05-reading-a-proof.md).
 
 ## `.hb` — formulas and models
 
-Mathematics: a function, a neural layer, a stochastic process. Arriving in this repository with
-`MLambda.AI.ML`. The shape:
+Mathematics: a function, a neural layer, a stochastic process. From
+[`Perceptron.hb`](../../src/MLambda.AI.ML/Perceptron.hb):
 
 ```
-model QTable(states, actions) : Learner {
-  weight q : Tensor[states, actions] from 0
-  def train(s, a, rw, s2, done, rate, gamma) { q ≔ nudged(q, …) }
-  def act(s, eps) ≔ einsum("is,sa->a", …)
+model Perceptron(inputs, hidden, seed) : Learner {
+  weight first  : Tensor[inputs, hidden] from gaussian(seed) · 0.5
+  weight second : Tensor[hidden, 1]      from gaussian(seed) · 0.5
+
+  def train(x, y, rate) {
+    first  ≔ stepFirst(rate, x, y, first, second)
+    second ≔ stepSecond(rate, x, y, first, second)
+  }
+
+  def eval(x) ≔ outputs(x, first, second)
 }
 ```
+
+**One `fn` becomes many methods.** The compiler emits each formula once for `double`, once for
+complex numbers, once for every tensor rank with scalar broadcasting, and once more as an **ONNX
+graph** an executor can run. You write the formula once.
 
 Hilbert's own sample project states the rule worth adopting: *"if a line here looks like
 mathematics, it is in the wrong file"* — meaning the mathematics belongs in `.hb`, not in the C#

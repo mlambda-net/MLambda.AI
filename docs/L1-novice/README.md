@@ -8,7 +8,7 @@ seen a proof that those consequences always follow.
 |---|---|
 | Logic | [logic.md](logic.md) |
 | Agents | [agent.md](agent.md) |
-| Machine learning | arriving with `MLambda.AI.ML` |
+| Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | arriving with `MLambda.AI.Learning` |
 
 At this level a sample uses no notation it has not introduced: `∀`, `⇒` and `∧`, and nothing else.

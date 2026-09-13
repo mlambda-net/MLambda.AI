@@ -7,7 +7,7 @@ You want to prove things about the systems, not only build them — and to know 
 |---|---|
 | Logic | [logic.md](logic.md) |
 | Agents | [agent.md](agent.md) |
-| Machine learning | arriving with `MLambda.AI.ML` |
+| Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | arriving with `MLambda.AI.Learning` |
 
 At this level a sample may state a **non-theorem** — a claim the corpus deliberately does not prove,
