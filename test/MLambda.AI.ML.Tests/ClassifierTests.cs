@@ -8,8 +8,13 @@ public class ClassifierTests
 {
     // THE THIRD COLUMN IS A CONSTANT ONE, and without it this classifier cannot be right.
     //
-    // These networks have no bias term, so every unit multiplies its input by its weights and
-    // nothing else. At the input (0, 0) that product is zero whatever the weights are -- so the
+    // NOT A BUG, A DOCUMENTED CONVENTION. Prelude/Networks.hb says in its header: "A BIAS IS A
+    // COLUMN OF ONES IN THE DESIGN ... so no layer here carries one, and a caller who wants a bias
+    // augments `x`." This file first found that out by failing, which is worth admitting: reading
+    // the module header would have said it in one line.
+    //
+    // So no layer has a bias term, and every unit multiplies its input by its weights and nothing
+    // else. At the input (0, 0) that product is zero whatever the weights are -- so the
     // network answers zero there, and no amount of training changes it. XOR as two classes needs
     // the answer [1, 0] at the origin, which a bias-free network can never give.
     //
@@ -22,8 +27,10 @@ public class ClassifierTests
     };
 
     // SEED 1, AND THE REASON IS NOT THAT IT PASSES. Seed 7 -- used everywhere else in this project --
-    // lands this network on a plateau where two rows sit near an even split and training cannot
-    // move them: its loss is 0.25 after 500 steps and still 0.25 after 3000. Seeds 1, 2 and 3 all
+    // kills five of this network's eight hidden units, and the three that survive cannot tell row 0
+    // (0,0,1) from row 2 (1,0,1). Those rows want opposite answers, so the network settles on the
+    // compromise between them, their gradients cancel EXACTLY, and training stops dead: loss 0.25
+    // after 500 steps and after 3000, weights unchanged to the last bit. Seeds 1, 2 and 3 all
     // reach every row correctly. Choosing a seed that happens to pass WITHOUT saying so would be
     // cherry-picking; so seed 7's failure is a test of its own, `A_bad_start_is_not_rescued_by_more_training`.
     private const double GoodSeed = 1d;
@@ -124,17 +131,42 @@ public class ClassifierTests
     [Fact]
     public void A_bad_start_is_not_rescued_by_more_training()
     {
-        // THE LESSON SEED 7 TEACHES, pinned so it stays true. From this initialisation the network
-        // reaches a plateau -- two rows parked near an even split -- and a thousand more steps do
-        // not move it. Gradient descent follows the slope it is standing on; where the slope is
-        // flat it stops, whether or not a better answer exists somewhere else.
+        // THE LESSON SEED 7 TEACHES, pinned so it stays true -- and it is DYING RELU, not a bug.
         //
-        // This is why real training restarts from several seeds and keeps the best, and why "the
-        // loss stopped falling" is not the same claim as "the model is as good as it gets".
-        var shortRun = Trained(StuckSeed, steps: 500).Loss(Xs(), Ys()).Values[0];
-        var longRun = Trained(StuckSeed, steps: 1500).Loss(Xs(), Ys()).Values[0];
+        // A rectified unit whose input is negative for every example outputs zero and passes back a
+        // zero gradient, so it never recovers. By step 500 seed 7 has five of its eight units there
+        // measured after training, so they may have died on the way rather than at the draw. The three
+        // survivors cannot separate the two rows that want opposite answers, so the network sits at
+        // their compromise, where the gradients from those rows cancel exactly.
+        //
+        // NOT A PLATEAU, which is the word an earlier version of this test used. A plateau has a
+        // small slope and training creeps across it. This has NO slope: the weights after 1500
+        // steps are bit-for-bit the weights after 500. More training cannot help, because there is
+        // nothing for it to follow.
+        //
+        // Real training restarts from several seeds and keeps the best, for exactly this reason.
+        var net = Trained(StuckSeed, steps: 500);
+        var weightsAt500 = net.First.Values.ToArray();
 
-        Assert.Equal(shortRun, longRun, 6);
-        Assert.True(longRun > 0.1d, $"expected seed 7 to stay stuck, but its loss reached {longRun}");
+        for (var step = 0; step < 1000; step++)
+        {
+            net.Train(Xs(), Ys(), 0.5);
+        }
+
+        Assert.Equal(weightsAt500, net.First.Values);
+        Assert.True(net.Loss(Xs(), Ys()).Values[0] > 0.1d, "expected seed 7 to stay stuck");
+    }
+
+    [Fact]
+    public void While_a_good_start_is_still_moving_at_the_same_point()
+    {
+        // NON-VACUOUS: the test above would pass for a network whose Train did nothing at all.
+        // Seed 1 at the same step is converged but not frozen -- its weights still change.
+        var net = Trained(GoodSeed, steps: 500);
+        var weightsAt500 = net.First.Values.ToArray();
+
+        net.Train(Xs(), Ys(), 0.5);
+
+        Assert.NotEqual(weightsAt500, net.First.Values);
     }
 }

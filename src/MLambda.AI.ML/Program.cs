@@ -134,9 +134,10 @@ static void Classifier()
     }
 
     Console.WriteLine();
-    Console.WriteLine("Seed 7 is stuck on a plateau, and a thousand more steps change nothing.");
-    Console.WriteLine("Gradient descent follows the slope it stands on — which is why real training");
-    Console.WriteLine("restarts from several seeds and keeps the best.");
+    Console.WriteLine("By step 500, seed 7 has five of its eight hidden units dead. A dead ReLU unit");
+    Console.WriteLine("passes back a zero gradient and never recovers, and the three survivors cannot");
+    Console.WriteLine("tell row 0 from row 2 — so the weights stop changing entirely. That is gradient descent");
+    Console.WriteLine("working correctly, and it is why real training restarts from several seeds.");
 }
 
 static void Nearest()

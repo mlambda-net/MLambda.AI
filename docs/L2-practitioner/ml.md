@@ -113,10 +113,19 @@ scores at (0,0)    0.000   0.000
 
 **Zero for both classes, and no amount of training moves it.**
 
-Here is why. These networks have **no bias term**. Every unit computes *weights × input* and nothing
-else. At the input `(0, 0)`, that product is zero **whatever the weights are**. So the network
-answers zero at the origin, always, and a gradient step changes the weights without changing a
-product of zero.
+Here is why. These networks have **no bias term** — and that is not a bug, it is the library's
+stated convention. `Prelude/Networks.hb` says so in its first paragraph:
+
+> *"A BIAS IS A COLUMN OF ONES IN THE DESIGN, exactly as it is for `Prelude/Multivariate.hb`'s least
+> squares — so no layer here carries one, and a caller who wants a bias augments `x`."*
+
+This project found that out the slow way, by a failing test, when reading the module header would
+have said it in one sentence. Worth the lesson on its own: **read the header of the module you are
+spending before debugging what it did.**
+
+So every unit computes *weights × input* and nothing else. At the input `(0, 0)`, that product is
+zero **whatever the weights are** — so the network answers zero at the origin, always, and a gradient
+step changes the weights without changing a product of zero.
 
 **The fix is the column of ones from [L1](../L1-novice/ml.md#the-column-of-ones):**
 
@@ -149,16 +158,37 @@ With the bias column in place, try four seeds:
 | 3 | 9 × 10⁻²⁸ | 3 × 10⁻³³ | yes |
 | **7** | **0.25** | **0.25** | **no** |
 
-Seed 7 lands on a **plateau**: two rows parked near an even split, and **3000 steps move it not at
-all**. Gradient descent follows the slope it is standing on. Where that slope is flat it stops —
-whether or not a better answer exists somewhere else.
+Seed 7 does not creep slowly. It **stops dead**: the weights after 3000 steps are bit-for-bit the
+weights after 500. That is not a plateau — a plateau has a small slope and training inches across it.
+This has **no slope at all**, and the reason is a well-known failure called **dying ReLU**.
+
+A rectified unit outputs `max(0, z)`. If `z` is negative for every example, the unit outputs zero
+*and passes back a zero gradient* — so it never learns its way out. Look inside seed 7 after
+training:
+
+| | Seed 7 | Seed 1 |
+|---|---|---|
+| Dead hidden units | **5 of 8** | 2 of 8 |
+| Weight change, step 500 → 1500 | **exactly 0** | still moving |
+
+By step 500, five of seed 7's eight units are dead — measured after training, so some may have died
+along the way rather than at the draw. The three survivors fire in patterns that **cannot tell row 0
+`(0,0,1)` from row 2 `(1,0,1)`** — and those two rows want opposite answers. So the network settles
+on the compromise between them, where their gradients cancel exactly, and there is nothing left for
+descent to follow.
+
+Seed 1 keeps six units alive, firing in enough different patterns to separate every row.
+
+**This is gradient descent behaving correctly**, not a flaw in Hilbert: seed 1 reaching 10⁻³¹ is the
+evidence that the gradients are right.
 
 That is why real training restarts from several seeds and keeps the best, and why *"the loss stopped
 falling"* is not the same claim as *"the model is as good as it gets"*.
 
 **The tests do not quietly switch to a seed that passes.** They use seed 1, say why, and pin seed 7's
-plateau as a test of its own. Choosing a passing seed without saying so would be cherry-picking, and a
-reader who later tried seed 7 would find out the hard way.
+stuck state as a test of its own — asserting the weights do not move by a single bit. Choosing a
+passing seed without saying so would be cherry-picking, and a reader who later tried seed 7 would
+find out the hard way.
 
 ## Run them
 

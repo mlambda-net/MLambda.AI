@@ -4,7 +4,8 @@
 // can. A perceptron that learned AND would prove nothing a straight line had not already proved.
 //
 // ONE OF ITS FOUR ANSWERS IS NOT LEARNED, and it is worth being exact about which. This network has
-// no bias term, so at the input (0, 0) every unit multiplies zero by its weights and the network
+// no bias term -- Prelude/Networks.hb's documented convention, "a caller who wants a bias augments
+// `x`" -- so at the input (0, 0) every unit multiplies zero by its weights and the network
 // answers zero whatever it has learned. XOR's target there happens to BE zero, so that row comes
 // out right for free. The other three rows are genuinely learned.
 //

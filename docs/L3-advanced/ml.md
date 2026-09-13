@@ -78,13 +78,15 @@ these tests asks, and none of them should be read as answering it.
 
 ### A loss that stopped falling is not a model that is as good as it gets
 
-Seed 7 parks the classifier on a plateau at 0.25 and thousands more steps do not move it, while seeds
-1, 2 and 3 reach every row. See [L2](../L2-practitioner/ml.md#a-bad-start-is-not-rescued-by-more-training).
+Seed 7 kills five of the classifier's eight hidden units, and the weights then stop changing
+**entirely** — bit-for-bit identical after thousands more steps — while seeds 1, 2 and 3 reach every
+row. See [L2](../L2-practitioner/ml.md#a-bad-start-is-not-rescued-by-more-training).
 Convergence is a property of *where you started*, not only of the problem.
 
 ### Some answers are forced rather than learned
 
-A network with no bias term answers zero at the origin whatever its weights are. When the target
+A network with no bias term — which is `Prelude.Networks`' documented convention, not an accident —
+answers zero at the origin whatever its weights are. When the target
 there happens to be zero, the network is right for free — and a report that counted that row as
 learned would be overstating. The Perceptron's XOR result has exactly one such row, and its test file
 says which.
