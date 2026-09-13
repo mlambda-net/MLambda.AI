@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MLambda.AI.ML</RootNamespace>
+    <Description>Machine learning as `.hb` models over tensors. The mathematics is in the Hilbert
+      files; the one C# file fits them on a fixture and prints the error falling.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- THE ONE THING A `.hb` CONSUMER REFERENCES: the objects the generated code is over. No Shin
+         runtime and no Semantic here — those are for `.hs` and `.ha`, and this project has
+         neither. The compiler is a build-time tool reached through the Import. -->
+    <ProjectReference Include="$(HilbertRoot)\src\MLambda.Hilbert.Runtime\MLambda.Hilbert.Runtime.csproj" />
+  </ItemGroup>
+
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\MLambda.Hilbert.targets" />
+</Project>
