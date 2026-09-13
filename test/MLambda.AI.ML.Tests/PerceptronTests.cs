@@ -2,6 +2,15 @@
 //
 // XOR IS THE FIXTURE because it is the smallest problem a single layer cannot solve and two layers
 // can. A perceptron that learned AND would prove nothing a straight line had not already proved.
+//
+// ONE OF ITS FOUR ANSWERS IS NOT LEARNED, and it is worth being exact about which. This network has
+// no bias term, so at the input (0, 0) every unit multiplies zero by its weights and the network
+// answers zero whatever it has learned. XOR's target there happens to BE zero, so that row comes
+// out right for free. The other three rows are genuinely learned.
+//
+// `ClassifierTests` shows the same architecture failing at the origin, because XOR written as two
+// classes needs [1, 0] there -- and fixes it with a constant column of ones, which is the same way
+// `Line` gets an intercept.
 namespace MLambda.AI.ML.Tests;
 
 using MLambda.AI.ML;
