@@ -1,0 +1,47 @@
+-- Risk.hp — what holds of every agent judging a purchase, whatever the purchase is.
+--
+-- THE PROPERTY THE ADJUDICATOR LEANS ON: an agent cannot find the same offer both acceptable and
+-- ruinous. When the adjudicator trusts a "buy", this is why it may. It is written as a derivation of
+-- absurdity, the way Sorts.hp writes disjointness, because there is no negated goal to introduce.
+open Risk
+axioms [serialB, serialD, serialI, transB, euclidB, realism, clears, exclusive]
+
+-- ── judging an offer ───────────────────────────────────────────────────────────────────────────
+
+theorem an_assessed_offer_within_tolerance_is_acceptable : ∀ i o, assessed(i, o) ⇒ within(i, o) ⇒ acceptable(i, o)
+proof
+  intro i o looked inside
+  apply clears [looked, inside]
+qed
+
+-- AN OFFER CANNOT BE ACCEPTABLE AND RUINOUS TO THE SAME AGENT. Two steps: tolerance makes it acceptable,
+-- and acceptable beside ruinous is a contradiction. An agent that reported both would be incoherent,
+-- and the adjudicator is entitled to treat that as absurd rather than as a split vote.
+theorem an_acceptable_offer_is_not_also_ruinous : ∀ i o, assessed(i, o) ⇒ within(i, o) ⇒ ruinous(i, o) ⇒ absurd(i)
+proof
+  intro i o looked inside ruin
+  have fine : acceptable(i, o) by apply clears [looked, inside]
+  apply exclusive [fine, ruin]
+qed
+
+-- ── the attitudes, carried over from Agency ────────────────────────────────────────────────────
+
+theorem belief_composes : ∀ i w u v, believes(i, w, u) ⇒ believes(i, u, v) ⇒ believes(i, w, v)
+proof
+  intro i w u v first second
+  apply transB [first, second]
+qed
+
+-- WHAT AN AGENT DESIRES, IT INTENDS -- realism as R_D ⊆ R_I, since `I(i) p ⇒ D(i) p` is HS0020.
+theorem what_is_desired_is_intended : ∀ i w u, desires(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u wanted
+  apply realism [wanted]
+qed
+
+theorem a_seeded_desire_is_intended : ∀ i w u, desireSucc(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u seeded
+  have wanted : desires(i, w, u) by apply serialD [seeded]
+  apply realism [wanted]
+qed
