@@ -1,0 +1,31 @@
+-- Adjudicator.hp — what holds of the veto whatever the agents say.
+open Adjudicator
+axioms [vetoed, contested, heard, heard_too]
+
+-- ONE WALK IS ENOUGH. It does not matter how many other agents said buy: a single walk vote marks the
+-- purchase walked. This is the asymmetry the header argues for, stated and checked.
+theorem one_walk_is_enough : ∀ a p, walks(a, p) ⇒ walked(p)
+proof
+  intro a p refused
+  apply vetoed [refused]
+qed
+
+-- A HAGGLE IS HEARD, and it is also a vote -- so a purchase where one agent negotiated and none walked
+-- has been voted on, which is what lets `verdict_negotiate` fire without a separate "somebody voted" fact.
+theorem a_haggle_is_a_vote : ∀ a p, haggles(a, p) ⇒ voted(p)
+proof
+  intro a p asked
+  apply heard_too [asked]
+qed
+
+theorem a_haggle_contests_the_purchase : ∀ a p, haggles(a, p) ⇒ haggled(p)
+proof
+  intro a p asked
+  apply contested [asked]
+qed
+
+theorem a_buy_is_a_vote : ∀ a p, buys(a, p) ⇒ voted(p)
+proof
+  intro a p agreed
+  apply heard [agreed]
+qed
