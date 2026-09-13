@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>MLambda.AI.Actuarial</RootNamespace>
     <Description>Three agents disagreeing about one house purchase, an adjudicator reconciling them,
       and a reserve from ruin theory. Everything the other four projects taught, spent on one
