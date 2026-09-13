@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MLambda.AI.Actuarial</RootNamespace>
+    <Description>Three agents disagreeing about one house purchase, an adjudicator reconciling them,
+      and a reserve from ruin theory. Everything the other four projects taught, spent on one
+      decision.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- A FRAME'S `path` IS A LITERAL BAKED INTO THE GENERATED CODE, but the process runs from
+         wherever it was launched: `dotnet run` from this directory disagrees with an xunit host,
+         whose working directory is its own bin/. Copying the corpus to the output, plus
+         Csv.Resolve's fallback to AppContext.BaseDirectory, makes one relative literal resolve from
+         both, and MSBuild's content propagation carries it into the test project too. -->
+    <None Include="data\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(HilbertRoot)\src\MLambda.Hilbert.Runtime\MLambda.Hilbert.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Shin\src\MLambda.Shin.Runtime\MLambda.Shin.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Church\src\MLambda.Church.Semantic\MLambda.Church.Semantic.csproj" />
+  </ItemGroup>
+
+  <!-- ALL FOUR DIALECTS IN ONE PROJECT, which is the point of the capstone. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\MLambda.Hilbert.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>

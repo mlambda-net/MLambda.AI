@@ -4,11 +4,13 @@
     <Project Path="src/MLambda.AI.Agent/MLambda.AI.Agent.csproj" />
     <Project Path="src/MLambda.AI.ML/MLambda.AI.ML.csproj" />
     <Project Path="src/MLambda.AI.Learning/MLambda.AI.Learning.csproj" />
+    <Project Path="src/MLambda.AI.Actuarial/MLambda.AI.Actuarial.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/MLambda.AI.Logic.Tests/MLambda.AI.Logic.Tests.csproj" />
     <Project Path="test/MLambda.AI.Agent.Tests/MLambda.AI.Agent.Tests.csproj" />
     <Project Path="test/MLambda.AI.ML.Tests/MLambda.AI.ML.Tests.csproj" />
     <Project Path="test/MLambda.AI.Learning.Tests/MLambda.AI.Learning.Tests.csproj" />
+    <Project Path="test/MLambda.AI.Actuarial.Tests/MLambda.AI.Actuarial.Tests.csproj" />
   </Folder>
 </Solution>
