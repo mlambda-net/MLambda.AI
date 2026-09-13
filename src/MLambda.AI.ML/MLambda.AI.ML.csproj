@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>MLambda.AI.ML</RootNamespace>
     <Description>Machine learning as `.hb` models over tensors. The mathematics is in the Hilbert
       files; the one C# file fits them on a fixture and prints the error falling.</Description>
