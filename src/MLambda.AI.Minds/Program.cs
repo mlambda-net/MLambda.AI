@@ -10,6 +10,7 @@ using MLambda.Shin.Runtime;
 using Light = MLambda.AI.Minds.Traffic;
 using Rules = MLambda.AI.Minds.Duty;
 using Door = MLambda.AI.Minds.Knowledge;
+using Kitchen = MLambda.AI.Minds.Mind;
 
 if (args.Length == 0)
 {
@@ -28,6 +29,7 @@ switch (args[0].ToLowerInvariant())
     case "traffic": await Traffic(); break;
     case "duty": await Duty(); break;
     case "knowledge": await Knowledge(); break;
+    case "mind": await Mind(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -150,4 +152,44 @@ static async Task Knowledge()
     Console.WriteLine("  and it is not. Belief is KD45 and has no law that makes it true; knowledge is S5.");
 
     Verdicts("Knowledge", typeof(KnowledgeProofs));
+}
+
+static async Task Mind()
+{
+    Console.WriteLine("A kitchen robot. The kettle is on; the cup is dirty, but the robot could not see it.");
+    Console.WriteLine("It wants tea and has planned for a clean cup.");
+    Console.WriteLine();
+
+    var robot = Kitchen.MindEngineFactory.Create();
+    robot.AssertAll([
+        new Kitchen.AgentFact("robot"),
+        new Kitchen.WorldFact("now"), new Kitchen.WorldFact("clean_cup"), new Kitchen.WorldFact("tea"),
+        new Kitchen.PropFact("kettle_on"), new Kitchen.PropFact("cup_clean"), new Kitchen.PropFact("tea_made"),
+        new Kitchen.HoldsFact("now", "kettle_on"),
+        new Kitchen.HoldsFact("clean_cup", "kettle_on"), new Kitchen.HoldsFact("clean_cup", "cup_clean"),
+        new Kitchen.HoldsFact("tea", "kettle_on"), new Kitchen.HoldsFact("tea", "cup_clean"), new Kitchen.HoldsFact("tea", "tea_made"),
+        new Kitchen.GlimpseFact("robot", "now", "clean_cup"),
+        new Kitchen.GuessFact("robot", "now", "clean_cup"),
+        new Kitchen.WishFact("robot", "now", "tea"),
+        new Kitchen.PlanFact("robot", "now", "clean_cup"),
+    ]);
+
+    var known = await Listed(robot.Known("robot", "now"));
+    var believed = await Listed(robot.Believed("robot", "now"));
+    var desired = await Listed(robot.Desired("robot", "now"));
+    var intended = await Listed(robot.Intended("robot", "now"));
+
+    static string Mark(string list, string p) => list.Split(", ").Contains(p) ? "yes" : "-";
+
+    Console.WriteLine("  proposition   knows  believes  desires  intends");
+    foreach (var p in new[] { "kettle_on", "cup_clean", "tea_made" })
+    {
+        Console.WriteLine($"  {p,-12}  {Mark(known, p),-5}  {Mark(believed, p),-8}  {Mark(desired, p),-7}  {Mark(intended, p)}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("  It believes the cup is clean and does not know it. It wants tea that is not made.");
+    Console.WriteLine("  It intends a clean cup, because every world it is committed to has one.");
+
+    Verdicts("Mind", typeof(MindProofs));
 }

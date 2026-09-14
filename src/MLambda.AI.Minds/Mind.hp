@@ -1,0 +1,37 @@
+-- Mind.hp — the laws that tell the four attitudes apart.
+--
+-- WHAT IS NOT HERE: that desire is factive. No law concludes `desires(i, w, w)`, and `RefusalTests`
+-- asks the kernel for it and watches it refuse — wanting tea does not make tea.
+open Mind
+axioms [reflK, seenK, transK, euclidK, serialB, within, serialD, serialI, realism]
+
+theorem what_is_known_is_true_of_this_world : ∀ i w, agent(i) ⇒ world(w) ⇒ knows(i, w, w)
+proof
+  intro i w a x
+  apply reflK [a, x]
+qed
+
+theorem believing_stays_within_knowing : ∀ i w u, believes(i, w, u) ⇒ knows(i, w, u)
+proof
+  intro i w u b
+  apply within [b]
+qed
+
+theorem a_wish_is_desired : ∀ i w u, wish(i, w, u) ⇒ desires(i, w, u)
+proof
+  intro i w u w1
+  apply serialD [w1]
+qed
+
+theorem a_plan_is_intended : ∀ i w u, plan(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u p
+  apply serialI [p]
+qed
+
+theorem what_you_wish_for_you_intend : ∀ i w u, wish(i, w, u) ⇒ intends(i, w, u)
+proof
+  intro i w u w1
+  have wanted : desires(i, w, u) by apply serialD [w1]
+  apply realism [wanted]
+qed

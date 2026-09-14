@@ -39,6 +39,16 @@ public class RefusalTests
     }
 
     [Fact]
+    public void Desire_is_not_factive_either()
+    {
+        // Wanting tea does not make tea. KD and realism conclude nothing about `desires(i, w, w)`.
+        var verdict = Theorem.Attempt(
+            "Mind", "serialD, realism", "∀ i w, agent(i) ⇒ world(w) ⇒ desires(i, w, w)", "  intro i w a x\n  auto");
+
+        Assert.Equal("Rejected", verdict.Status);
+    }
+
+    [Fact]
     public void Duty_has_an_ideal_where_one_was_seeded_through_this_harness()
     {
         Theorem.Proved(Theorem.Attempt(
