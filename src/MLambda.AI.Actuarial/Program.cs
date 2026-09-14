@@ -9,6 +9,7 @@
 // genuinely disagree about. It is asked at 10% over what it actually sold for. The LOAN is not real,
 // and every line that depends on it says so.
 using MLambda.AI.Actuarial;
+using MLambda.Hilbert.Proof;
 using MLambda.Hilbert.Runtime;
 
 using Cond = MLambda.AI.Actuarial.ConditionAgent;
@@ -211,9 +212,22 @@ foreach (var setAside in new[] { 30000d, 20000d })
     Console.WriteLine();
 }
 
-Console.WriteLine("And what the build proved before this ran:");
+// EACH THEOREM IS A METHOD, AND CALLING IT IS THE PROOF: the kernel replays it here, now, from the
+// `.hp` embedded in this assembly -- nothing below is a verdict the build wrote down.
+Console.WriteLine("And what the kernel proves as this runs:");
 
-foreach (var claim in AdjudicatorProofs.All.Concat(RiskProofs.All.Take(2)))
+Func<Judged>[] theorems =
+[
+    AdjudicatorProofs.OneWalkIsEnough,
+    AdjudicatorProofs.AHaggleIsAVote,
+    AdjudicatorProofs.AHaggleContestsThePurchase,
+    AdjudicatorProofs.ABuyIsAVote,
+    RiskProofs.AnAssessedOfferWithinToleranceIsAcceptable,
+    RiskProofs.AnAcceptableOfferIsNotAlsoRuinous,
+];
+
+foreach (var theorem in theorems)
 {
-    Console.WriteLine($"  {claim.Verdict,-8} {claim.Name}");
+    var verdict = theorem();
+    Console.WriteLine($"  {verdict.Status,-8} {verdict.Name}");
 }

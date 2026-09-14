@@ -101,17 +101,17 @@ So the next step was to change one thing at a time:
 | `c + (t − c) / 2 ≤ t` | proves |
 | `(1 / 2) * c ≤ (1 / 2) * t` | **refused** |
 
-`linarith` does not fold `1 / 2` into a constant when it *multiplies* something. That is a gap in
+`linarith` did not fold `1 / 2` into a constant when it *multiplied* something. That was a gap in
 Hilbert, not in the mathematics — `ring` accepts the same expression, and `0.5` goes straight through.
 
 The two refusals print almost identical messages. **One is a true limit of the method and one is an
 implementation gap**, and the only way to tell them apart was to vary the spelling until the boundary
 showed.
 
-The shipped theorem is written `(t − c) / 2`, with a comment saying why. And a test pins the gap: it
-proves the working spellings through `Prover.Prove` on inline source — a control, so the test cannot
-pass for a broken harness — then asserts the `(1 / 2) *` spelling is still refused. **The day Hilbert
-fixes it, that test fails and says what to delete.**
+The theorem shipped as `(t − c) / 2` for a while, and a test pinned the gap, asserting the `(1 / 2) *`
+spelling was refused so that the fix would be noticed. It was: Hilbert's `linarith` now reads any
+constant multiplier as a coefficient. The theorem is spelled `(1 / 2) * (t − c)` again, and the test
+now proves that spelling beside the control that proves the others.
 
 ## Run it
 
@@ -127,10 +127,8 @@ Every theorem is proved again as it prints, not read back from the build.
 
 - Every theorem in `Identities.hp` proved by the kernel while the test runs, one test each, with a
   guard that fails if a theorem is added without one.
-- None of them assumed anything.
 - The step size the gridworld uses is the one proved safe.
-- `linarith` proves a half written as a divisor or a decimal — **and today refuses it written as
-  `(1 / 2) *`**, pinned so the fix is noticed.
+- `linarith` proves a half written as a divisor, a decimal, or `(1 / 2) *`.
 
 ## Try it yourself
 

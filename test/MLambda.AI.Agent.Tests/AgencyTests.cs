@@ -15,40 +15,8 @@ public class AgencyTests
         // KD45 FOR BELIEF, KD FOR THE OTHER TWO -- Rao and Georgeff's own assignment. An agent
         // knows what it believes and knows what it does not believe; nothing of the kind is true
         // of wanting, so there is no transD and no euclidD to prove anything from.
-        Theorem.Proved(AgencyProofs.Prove("belief_composes"));
-        Theorem.Proved(AgencyProofs.Prove("belief_is_euclidean"));
-
-        Assert.Contains("transB", AgencyProofs.BeliefComposes.Axioms);
-        Assert.DoesNotContain("transD", AgencyProofs.BeliefComposes.Axioms);
-        Assert.DoesNotContain("transI", AgencyProofs.BeliefComposes.Axioms);
-    }
-
-    [Fact]
-    public void Realism_is_stated_over_relations_not_modalities()
-    {
-        // `I(i) p ⇒ D(i) p` is an implication under a universal in a head, which Horn cannot
-        // express (HS0020). Correspondence theory gives R_D ⊆ R_I instead, and the claim shows it:
-        // two relations, no modality.
-        var realism = AgencyProofs.WhatIsDesiredIsIntended.Claim;
-
-        Assert.Contains("desires", realism);
-        Assert.Contains("intends", realism);
-        Assert.DoesNotContain("D(", realism);
-        Assert.DoesNotContain("I(", realism);
-    }
-
-    [Fact]
-    public void Seriality_says_a_seeded_successor_is_accessible_and_no_more()
-    {
-        // WHAT AXIOM D CANNOT SAY HERE. The theorem is an implication FROM a seed, not a claim
-        // that every world has one -- because an existential in a head is HS0022. Seriality holds
-        // by construction of the seeding, and a reader who expects otherwise will meet a frame
-        // that quietly fails to be serial.
-        var seeded = AgencyProofs.ASeededBeliefIsAccessible.Claim;
-
-        Assert.Contains("beliefSucc", seeded);
-        Assert.Contains("⇒", seeded);
-        Assert.DoesNotContain("∃", seeded);
+        Theorem.Proved(AgencyProofs.BeliefComposes());
+        Theorem.Proved(AgencyProofs.BeliefIsEuclidean());
     }
 
     [Fact]
@@ -56,31 +24,31 @@ public class AgencyTests
     {
         // Seriality makes the seed a desire; realism carries it across. Every "an agent that wants
         // X will try for X" claim reduces to this, and it is worth seeing it reduce.
-        Theorem.Proved(AgencyProofs.Prove("a_seeded_desire_is_intended"));
+        Theorem.Proved(AgencyProofs.ASeededDesireIsIntended());
     }
 
     // ── Agency.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_belief_composes() => Theorem.Proved(AgencyProofs.Prove("belief_composes"));
+    public void Theorem_belief_composes() => Theorem.Proved(AgencyProofs.BeliefComposes());
 
     [Fact]
-    public void Theorem_belief_is_euclidean() => Theorem.Proved(AgencyProofs.Prove("belief_is_euclidean"));
+    public void Theorem_belief_is_euclidean() => Theorem.Proved(AgencyProofs.BeliefIsEuclidean());
 
     [Fact]
-    public void Theorem_belief_reaches_three_deep() => Theorem.Proved(AgencyProofs.Prove("belief_reaches_three_deep"));
+    public void Theorem_belief_reaches_three_deep() => Theorem.Proved(AgencyProofs.BeliefReachesThreeDeep());
 
     [Fact]
-    public void Theorem_what_is_desired_is_intended() => Theorem.Proved(AgencyProofs.Prove("what_is_desired_is_intended"));
+    public void Theorem_what_is_desired_is_intended() => Theorem.Proved(AgencyProofs.WhatIsDesiredIsIntended());
 
     [Fact]
-    public void Theorem_a_seeded_desire_is_intended() => Theorem.Proved(AgencyProofs.Prove("a_seeded_desire_is_intended"));
+    public void Theorem_a_seeded_desire_is_intended() => Theorem.Proved(AgencyProofs.ASeededDesireIsIntended());
 
     [Fact]
-    public void Theorem_a_seeded_belief_is_accessible() => Theorem.Proved(AgencyProofs.Prove("a_seeded_belief_is_accessible"));
+    public void Theorem_a_seeded_belief_is_accessible() => Theorem.Proved(AgencyProofs.ASeededBeliefIsAccessible());
 
     [Fact]
-    public void Theorem_an_intention_seeded_is_held() => Theorem.Proved(AgencyProofs.Prove("an_intention_seeded_is_held"));
+    public void Theorem_an_intention_seeded_is_held() => Theorem.Proved(AgencyProofs.AnIntentionSeededIsHeld());
 
     [Fact]
     public void Every_theorem_in_Agency_hp_has_a_test_above()
@@ -97,6 +65,6 @@ public class AgencyTests
             "an_intention_seeded_is_held",
         ];
 
-        Assert.Equal(tested, AgencyProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(AgencyProofs)));
     }
 }

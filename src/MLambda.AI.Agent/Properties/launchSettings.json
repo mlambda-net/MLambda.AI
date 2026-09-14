@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "List": {
+      "commandName": "Project"
+    },
+    "Thermostat": {
+      "commandName": "Project",
+      "commandLineArgs": "Thermostat"
+    },
+    "Collector": {
+      "commandName": "Project",
+      "commandLineArgs": "Collector"
+    },
+    "Cleaner": {
+      "commandName": "Project",
+      "commandLineArgs": "Cleaner"
+    },
+    "Agency": {
+      "commandName": "Project",
+      "commandLineArgs": "Agency"
+    }
+  }
+}

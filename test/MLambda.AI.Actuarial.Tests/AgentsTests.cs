@@ -174,19 +174,19 @@ public class AgentsTests
     // ── Risk.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_an_assessed_offer_within_tolerance_is_acceptable() => Theorem.Proved(RiskProofs.Prove("an_assessed_offer_within_tolerance_is_acceptable"));
+    public void Theorem_an_assessed_offer_within_tolerance_is_acceptable() => Theorem.Proved(RiskProofs.AnAssessedOfferWithinToleranceIsAcceptable());
 
     [Fact]
-    public void Theorem_an_acceptable_offer_is_not_also_ruinous() => Theorem.Proved(RiskProofs.Prove("an_acceptable_offer_is_not_also_ruinous"));
+    public void Theorem_an_acceptable_offer_is_not_also_ruinous() => Theorem.Proved(RiskProofs.AnAcceptableOfferIsNotAlsoRuinous());
 
     [Fact]
-    public void Theorem_belief_composes() => Theorem.Proved(RiskProofs.Prove("belief_composes"));
+    public void Theorem_belief_composes() => Theorem.Proved(RiskProofs.BeliefComposes());
 
     [Fact]
-    public void Theorem_what_is_desired_is_intended() => Theorem.Proved(RiskProofs.Prove("what_is_desired_is_intended"));
+    public void Theorem_what_is_desired_is_intended() => Theorem.Proved(RiskProofs.WhatIsDesiredIsIntended());
 
     [Fact]
-    public void Theorem_a_seeded_desire_is_intended() => Theorem.Proved(RiskProofs.Prove("a_seeded_desire_is_intended"));
+    public void Theorem_a_seeded_desire_is_intended() => Theorem.Proved(RiskProofs.ASeededDesireIsIntended());
 
     [Fact]
     public void Every_theorem_in_Risk_hp_has_a_test_above()
@@ -201,6 +201,6 @@ public class AgentsTests
             "a_seeded_desire_is_intended",
         ];
 
-        Assert.Equal(tested, RiskProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(RiskProofs)));
     }
 }

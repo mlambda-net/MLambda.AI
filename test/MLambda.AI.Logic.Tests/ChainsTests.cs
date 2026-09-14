@@ -92,16 +92,16 @@ public class ChainsTests
     // ── Chains.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_one_step() => Theorem.Proved(ChainsProofs.Prove("one_step"));
+    public void Theorem_one_step() => Theorem.Proved(ChainsProofs.OneStep());
 
     [Fact]
-    public void Theorem_two_steps() => Theorem.Proved(ChainsProofs.Prove("two_steps"));
+    public void Theorem_two_steps() => Theorem.Proved(ChainsProofs.TwoSteps());
 
     [Fact]
-    public void Theorem_three_steps() => Theorem.Proved(ChainsProofs.Prove("three_steps"));
+    public void Theorem_three_steps() => Theorem.Proved(ChainsProofs.ThreeSteps());
 
     [Fact]
-    public void Theorem_two_steps_found_automatically() => Theorem.Proved(ChainsProofs.Prove("two_steps_found_automatically"));
+    public void Theorem_two_steps_found_automatically() => Theorem.Proved(ChainsProofs.TwoStepsFoundAutomatically());
 
     [Fact]
     public void Every_theorem_in_Chains_hp_has_a_test_above()
@@ -115,15 +115,14 @@ public class ChainsTests
             "two_steps_found_automatically",
         ];
 
-        Assert.Equal(tested, ChainsProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(ChainsProofs)));
     }
 
     [Fact]
     public void The_chain_is_proved_for_any_links_at_all()
     {
-        // The engine chained one particular set of weather claims; the proof chains any p, q, r, s.
-        // That is the difference between the two dialects, in one assertion.
-        Assert.Contains("∀", ChainsProofs.ThreeSteps.Claim);
-        Theorem.Proved(ChainsProofs.Prove("three_steps"));
+        // The engine chained one particular set of weather claims; the proof chains any p, q, r, s
+        // (`∀ p q r s` in Chains.hp). That is the difference between the two dialects, in one assertion.
+        Theorem.Proved(ChainsProofs.ThreeSteps());
     }
 }

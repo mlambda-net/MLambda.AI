@@ -78,25 +78,19 @@ condition written `B(self) count(seen)` runs as `count(id, seen)` at the actual 
 so wherever a reader could be misled — the same line then means two things in two places, and that
 is worth a sentence in the docs rather than a silent surprise.
 
-## A query that answers nothing
-
-Not an error code — it compiles and returns an empty stream.
-
-A query's generated method takes its parameters in **declaration** order, but the goal is built in
-**body-atom** order, and the two are assumed to match. When they do not, inputs and outputs silently
-swap:
+## A query whose parameters are in a different order than its body — fixed
 
 ```
 query members(kind: Thing, who?: Thing) :- is_a(who, kind)
 ```
 
-declares `(kind, who?)` but its body atom is `(who, kind)`. `Members("animal")` binds `"animal"` to
-`who` and asks `is_a("animal", ?)` — which is empty.
+declares `(kind, who?)` but its body atom is `(who, kind)`. The generated method used to pass its
+arguments by position, so `Members("animal")` bound `"animal"` to `who` and asked `is_a("animal", ?)`:
+an empty stream, and no error. A yes/no query with every parameter an input was worse: it answered
+the **reversed** question.
 
-**Until this is fixed in the compiler:** write the body atom's arguments in the same order as the
-query's parameters, inputs first and the `?` output last. The reverse query in `Animals.hs` is
-commented out rather than worked around, because the workaround needs a reversed relation and a
-first sample is the wrong place to teach one.
+MLambda.Shin now binds a query's inputs and outputs **by name**, so the declaration order and the
+body order are free to differ. `Animals.hs` asks `is_a` from both ends, `kinds` and `members`.
 
 ## Writing an agent: three things the language insists on
 
@@ -177,56 +171,34 @@ fixes that, and there is no `nlinarith` (`HP0003: 'nlinarith' is not a tactic`).
 **The shape that fixes it:** state the claim at a literal, where the product disappears. `Identities.hp`
 does this for the step size and for ε-greedy over four actions.
 
-### The claim is linear and `1 / 2` is in the wrong place — a gap in Hilbert
+### The claim is linear and a constant is spelled `1 / 2` — fixed in Hilbert
 
-Measured, one spelling at a time, all from `c ≤ t`:
+`linarith` used to scale a term only by a literal number, so `(1 / 2) * c ≤ (1 / 2) * t` from `c ≤ t`
+was refused as though `1 / 2` were a variable, while `c / 2` and `0.5 * c` proved. A multiplier that
+folds to a constant is now a coefficient however it is written: `1 / 2`, `(1 + 1)`, on either side of
+the product. `Identities.hp` spells its half step `(1 / 2) * (t − c)` again.
 
-| Written as | `linarith` |
-|---|---|
-| `c / 2 ≤ t / 2` | proves |
-| `0.5 * c ≤ 0.5 * t` | proves |
-| `2 * (t − c) ≥ 0` | proves |
-| `c + (t − c) / 2 ≤ t` | proves |
-| `(1 / 2) * c ≤ (1 / 2) * t` | **refused** |
-| `c + (1 / 2) * (t − c) ≤ t` | **refused** |
+**One rule stays:** a **divisor** must still be a literal number. `c / (1 + 1)` is refused, because the
+kernel reads only a literal divisor as a number, and `linarith` must never find a certificate the
+kernel cannot check.
 
-Today `linarith` does not fold `1 / 2` into a constant when it **multiplies** something, so `(1/2) · c`
-is treated as a product of two terms. It is not the mathematics — `ring` accepts
-`(1 / 2) * (t − c)` without complaint, and `0.5 * c` goes through `linarith` fine.
-
-**The shape that fixes it:** write the half as a divisor, `(t − c) / 2`, or as a decimal.
-
-`IdentitiesTests` pins the refusal against inline source, with a control proving the other spellings
-through the same harness — so the day Hilbert fixes it, a test fails and says the workaround can go.
-
-## `CS0117` inside `Generated/Hilbert` — a `fn` calling another `fn`
+## `CS0117` inside `Generated/Hilbert` — a `fn` calling another `fn` — fixed
 
 ```
 error CS0117: 'Math' does not contain a definition for 'Scatter01'
 error CS0117: 'Tensor' does not contain a definition for 'Scatter01'
 ```
 
-The error is **C#**, in a generated file — but the cause is in the `.hb`:
+A `fn` that called another `fn` in the same file used to be accepted by the Hilbert compiler, which then
+routed the call to `System.Math.Scatter01` and `Tensor.Scatter01`, as though the function were a
+built-in like `floor`. The error named a generated file, not the `.hb` line.
+
+The compiler now inlines a sibling `fn` exactly as it inlines a `def`, so
 
 ```
 fn scatter01(price, seed) ↦ …
-fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)     -- does not compile
+fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)
 ```
 
-A `fn` that calls another `fn` in the same file is accepted by the Hilbert compiler, and the emitter
-then routes the call to `System.Math.Scatter01` in the `double` overload and
-`MLambda.Hilbert.Runtime.Tensor.Scatter01` in the tensor ones — as though your function were a built-in
-like `floor` or `exp`.
-
-**The shape that fixes it:** a helper that other definitions call is a `def`.
-
-```
-def scatter01(price, seed) ≔ …
-fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)     -- compiles
-```
-
-That is how every Prelude module is written: `def` for anything reused, `fn` for what a caller calls.
-
-**Whatever the intended rule, the silence is a defect.** A program the Hilbert compiler accepts should
-not produce C# that fails to compile, and the error should name the `.hb` line rather than a generated
-one. Found writing [`Credit.hb`](../../src/MLambda.AI.Actuarial/Credit.hb).
+compiles. `def` is still the convention for a helper that nothing outside the file calls, which is how
+the Prelude is written. Found writing [`Credit.hb`](../../src/MLambda.AI.Actuarial/Credit.hb).

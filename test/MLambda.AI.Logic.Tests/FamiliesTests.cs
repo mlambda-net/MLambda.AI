@@ -91,16 +91,16 @@ public class FamiliesTests
     // ── Families.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_a_parent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_parent_is_an_ancestor"));
+    public void Theorem_a_parent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.AParentIsAnAncestor());
 
     [Fact]
-    public void Theorem_a_grandparent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_grandparent_is_an_ancestor"));
+    public void Theorem_a_grandparent_is_an_ancestor() => Theorem.Proved(FamiliesProofs.AGrandparentIsAnAncestor());
 
     [Fact]
-    public void Theorem_three_generations_compose() => Theorem.Proved(FamiliesProofs.Prove("three_generations_compose"));
+    public void Theorem_three_generations_compose() => Theorem.Proved(FamiliesProofs.ThreeGenerationsCompose());
 
     [Fact]
-    public void Theorem_a_parent_of_an_ancestor_is_an_ancestor() => Theorem.Proved(FamiliesProofs.Prove("a_parent_of_an_ancestor_is_an_ancestor"));
+    public void Theorem_a_parent_of_an_ancestor_is_an_ancestor() => Theorem.Proved(FamiliesProofs.AParentOfAnAncestorIsAnAncestor());
 
     [Fact]
     public void Every_theorem_in_Families_hp_has_a_test_above()
@@ -114,6 +114,6 @@ public class FamiliesTests
             "a_parent_of_an_ancestor_is_an_ancestor",
         ];
 
-        Assert.Equal(tested, FamiliesProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(FamiliesProofs)));
     }
 }

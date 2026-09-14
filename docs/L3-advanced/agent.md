@@ -124,13 +124,13 @@ neither of them mysterious.
 ## Proved twice
 
 ```csharp
-Assert.All(
-    AgencyProofs.All,
-    claim => Assert.Equal("Proved", AgencyProofs.Prove(claim.Name).Status));
+[Fact]
+public void Theorem_belief_composes() => Theorem.Proved(AgencyProofs.BeliefComposes());
 ```
 
-Every theorem is checked at build time *and* re-proved in the test process. `Prove` embeds the
-theory and the proof as the build read them, hands both to the kernel, and lets it decide again.
+Every theorem is checked at build time *and* re-proved in the test process. The generated
+`AgencyProofs.BeliefComposes()` carries no verdict: it reads the theory and the proof embedded in the
+assembly, hands both to the kernel, and lets it decide again.
 
 The distinction is real: **a verdict from a build is a fact about that build.** Re-proving is a fact
 about the mathematics, available to any host that wants to ask.
@@ -141,20 +141,20 @@ about the mathematics, available to any host that wants to ask.
 dotnet run --project src/MLambda.AI.Agent -- Agency
 ```
 
-It prints every theorem twice — the build's verdict, then the kernel's answer now.
+It prints every theorem with the kernel's answer, proved as the program runs.
 
 ## What the tests assert
 
 [`AgencyTests.cs`](../../test/MLambda.AI.Agent.Tests/AgencyTests.cs)
 
-- All seven theorems proved at build time, and all seven proved again on demand.
-- Belief's introspection leans on `transB` — and on no `transD` or `transI`.
-- Realism is stated over relations, with no modality in the claim.
-- Seriality says a seeded successor is accessible, and contains no `∃`.
+- All seven theorems proved at build time, and all seven proved again by the kernel in the test.
+- Belief is introspective: `belief_composes` and `belief_is_euclidean` both prove.
+- A seeded desire becomes an intention in two steps.
 
 ## Try it yourself
 
 1. Add `law transD` to `Agency.hs` and prove that desire is introspective. It will check — and then
    ask yourself whether you believe it about any agent you have met.
 2. Reverse `realism` to `intends ⇒ desires` and see which theorem stops proving.
-3. Write a theorem that needs both `serialB` and `transB`, and see what the axiom list records.
+3. Write a theorem that needs both `serialB` and `transB`, then remove one of them from the
+   `axioms [...]` line in `Agency.hp` and see the build refuse it.

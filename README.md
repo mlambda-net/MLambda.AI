@@ -14,7 +14,7 @@ The Hilbert compilers are not on NuGet yet, so this repository reaches them by r
 ```
 D:\Workspace\
   MLambda.Genesis\    <- the compilers live here
-  MLamba.AI\          <- you are here
+  MLambda.AI\         <- you are here
 ```
 
 ```bash

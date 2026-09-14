@@ -141,12 +141,18 @@ for one gap.
 2. Add a second creature — a bird called `tweety` — and ask what it is.
 3. Delete the `climbing` law and run the tests. Watch which ones fail, and why.
 
-### A missing piece, on purpose
+### The same relation, asked from the other end
 
-The obvious companion query — *who are the animals?* — is commented out in `Animals.hs`. It does not
-work today, for a reason in the compiler rather than in the theory: see
-[diagnostics](../hilbert/06-diagnostics.md#a-query-that-answers-nothing). Working round it needs a
-reversed relation, and a first sample is the wrong place to teach a workaround.
+`Animals.hs` has a second query, *who are the animals?*:
+
+```
+query members(kind: Thing, who?: Thing) :- is_a(who, kind)
+```
+
+It reads the same `is_a` as `kinds`, from the other end. Its parameters are in the order you ask the
+question, `kind` first, while `is_a` stores the creature first. That is fine: the engine matches a
+query's arguments by name. `Members("animal")` answers fluffy and tweety. (It once answered nothing;
+see [diagnostics](../hilbert/06-diagnostics.md#a-query-whose-parameters-are-in-a-different-order-than-its-body-fixed).)
 
 ---
 

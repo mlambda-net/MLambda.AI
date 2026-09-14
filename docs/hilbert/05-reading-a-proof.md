@@ -12,8 +12,8 @@ axioms [directly, climbing]
 
 `open` names the theory being reasoned about — the relations and laws come from there, so nothing is
 restated. `axioms` lists the laws you are allowed to lean on. This matters: *"proved from `directly`
-and `climbing`"* is a different statement from *"proved"*, and the verdict the build records keeps
-the axiom list beside the claim for exactly that reason.
+and `climbing`"* is a different statement from *"proved"*. A proof that reaches for a law the list
+does not name is refused. (An **empty** list, `axioms []`, restricts nothing: it allows every law.)
 
 ## A theorem
 
@@ -71,29 +71,30 @@ reach for once you know.
 
 ## What the build does with it
 
-Each proof becomes a `ProvedClaim` in `Generated/Proof/`:
+The build checks every proof first, and a theorem that does not check fails the build. Then each
+`.hp` becomes a class in `Generated/Proof/` with one method per theorem, and nothing else:
 
 ```csharp
-public static ProvedClaim ACatIsAnAnimal { get; } = new(
-    "theorem",
-    "a_cat_is_an_animal",
-    "∀ x c a, known(x, c) ⇒ kind_of(c, a) ⇒ is_a(x, a)",
-    "directly, climbing",
-    "Proved");
+public static class AnimalsProofs
+{
+    public static Judged ACatIsAnAnimal() => Prover.Prove(typeof(AnimalsProofs).Assembly, "Animals.hp", "a_cat_is_an_animal");
+    // ...one line per theorem, in the order the file states them
+}
 ```
 
-Your program can read these and print what it was shown to satisfy, without running a prover — the
-checking already happened, at build time.
-
-Or it can run the prover. The class also embeds the `.hp` it came from (and the `.hs` theories), and
-`Prove` does the work again: it parses both, elaborates the script, and lets the kernel replay the term.
+**There is no verdict in the generated code.** The `.hp` and its `.hs` theories are embedded in the
+assembly, and calling the method does the work: it parses both, elaborates the script, and lets the
+kernel replay the term.
 
 ```csharp
-Judged verdict = AnimalsProofs.Prove("a_cat_is_an_animal");
+Judged verdict = AnimalsProofs.ACatIsAnAnimal();
 // verdict.Status == "Proved" — decided now, not read back
 ```
 
-A name the file does not state throws `ArgumentException`. The prover is the `MLambda.Hilbert.Proof`
-library; the proof targets add the reference for you, so there is no compiler at run time.
+`Judged` is `(Kind, Name, Status, Detail, Line)`. `Detail` says what the kernel objected to when the
+status is not `Proved`. The class has no list of its theorems; a test that wants all of them finds the
+methods by reflection (see `Theorem.Of` in `test/MLambda.AI.Logic.Tests/Theorem.cs`). The prover is the
+`MLambda.Hilbert.Proof` library; the proof targets add the reference for you, so there is no compiler
+at run time.
 
 Next: [diagnostics](06-diagnostics.md).

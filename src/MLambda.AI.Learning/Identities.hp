@@ -91,13 +91,9 @@ qed
 -- together. The kernel says so exactly: "`linarith` found no linear combination that refutes
 -- c + a · (t - c) ≤ t". There is no `nlinarith` in this language (HP0003).
 --
--- AND SPELLED `(t − c) / 2`, NOT `(1 / 2) * (t − c)`, for a reason that is Hilbert's and not the
--- mathematics'. Today `linarith` does not fold `1 / 2` into a constant when it MULTIPLIES something,
--- so `(1 / 2) · c ≤ (1 / 2) · t` from `c ≤ t` is refused as if it were nonlinear -- while `0.5 · c`,
--- `2 · c` and `c / 2` all prove, and `ring` accepts `(1 / 2) * (t − c)` in `a_half_step_lands_halfway`
--- above. The two spellings are the same number. `IdentitiesTests` pins the refusal, so the day it is
--- fixed a test fails and says this comment can go.
-theorem a_half_step_does_not_pass_its_target : ∀ c t, c <= t ⇒ c + (t - c) / 2 <= t
+-- SPELLED AS `a_half_step_lands_halfway` SPELLS THE STEP, `(1 / 2) * (t − c)`. A constant multiplier
+-- is a coefficient to `linarith` however it is written -- `1 / 2`, `0.5` or a divisor of `2`.
+theorem a_half_step_does_not_pass_its_target : ∀ c t, c <= t ⇒ c + (1 / 2) * (t - c) <= t
 proof
   intro c t below
   linarith

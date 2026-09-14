@@ -7,7 +7,9 @@
 // AND NOTHING HERE ACTS. `plan Warm ↦ Room.Heat` names a label; there is no `Room.Heat` in this
 // repository and there does not need to be. The agent says "I intend Warm toward Comfortable", and
 // deciding what that means is this file's job -- which is exactly the division the dialect draws.
+using System.Reflection;
 using MLambda.AI.Agent;
+using MLambda.Hilbert.Proof;
 
 using Therm = MLambda.AI.Agent.Thermostat;
 using Coll = MLambda.AI.Agent.Collector;
@@ -51,15 +53,25 @@ static async Task<string> Listed(IAsyncEnumerable<string> rows)
     return all.Count == 0 ? "—" : string.Join(", ", all);
 }
 
-static void Verdicts(string title, IReadOnlyList<ProvedClaim> claims)
+// EACH THEOREM IS A METHOD, AND CALLING IT IS THE PROOF. The generated `<File>Proofs` class carries
+// no verdict: `AnimalsProofs.ACatIsAnAnimal()` reads the `.hp` embedded in this assembly, runs its
+// proof script, and has the kernel replay the term -- here and now, not read back from the build.
+// The methods are found rather than listed, so a theorem added to the file is printed without anyone
+// remembering to add it here.
+static IEnumerable<Judged> Proved(Type proofs) =>
+    proofs.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+        .Where(m => m.ReturnType == typeof(Judged) && m.GetParameters().Length == 0)
+        .OrderBy(m => m.MetadataToken)
+        .Select(m => (Judged)m.Invoke(null, null)!);
+
+static void Verdicts(string title, Type proofs)
 {
     Console.WriteLine();
-    Console.WriteLine($"What the build proved of {title}, whatever any agent believes:");
+    Console.WriteLine($"What the kernel proves of {title} as this runs, whatever any agent believes:");
 
-    foreach (var claim in claims)
+    foreach (var verdict in Proved(proofs))
     {
-        Console.WriteLine($"  {claim.Verdict,-8} {claim.Name}");
-        Console.WriteLine($"           {claim.Claim}");
+        Console.WriteLine($"  {verdict.Status,-8} {verdict.Name}");
     }
 }
 
@@ -192,13 +204,5 @@ static void Agency()
     Console.WriteLine("Belief gets KD45 — it knows what it believes and what it does not.");
     Console.WriteLine("Desire and intention get KD: consistency, and no more.");
 
-    Verdicts("Agency", AgencyProofs.All);
-
-    Console.WriteLine();
-    Console.WriteLine("And proved AGAIN, now, rather than read back from the build:");
-
-    foreach (var claim in AgencyProofs.All)
-    {
-        Console.WriteLine($"  {AgencyProofs.Prove(claim.Name).Status,-8} {claim.Name}");
-    }
+    Verdicts("Agency", typeof(AgencyProofs));
 }

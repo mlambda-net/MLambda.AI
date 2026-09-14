@@ -6,7 +6,9 @@
 //
 // THE CLIFF IS A COPY of test/MLambda.AI.Learning.Tests/CliffWorld.cs, because there is no shared
 // project to hold it and forty lines of state machine are cheaper than one.
+using System.Reflection;
 using MLambda.AI.Learning;
+using MLambda.Hilbert.Proof;
 using MLambda.Hilbert.Runtime;
 
 if (args.Length == 0)
@@ -182,16 +184,26 @@ static void Cliff()
     Console.WriteLine("see the header of GridworldTests.cs for what holds on every seed and what does not.)");
 }
 
+// EACH THEOREM IS A METHOD, AND CALLING IT IS THE PROOF. The generated `<File>Proofs` class carries
+// no verdict: `AnimalsProofs.ACatIsAnAnimal()` reads the `.hp` embedded in this assembly, runs its
+// proof script, and has the kernel replay the term -- here and now, not read back from the build.
+// The methods are found rather than listed, so a theorem added to the file is printed without anyone
+// remembering to add it here.
+static IEnumerable<Judged> Proved(Type proofs) =>
+    proofs.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+        .Where(m => m.ReturnType == typeof(Judged) && m.GetParameters().Length == 0)
+        .OrderBy(m => m.MetadataToken)
+        .Select(m => (Judged)m.Invoke(null, null)!);
+
 static void Identities()
 {
     Console.WriteLine("The algebra the learners rely on, each theorem proved by the kernel NOW rather than");
     Console.WriteLine("read back from the build — with `axioms []`, so nothing below is assumed.");
     Console.WriteLine();
 
-    foreach (var claim in IdentitiesProofs.All)
+    foreach (var verdict in Proved(typeof(IdentitiesProofs)))
     {
-        Console.WriteLine($"  {IdentitiesProofs.Prove(claim.Name).Status,-8} {claim.Name}");
-        Console.WriteLine($"           {claim.Claim}");
+        Console.WriteLine($"  {verdict.Status,-8} {verdict.Name}");
     }
 
     Console.WriteLine();

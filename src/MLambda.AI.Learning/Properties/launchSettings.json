@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "List": {
+      "commandName": "Project"
+    },
+    "Bandit": {
+      "commandName": "Project",
+      "commandLineArgs": "Bandit"
+    },
+    "Cliff": {
+      "commandName": "Project",
+      "commandLineArgs": "Cliff"
+    },
+    "Identities": {
+      "commandName": "Project",
+      "commandLineArgs": "Identities"
+    }
+  }
+}

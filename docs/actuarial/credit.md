@@ -63,9 +63,10 @@ than implying the data showed it.
 
 Nothing more is tested, because nothing more is true.
 
-## A Hilbert defect found here
+## A Hilbert defect found here, and fixed
 
 `scatter01` is a `def`. It was first written as a `fn`, and the Hilbert compiler accepted that without a
 word — then the generated C# failed to build, with the call routed to `System.Math.Scatter01`, as though a
-sibling function were a built-in like `floor`. A helper that other definitions call is a `def`, which is
-how the Prelude is written throughout. See [diagnostics](../hilbert/06-diagnostics.md).
+sibling function were a built-in like `floor`. Hilbert now inlines a sibling `fn` as it does a `def`. The
+helper stays a `def` because nothing outside this file calls it, which is how the Prelude is written
+throughout. See [diagnostics](../hilbert/06-diagnostics.md).

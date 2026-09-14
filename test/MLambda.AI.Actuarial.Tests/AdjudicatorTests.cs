@@ -110,22 +110,22 @@ public class AdjudicatorTests
     // ── Adjudicator.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_one_walk_is_enough() => Theorem.Proved(AdjudicatorProofs.Prove("one_walk_is_enough"));
+    public void Theorem_one_walk_is_enough() => Theorem.Proved(AdjudicatorProofs.OneWalkIsEnough());
 
     [Fact]
-    public void Theorem_a_haggle_is_a_vote() => Theorem.Proved(AdjudicatorProofs.Prove("a_haggle_is_a_vote"));
+    public void Theorem_a_haggle_is_a_vote() => Theorem.Proved(AdjudicatorProofs.AHaggleIsAVote());
 
     [Fact]
-    public void Theorem_a_haggle_contests_the_purchase() => Theorem.Proved(AdjudicatorProofs.Prove("a_haggle_contests_the_purchase"));
+    public void Theorem_a_haggle_contests_the_purchase() => Theorem.Proved(AdjudicatorProofs.AHaggleContestsThePurchase());
 
     [Fact]
-    public void Theorem_a_buy_is_a_vote() => Theorem.Proved(AdjudicatorProofs.Prove("a_buy_is_a_vote"));
+    public void Theorem_a_buy_is_a_vote() => Theorem.Proved(AdjudicatorProofs.ABuyIsAVote());
 
     [Fact]
     public void Every_theorem_in_Adjudicator_hp_has_a_test_above()
     {
         string[] tested = ["one_walk_is_enough", "a_haggle_is_a_vote", "a_haggle_contests_the_purchase", "a_buy_is_a_vote"];
 
-        Assert.Equal(tested, AdjudicatorProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(AdjudicatorProofs)));
     }
 }

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "List": {
+      "commandName": "Project"
+    },
+    "Line": {
+      "commandName": "Project",
+      "commandLineArgs": "Line"
+    },
+    "Perceptron": {
+      "commandName": "Project",
+      "commandLineArgs": "Perceptron"
+    },
+    "Classifier": {
+      "commandName": "Project",
+      "commandLineArgs": "Classifier"
+    },
+    "Nearest": {
+      "commandName": "Project",
+      "commandLineArgs": "Nearest"
+    }
+  }
+}

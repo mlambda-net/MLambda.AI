@@ -120,34 +120,34 @@ public class SortsTests
     // ── Sorts.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_a_declared_kind_falls_under_itself() => Theorem.Proved(SortsProofs.Prove("a_declared_kind_falls_under_itself"));
+    public void Theorem_a_declared_kind_falls_under_itself() => Theorem.Proved(SortsProofs.ADeclaredKindFallsUnderItself());
 
     [Fact]
-    public void Theorem_subsumption_composes() => Theorem.Proved(SortsProofs.Prove("subsumption_composes"));
+    public void Theorem_subsumption_composes() => Theorem.Proved(SortsProofs.SubsumptionComposes());
 
     [Fact]
-    public void Theorem_an_instance_climbs() => Theorem.Proved(SortsProofs.Prove("an_instance_climbs"));
+    public void Theorem_an_instance_climbs() => Theorem.Proved(SortsProofs.AnInstanceClimbs());
 
     [Fact]
-    public void Theorem_an_instance_climbs_twice() => Theorem.Proved(SortsProofs.Prove("an_instance_climbs_twice"));
+    public void Theorem_an_instance_climbs_twice() => Theorem.Proved(SortsProofs.AnInstanceClimbsTwice());
 
     [Fact]
-    public void Theorem_nothing_is_both() => Theorem.Proved(SortsProofs.Prove("nothing_is_both"));
+    public void Theorem_nothing_is_both() => Theorem.Proved(SortsProofs.NothingIsBoth());
 
     [Fact]
-    public void Theorem_disjointness_inherits() => Theorem.Proved(SortsProofs.Prove("disjointness_inherits"));
+    public void Theorem_disjointness_inherits() => Theorem.Proved(SortsProofs.DisjointnessInherits());
 
     [Fact]
-    public void Theorem_a_subsort_still_excludes() => Theorem.Proved(SortsProofs.Prove("a_subsort_still_excludes"));
+    public void Theorem_a_subsort_still_excludes() => Theorem.Proved(SortsProofs.ASubsortStillExcludes());
 
     [Fact]
-    public void Theorem_sameness_climbs() => Theorem.Proved(SortsProofs.Prove("sameness_climbs"));
+    public void Theorem_sameness_climbs() => Theorem.Proved(SortsProofs.SamenessClimbs());
 
     [Fact]
-    public void Theorem_sameness_is_symmetric() => Theorem.Proved(SortsProofs.Prove("sameness_is_symmetric"));
+    public void Theorem_sameness_is_symmetric() => Theorem.Proved(SortsProofs.SamenessIsSymmetric());
 
     [Fact]
-    public void Theorem_sameness_composes() => Theorem.Proved(SortsProofs.Prove("sameness_composes"));
+    public void Theorem_sameness_composes() => Theorem.Proved(SortsProofs.SamenessComposes());
 
     [Fact]
     public void Every_theorem_in_Sorts_hp_has_a_test_above()
@@ -167,7 +167,7 @@ public class SortsTests
             "sameness_composes",
         ];
 
-        Assert.Equal(tested, SortsProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(SortsProofs)));
     }
 
     [Fact]
@@ -178,9 +178,7 @@ public class SortsTests
         // which is the only honest way to record an absence. Not `sorry`: that means "not proved
         // yet", and this is "not provable, on purpose".
         Assert.DoesNotContain(
-            SortsProofs.All,
-            claim => claim.Name.Contains("descend", StringComparison.Ordinal));
-
-        Assert.DoesNotContain("same_down", SortsProofs.SamenessClimbs.Axioms);
+            Theorem.Of(typeof(SortsProofs)),
+            name => name.Contains("Descend", StringComparison.Ordinal));
     }
 }

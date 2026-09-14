@@ -19,11 +19,9 @@ theory Animals (Thing)
   -- fixpoint — so it climbs as far as the kinds go without anything saying how far that is.
   law climbing = ∀ x k w, is_a(x, k) ∧ kind_of(k, w) ⇒ is_a(x, w)
 
-  -- ONE QUERY, AND THE REVERSE ONE IS ABSENT ON PURPOSE. `members(kind, who?)` -- "who are the
-  -- animals?" -- is the obvious companion, and it does not work today: the lowering takes the
-  -- generated method's parameters in DECLARATION order but builds the goal in BODY-ATOM order, so
-  -- `:- is_a(who, kind)` under a `(kind, who?)` declaration silently inverts and answers nothing.
-  -- Writing round it needs a reversed relation, which is a workaround, and a first sample is the
-  -- wrong place to teach one.
-  query kinds(of: Thing, kind?: Thing) :- is_a(of, kind)
+  -- ONE RELATION, ASKED FROM BOTH ENDS. "What is fluffy?" and "who are the animals?" read the same
+  -- `is_a`, and `members` declares its parameters in the order the question is asked, not the order
+  -- `is_a` stores them in. The engine binds a query's arguments by NAME, so the two may differ.
+  query kinds(of: Thing, kind?: Thing)     :- is_a(of, kind)
+  query members(kind: Thing, who?: Thing)  :- is_a(who, kind)
 }

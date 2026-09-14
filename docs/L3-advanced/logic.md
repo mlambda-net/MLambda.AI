@@ -98,8 +98,8 @@ Three ways, and the third is the one that matters:
 
    ```csharp
    Assert.DoesNotContain(
-       SortsProofs.All,
-       claim => claim.Name.Contains("descend", StringComparison.Ordinal));
+       Theorem.Of(typeof(SortsProofs)),
+       name => name.Contains("Descend", StringComparison.Ordinal));
    ```
 
 3. **Against the running engine** — which is the real test:

@@ -82,40 +82,32 @@ public class WorldsTests
     public void S5_gets_B_and_4_without_being_handed_either()
     {
         // THE THEOREMS WORTH HAVING ARE THE ONES NOBODY GIVES YOU. T and 5 alone yield both.
-        Theorem.Proved(WorldsProofs.Prove("b_from_t_and_5"));
-        Theorem.Proved(WorldsProofs.Prove("four_from_t_and_5"));
-    }
-
-    [Fact]
-    public void And_every_theorem_records_which_axioms_it_leaned_on()
-    {
-        // "Proved under T and 5" is a different statement from "proved".
-        Assert.Contains("refl", WorldsProofs.BFromTAnd5.Axioms);
-        Assert.Contains("euclid", WorldsProofs.BFromTAnd5.Axioms);
+        Theorem.Proved(WorldsProofs.BFromTAnd5());
+        Theorem.Proved(WorldsProofs.FourFromTAnd5());
     }
 
     // ── Worlds.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_t_gives_every_declared_world_itself() => Theorem.Proved(WorldsProofs.Prove("t_gives_every_declared_world_itself"));
+    public void Theorem_t_gives_every_declared_world_itself() => Theorem.Proved(WorldsProofs.TGivesEveryDeclaredWorldItself());
 
     [Fact]
-    public void Theorem_four_composes() => Theorem.Proved(WorldsProofs.Prove("four_composes"));
+    public void Theorem_four_composes() => Theorem.Proved(WorldsProofs.FourComposes());
 
     [Fact]
-    public void Theorem_five_relates_what_a_world_sees() => Theorem.Proved(WorldsProofs.Prove("five_relates_what_a_world_sees"));
+    public void Theorem_five_relates_what_a_world_sees() => Theorem.Proved(WorldsProofs.FiveRelatesWhatAWorldSees());
 
     [Fact]
-    public void Theorem_b_reverses() => Theorem.Proved(WorldsProofs.Prove("b_reverses"));
+    public void Theorem_b_reverses() => Theorem.Proved(WorldsProofs.BReverses());
 
     [Fact]
-    public void Theorem_b_from_t_and_5() => Theorem.Proved(WorldsProofs.Prove("b_from_t_and_5"));
+    public void Theorem_b_from_t_and_5() => Theorem.Proved(WorldsProofs.BFromTAnd5());
 
     [Fact]
-    public void Theorem_four_from_t_and_5() => Theorem.Proved(WorldsProofs.Prove("four_from_t_and_5"));
+    public void Theorem_four_from_t_and_5() => Theorem.Proved(WorldsProofs.FourFromTAnd5());
 
     [Fact]
-    public void Theorem_s5_cluster() => Theorem.Proved(WorldsProofs.Prove("s5_cluster"));
+    public void Theorem_s5_cluster() => Theorem.Proved(WorldsProofs.S5Cluster());
 
     [Fact]
     public void Every_theorem_in_Worlds_hp_has_a_test_above()
@@ -132,14 +124,6 @@ public class WorldsTests
             "s5_cluster",
         ];
 
-        Assert.Equal(tested, WorldsProofs.All.Select(claim => claim.Name));
-    }
-
-    [Fact]
-    public void Reflexivity_is_stated_over_declared_worlds_only()
-    {
-        // THE CLAIM ITSELF CARRIES THE RESTRICTION, so a reader of the verdicts cannot mistake
-        // this for the unrestricted T they were expecting.
-        Assert.Contains("place(w)", WorldsProofs.TGivesEveryDeclaredWorldItself.Claim);
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(WorldsProofs)));
     }
 }

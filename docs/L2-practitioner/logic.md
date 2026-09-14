@@ -51,8 +51,9 @@ axioms [refl, trans, euclid, symm]
 ```
 
 The question *"did you mean K5 or S5?"* is therefore never asked of the language. Both are writable,
-both are checked by the same kernel, and every theorem records which set it was proved under —
-`"proved under T and 5"` is a different statement from `"proved"`, and the verdict keeps them apart.
+both are checked by the same kernel, and the `axioms [...]` line of each `.hp` says which set its
+theorems may lean on. A proof that reaches for a law outside the list is refused, so
+`"proved under T and 5"` is a different statement from `"proved"`, and the file keeps them apart.
 
 ### The theorems worth having are the ones nobody gives you
 
@@ -172,15 +173,14 @@ open Counting
 axioms []
 ```
 
-Every theorem stands on its own certificate; none leans on the one above it; nothing is assumed. The
-test asserts exactly that:
+Every theorem stands on its own certificate: `ring` normalises a polynomial and `linarith` finds a
+Farkas combination, and neither consults a law.
 
-```csharp
-Assert.All(CountingProofs.All, claim => Assert.Equal(string.Empty, claim.Axioms));
-```
-
-**There is nothing in this corpus a reader has to take on trust** — which is a stronger thing to be
-able to say than "these theorems are proved".
+**Careful: `axioms []` is not what makes that true.** To the kernel an empty axiom list means *every*
+law is allowed, and a list that names laws restricts a file to exactly those. What makes this corpus
+assume nothing is that `Counting.hs` declares no laws at all, so there is nothing to lean on. **There
+is nothing in this corpus a reader has to take on trust**, which is a stronger thing to be able to say
+than "these theorems are proved".
 
 ### A theory that proves but does not run
 
@@ -210,9 +210,8 @@ which leaves the theory in the proof inputs and out of the engine inputs. Compar
 - Transitivity composes a chain, and symmetry runs it backwards.
 - A seeded successor becomes accessible — and only a seeded one.
 - B and 4 both come back `Proved`, from T and 5.
-- Every `Counting` theorem is `Proved` with an **empty** axiom set.
-- A `ring` claim carries no `⇒`; a `linarith` claim does. The two tactics answer different shapes
-  of question, and the verdicts show it.
+- Every `Counting` theorem is `Proved` by the kernel while the test runs, and a slack step keeps a
+  strict inequality strict.
 
 ## Try it yourself
 

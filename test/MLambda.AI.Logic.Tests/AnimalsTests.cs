@@ -122,6 +122,34 @@ public class AnimalsTests
     }
 
     [Fact]
+    public async Task The_same_relation_answers_from_the_other_end()
+    {
+        // `members(kind, who?) :- is_a(who, kind)` -- the parameters in the order the question is
+        // asked, the body in the order `is_a` stores them. Both fluffy and tweety climbed to animal.
+        var members = new List<string>();
+        await foreach (var who in Zoo().Members("animal"))
+        {
+            members.Add(who);
+        }
+
+        members.Sort(StringComparer.Ordinal);
+
+        Assert.Equal(["fluffy", "tweety"], members);
+    }
+
+    [Fact]
+    public async Task And_a_kind_has_only_the_members_placed_under_it()
+    {
+        var cats = new List<string>();
+        await foreach (var who in Zoo().Members("cat"))
+        {
+            cats.Add(who);
+        }
+
+        Assert.Equal(["fluffy"], cats);
+    }
+
+    [Fact]
     public async Task A_creature_nobody_classified_has_no_kinds()
     {
         // The empty answer, asserted deliberately in ONE place, so that every other test in this
@@ -135,16 +163,16 @@ public class AnimalsTests
     // ── Animals.hp, theorem by theorem: each one proved by the kernel while the test runs ──
 
     [Fact]
-    public void Theorem_what_is_known_is_so() => Theorem.Proved(AnimalsProofs.Prove("what_is_known_is_so"));
+    public void Theorem_what_is_known_is_so() => Theorem.Proved(AnimalsProofs.WhatIsKnownIsSo());
 
     [Fact]
-    public void Theorem_a_cat_is_an_animal() => Theorem.Proved(AnimalsProofs.Prove("a_cat_is_an_animal"));
+    public void Theorem_a_cat_is_an_animal() => Theorem.Proved(AnimalsProofs.ACatIsAnAnimal());
 
     [Fact]
-    public void Theorem_classification_climbs_twice() => Theorem.Proved(AnimalsProofs.Prove("classification_climbs_twice"));
+    public void Theorem_classification_climbs_twice() => Theorem.Proved(AnimalsProofs.ClassificationClimbsTwice());
 
     [Fact]
-    public void Theorem_an_animal_found_automatically() => Theorem.Proved(AnimalsProofs.Prove("an_animal_found_automatically"));
+    public void Theorem_an_animal_found_automatically() => Theorem.Proved(AnimalsProofs.AnAnimalFoundAutomatically());
 
     [Fact]
     public void Every_theorem_in_Animals_hp_has_a_test_above()
@@ -158,17 +186,16 @@ public class AnimalsTests
             "an_animal_found_automatically",
         ];
 
-        Assert.Equal(tested, AnimalsProofs.All.Select(claim => claim.Name));
+        Assert.Equal(tested.Select(Theorem.Method), Theorem.Of(typeof(AnimalsProofs)));
     }
 
     [Fact]
-    public void The_proofs_name_the_axioms_they_leaned_on()
+    public void A_theorem_is_judged_as_a_theorem_by_its_own_name()
     {
-        // "Proved under these axioms" is a different statement from "proved".
-        var climbed = AnimalsProofs.ACatIsAnAnimal;
+        // The verdict the kernel hands back names the claim it judged, and says what kind of claim.
+        var climbed = AnimalsProofs.ACatIsAnAnimal();
 
         Assert.Equal("theorem", climbed.Kind);
-        Assert.Contains("directly", climbed.Axioms);
-        Assert.Contains("climbing", climbed.Axioms);
+        Assert.Equal("a_cat_is_an_animal", climbed.Name);
     }
 }
