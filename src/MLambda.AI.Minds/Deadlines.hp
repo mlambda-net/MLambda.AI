@@ -1,0 +1,26 @@
+-- Deadlines.hp — knowledge persists, and doing it in time is enough.
+--
+-- WHAT IS NOT HERE: "a fulfilled duty is not breached". That is a statement about a `¬` in the engine,
+-- and `.hp` proves Horn consequences, not the absence of one; `DeadlinesTests` asserts it instead.
+open Deadlines
+axioms [stepIsLater, onwards, remembers, fulfils]
+
+theorem what_you_were_told_you_still_know_later : ∀ p a m n o, informed(p, a, m) ⇒ later(m, n) ⇒ later(n, o) ⇒ knows_due(p, a, o)
+proof
+  intro p a m n o told mn no
+  have mo : later(m, o) by apply onwards [mn, no]
+  apply remembers [told, mo]
+qed
+
+theorem told_the_day_before_is_known_on_the_day : ∀ p a m n, informed(p, a, m) ⇒ next(m, n) ⇒ knows_due(p, a, n)
+proof
+  intro p a m n told step
+  have mn : later(m, n) by apply stepIsLater [step]
+  apply remembers [told, mn]
+qed
+
+theorem doing_it_in_time_fulfils_it : ∀ p a m by, due(p, a, by) ⇒ did(m, p, a) ⇒ later(m, by) ⇒ fulfilled(p, a, by)
+proof
+  intro p a m by d act early
+  apply fulfils [d, act, early]
+qed

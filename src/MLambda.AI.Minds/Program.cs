@@ -11,6 +11,7 @@ using Light = MLambda.AI.Minds.Traffic;
 using Rules = MLambda.AI.Minds.Duty;
 using Door = MLambda.AI.Minds.Knowledge;
 using Kitchen = MLambda.AI.Minds.Mind;
+using Office = MLambda.AI.Minds.Deadlines;
 
 if (args.Length == 0)
 {
@@ -30,6 +31,7 @@ switch (args[0].ToLowerInvariant())
     case "duty": await Duty(); break;
     case "knowledge": await Knowledge(); break;
     case "mind": await Mind(); break;
+    case "deadlines": await Deadlines(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -192,4 +194,43 @@ static async Task Mind()
     Console.WriteLine("  It intends a clean cup, because every world it is committed to has one.");
 
     Verdicts("Mind", typeof(MindProofs));
+}
+
+static async Task Deadlines()
+{
+    Console.WriteLine("Today is Thursday. ana's report was due Tuesday and she filed it Monday.");
+    Console.WriteLine("ben's was due Tuesday; he was told Monday and never filed.");
+    Console.WriteLine("cy's was due Wednesday; nobody told him, and he filed Thursday.");
+    Console.WriteLine();
+
+    var week = Office.DeadlineEngineFactory.Create();
+    week.AssertAll([
+        new Office.MomentFact("mon"), new Office.MomentFact("tue"), new Office.MomentFact("wed"), new Office.MomentFact("thu"),
+        new Office.NextFact("mon", "tue"), new Office.NextFact("tue", "wed"), new Office.NextFact("wed", "thu"),
+        new Office.TodayFact("thu"),
+        new Office.DueFact("ana", "report", "tue"), new Office.DueFact("ben", "report", "tue"), new Office.DueFact("cy", "report", "wed"),
+        new Office.DidFact("mon", "ana", "report"),
+        new Office.InformedFact("ben", "report", "mon"),
+        new Office.DidFact("thu", "cy", "report"),
+    ]);
+
+    await foreach (var row in week.Kept())
+    {
+        Console.WriteLine($"  kept             {row.Who} ({row.What}, due {row.By})");
+    }
+
+    await foreach (var row in week.BreachesOf())
+    {
+        Console.WriteLine($"  knowing breach   {row.Who} ({row.What}) -- he had been told");
+    }
+
+    await foreach (var row in week.ExcusedOf())
+    {
+        Console.WriteLine($"  excused          {row.Who} ({row.What}) -- nobody told him");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("  ben and cy both missed their deadline. What separates the verdicts is what each knew.");
+
+    Verdicts("Deadlines", typeof(DeadlinesProofs));
 }
