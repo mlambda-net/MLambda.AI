@@ -200,11 +200,11 @@ read, and the `because` must be on the same line as the condition:
 impossible Spotless when B(self) dirt(r) ∧ B(self) blocked(r) because "there is dirt in a room I cannot get to"
 ```
 
-**One limit worth knowing today:** the reason is required by the parser and then **discarded**. The
-generated `UnreachableFact` carries the subject and the goal, and the sentence lives only in the
-source. So a test can assert *that* a goal was abandoned, and cannot yet assert *why* — see
-[`CleanerTests.cs`](../../test/MLambda.AI.Agent.Tests/CleanerTests.cs). The keyword still earns its
-place: it makes the reason a required part of the agent rather than a comment somebody might omit.
+**The reason is kept — fixed.** The parser always required it, but the generated code used to
+**discard** it: `UnreachableFact` carried the subject and the goal, and the sentence lived only in the
+source, so a test could assert *that* a goal was abandoned and not *why*. Since Hilbert `4f45f68`
+every agent also lowers to `unreachable_because(subject, goal, reason)` with a `reasons` query, and
+[`CleanerTests.cs`](../../test/MLambda.AI.Agent.Tests/CleanerTests.cs) asserts the sentence itself.
 
 ## `HP0020` from `linarith` on a claim that is plainly linear
 

@@ -93,6 +93,33 @@ public class CleanerTests
     }
 
     [Fact]
+    public async Task And_it_says_why_in_the_words_the_agent_was_written_with()
+    {
+        // `because "…"` IS NOT A COMMENT. The reason the parser insists on reaches the engine as a fact
+        // beside the abandoned goal, so a host can show a person WHY, not only THAT.
+        var reasons = new List<ReasonsRow>();
+        await foreach (var row in WithBlockedDirt().Reasons("c2"))
+        {
+            reasons.Add(row);
+        }
+
+        Assert.Equal([new ReasonsRow("Spotless", "there is dirt in a room I cannot get to")], reasons);
+    }
+
+    [Fact]
+    public async Task And_gives_no_reason_when_it_has_given_nothing_up()
+    {
+        var reasons = new List<ReasonsRow>();
+        await foreach (var row in WithReachableDirt().Reasons("c1"))
+        {
+            reasons.Add(row);
+        }
+
+        // NON-VACUOUS: the test above shows the reason arrives when a goal is abandoned.
+        Assert.Empty(reasons);
+    }
+
+    [Fact]
     public async Task Attention_moves_when_the_way_is_shut()
     {
         // `when B(self) blocked(r) attend Blocked`. THE GOAL HAS NOT CHANGED -- it still wants a

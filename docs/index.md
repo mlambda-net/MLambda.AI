@@ -27,7 +27,7 @@ pseudocode, and a proof that stops checking stops the build.
 <div class="ml-stat"><b>3</b><span>levels, novice to advanced</span></div>
 <div class="ml-stat"><b>5</b><span>subjects at every level</span></div>
 <div class="ml-stat"><b>83</b><span>theorems the kernel checks</span></div>
-<div class="ml-stat"><b>303</b><span>tests asserting behaviour</span></div>
+<div class="ml-stat"><b>305</b><span>tests asserting behaviour</span></div>
 </div>
 </div>
 

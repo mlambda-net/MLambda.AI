@@ -162,11 +162,17 @@ error HS0001: expected 'because' and the reason a person will read, found the en
 
 That is the language taking a position, and it is the right one.
 
-**One limit today.** The reason is required by the parser and then **discarded** — the generated
-`UnreachableFact` carries the subject and the goal, and the sentence lives only in `Cleaner.ha`. So
-a test can assert *that* a goal was abandoned and cannot yet assert *why*. The keyword still earns
-its place: it makes the reason a required part of the agent rather than a comment somebody might
-omit. See [diagnostics](../hilbert/06-diagnostics.md).
+**And the reason reaches the engine.** Every agent also concludes
+`unreachable_because(subject, goal, reason)`, and a `reasons` query answers the goal with the
+sentence the agent was written with. So a host can tell a person *why* the cleaner gave up, not only
+*that* it did:
+
+```
+Spotless   there is dirt in a room I cannot get to
+```
+
+`CleanerTests` asserts both. Until Hilbert `4f45f68` the parser required the reason and then dropped
+it; see [diagnostics](../hilbert/06-diagnostics.md).
 
 ## Run them
 
