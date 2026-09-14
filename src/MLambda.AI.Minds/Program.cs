@@ -9,6 +9,7 @@ using MLambda.Shin.Runtime;
 
 using Light = MLambda.AI.Minds.Traffic;
 using Rules = MLambda.AI.Minds.Duty;
+using Door = MLambda.AI.Minds.Knowledge;
 
 if (args.Length == 0)
 {
@@ -26,6 +27,7 @@ switch (args[0].ToLowerInvariant())
 {
     case "traffic": await Traffic(); break;
     case "duty": await Duty(); break;
+    case "knowledge": await Knowledge(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -118,4 +120,34 @@ static async Task Duty()
     Console.WriteLine("  An obligation says what ought to be. It does not make it so.");
 
     Verdicts("Duty", typeof(DutyProofs));
+}
+
+static async Task Knowledge()
+{
+    Console.WriteLine("At home the door is unlocked. alice glanced and settled on 'locked';");
+    Console.WriteLine("bob tried the handle.");
+    Console.WriteLine();
+
+    var door = Door.KnowledgeEngineFactory.Create();
+    door.AssertAll([
+        new Door.WorldFact("home"), new Door.WorldFact("locked_home"),
+        new Door.AgentFact("alice"), new Door.AgentFact("bob"),
+        new Door.PropFact("locked"), new Door.PropFact("unlocked"),
+        new Door.HoldsFact("home", "unlocked"), new Door.HoldsFact("locked_home", "locked"),
+        new Door.GlimpseFact("alice", "home", "locked_home"),
+        new Door.GuessFact("alice", "home", "locked_home"),
+        new Door.GuessFact("bob", "home", "home"),
+    ]);
+
+    Console.WriteLine("  agent   believes    knows       mistaken about");
+    foreach (var who in new[] { "alice", "bob" })
+    {
+        Console.WriteLine($"  {who,-6}  {await Listed(door.Believed(who, "home")),-10}  {await Listed(door.Known(who, "home")),-10}  {await Listed(door.Mistaken(who, "home"))}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("  alice believes the door is locked and does not know it: what is known is true,");
+    Console.WriteLine("  and it is not. Belief is KD45 and has no law that makes it true; knowledge is S5.");
+
+    Verdicts("Knowledge", typeof(KnowledgeProofs));
 }

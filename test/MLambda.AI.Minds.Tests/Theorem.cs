@@ -32,4 +32,23 @@ internal static class Theorem
     public static string Method(string theorem) =>
         string.Concat(theorem.Split('_', StringSplitOptions.RemoveEmptyEntries)
             .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
+
+    /// <summary>A claim attempted against one of this assembly's embedded theories, under the given axioms.</summary>
+    ///
+    /// <remarks>HOW A NON-THEOREM IS TESTED. A `.hp` file can only state what proves; that belief is
+    /// NOT factive has to be shown by asking the kernel and watching it refuse. The theory is the one
+    /// the build embedded, so the refusal is about the same `.hs` the engine runs.</remarks>
+    public static Judged Attempt(string theory, string axioms, string claim, string script)
+    {
+        var assembly = typeof(MLambda.AI.Minds.KnowledgeProofs).Assembly;
+        using var stream = assembly.GetManifestResourceStream(Prover.ResourcePrefix + theory + ".hs")
+            ?? throw new InvalidOperationException($"{theory}.hs is not embedded in {assembly.GetName().Name}.");
+        using var reader = new StreamReader(stream);
+        var source = new ProofSource(theory + ".hs", reader.ReadToEnd());
+
+        return Prover.Prove(
+            new ProofSource("Attempt.hp", $"open {theory}\naxioms [{axioms}]\n\ntheorem attempt : {claim}\nproof\n{script}\nqed\n"),
+            [source],
+            "attempt");
+    }
 }

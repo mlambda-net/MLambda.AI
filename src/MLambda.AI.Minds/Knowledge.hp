@@ -1,0 +1,56 @@
+-- Knowledge.hp — what knowledge is, and what belief is, as frame conditions.
+--
+-- THE FORM OF EVERY THEOREM HERE IS THE FRAME'S, not the formula's. `K p ⇒ p` is true on exactly the
+-- frames where `knows(i, w, w)`; `.hp` states the second, because a quantifier inside a premise does
+-- not parse (HP0003). The engine carries the formula: `Known` never answers a false proposition.
+open Knowledge
+axioms [reflK, seenK, transK, euclidK, serialB, transB, euclidB, within]
+
+theorem knowledge_is_factive : ∀ i w, agent(i) ⇒ world(w) ⇒ knows(i, w, w)
+proof
+  intro i w a x
+  apply reflK [a, x]
+qed
+
+theorem what_you_cannot_rule_out_you_cannot_rule_out : ∀ i w u, glimpse(i, w, u) ⇒ knows(i, w, u)
+proof
+  intro i w u seen
+  apply seenK [seen]
+qed
+
+theorem knowing_you_know : ∀ i w u v, knows(i, w, u) ⇒ knows(i, u, v) ⇒ knows(i, w, v)
+proof
+  intro i w u v first second
+  apply transK [first, second]
+qed
+
+theorem knowing_what_you_do_not_know : ∀ i w u v, knows(i, w, u) ⇒ knows(i, w, v) ⇒ knows(i, u, v)
+proof
+  intro i w u v first second
+  apply euclidK [first, second]
+qed
+
+theorem knowledge_is_symmetric : ∀ i w u, agent(i) ⇒ world(w) ⇒ knows(i, w, u) ⇒ knows(i, u, w)
+proof
+  intro i w u a x seen
+  have home : knows(i, w, w) by apply reflK [a, x]
+  apply euclidK [seen, home]
+qed
+
+theorem a_guess_is_believed : ∀ i w u, guess(i, w, u) ⇒ believes(i, w, u)
+proof
+  intro i w u g
+  apply serialB [g]
+qed
+
+theorem believing_you_believe : ∀ i w u v, believes(i, w, u) ⇒ believes(i, u, v) ⇒ believes(i, w, v)
+proof
+  intro i w u v first second
+  apply transB [first, second]
+qed
+
+theorem what_is_believed_is_within_what_is_known : ∀ i w u, believes(i, w, u) ⇒ knows(i, w, u)
+proof
+  intro i w u b
+  apply within [b]
+qed
