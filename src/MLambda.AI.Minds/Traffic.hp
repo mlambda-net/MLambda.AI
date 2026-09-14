@@ -1,0 +1,38 @@
+-- Traffic.hp — what holds of every trace, whatever the light shows.
+--
+-- NOTHING HERE MENTIONS A COLOUR THE LIGHT SHOWED. These are facts about time itself — that a step is
+-- later, that later composes — and about how `until` unfolds, true of any run anybody asserts.
+open Traffic
+axioms [nowIsLater, stepIsLater, onwards, untilNow, untilStep]
+
+theorem a_step_is_later : ∀ m n, next(m, n) ⇒ later(m, n)
+proof
+  intro m n step
+  apply stepIsLater [step]
+qed
+
+theorem later_composes : ∀ m n o, later(m, n) ⇒ later(n, o) ⇒ later(m, o)
+proof
+  intro m n o first second
+  apply onwards [first, second]
+qed
+
+theorem two_steps_are_later : ∀ m n o, next(m, n) ⇒ next(n, o) ⇒ later(m, o)
+proof
+  intro m n o first second
+  have mn : later(m, n) by apply stepIsLater [first]
+  have no : later(n, o) by apply stepIsLater [second]
+  apply onwards [mn, no]
+qed
+
+theorem waiting_ends_when_the_awaited_colour_shows : ∀ m a b, shows(m, b) ⇒ colour(a) ⇒ until(m, a, b)
+proof
+  intro m a b now waiting
+  apply untilNow [now, waiting]
+qed
+
+theorem one_more_moment_of_waiting : ∀ m n a b, shows(m, a) ⇒ next(m, n) ⇒ until(n, a, b) ⇒ until(m, a, b)
+proof
+  intro m n a b now step rest
+  apply untilStep [now, step, rest]
+qed

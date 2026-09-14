@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MLambda.AI.Minds</RootNamespace>
+    <Description>Minds: time, duty, knowledge and belief. Theories in `.hs` an engine runs, and proofs
+      in `.hp` that say which modal logic each attitude is in.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL, as in MLambda.AI.Logic: `sorry` stops the build. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- What every `.hs` consumer references: the Shin runtime the engines run on, and the semantic
+         helpers every generated engine opens. Neither compiler is a run-time dependency. -->
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Shin\src\MLambda.Shin.Runtime\MLambda.Shin.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Church\src\MLambda.Church.Semantic\MLambda.Church.Semantic.csproj" />
+  </ItemGroup>
+
+  <!-- EVERY THEORY HERE BOTH RUNS AND PROVES: Shin lowers each `.hs` to an engine, and Proof checks
+       each `.hp` and fails the build if a theorem does not. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>
