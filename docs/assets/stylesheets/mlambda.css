@@ -4,6 +4,7 @@
  * Manrope, Inter and JetBrains Mono. What this file adds is COLOUR AS WAYFINDING. Every section of
  * the site has its own hue, so a reader always knows which shelf they are on:
  *
+ *   Ideas     teal      why it matters — the essays
  *   Hilbert   sky       how the language works — read first
  *   L1        emerald   novice
  *   L2        violet    practitioner
@@ -35,6 +36,7 @@
   --ml-l2: #a78bfa;
   --ml-l3: #fbbf24;
   --ml-capstone: #f0abfc;
+  --ml-ideas: #5eead4;
   --ml-glow: rgba(125, 211, 252, 0.16);
   --ml-glow-2: rgba(167, 139, 250, 0.14);
 
@@ -77,6 +79,7 @@
   --ml-l2: #6d28d9;
   --ml-l3: #b45309;
   --ml-capstone: #a21caf;
+  --ml-ideas: #0f766e;
   --ml-glow: rgba(3, 105, 161, 0.10);
   --ml-glow-2: rgba(109, 40, 217, 0.08);
 
@@ -111,6 +114,7 @@
 [data-section="L2-practitioner"] [data-md-color-scheme] { --ml-section: var(--ml-l2); --ml-section-2: var(--ml-capstone); }
 [data-section="L3-advanced"] [data-md-color-scheme] { --ml-section: var(--ml-l3); --ml-section-2: var(--ml-capstone); }
 [data-section="actuarial"] [data-md-color-scheme] { --ml-section: var(--ml-capstone); --ml-section-2: var(--ml-l2); }
+[data-section="ideas"] [data-md-color-scheme] { --ml-section: var(--ml-ideas); --ml-section-2: var(--ml-hilbert); }
 
 /* ── chrome ─────────────────────────────────────────────────────────────────────────────── */
 
@@ -161,11 +165,12 @@ body { background: var(--ml-ground); }
   background: transparent;
   transition: background 150ms ease;
 }
-.md-tabs__item:nth-child(2)::after { background: color-mix(in srgb, #7dd3fc 45%, transparent); }
-.md-tabs__item:nth-child(3)::after { background: color-mix(in srgb, #6ee7b7 45%, transparent); }
-.md-tabs__item:nth-child(4)::after { background: color-mix(in srgb, #a78bfa 45%, transparent); }
-.md-tabs__item:nth-child(5)::after { background: color-mix(in srgb, #fbbf24 45%, transparent); }
-.md-tabs__item:nth-child(6)::after { background: color-mix(in srgb, #f0abfc 45%, transparent); }
+.md-tabs__item:nth-child(2)::after { background: color-mix(in srgb, #5eead4 45%, transparent); }
+.md-tabs__item:nth-child(3)::after { background: color-mix(in srgb, #7dd3fc 45%, transparent); }
+.md-tabs__item:nth-child(4)::after { background: color-mix(in srgb, #6ee7b7 45%, transparent); }
+.md-tabs__item:nth-child(5)::after { background: color-mix(in srgb, #a78bfa 45%, transparent); }
+.md-tabs__item:nth-child(6)::after { background: color-mix(in srgb, #fbbf24 45%, transparent); }
+.md-tabs__item:nth-child(7)::after { background: color-mix(in srgb, #f0abfc 45%, transparent); }
 .md-tabs__item--active::after { background: var(--ml-section) !important; }
 
 .md-nav__link--active,
@@ -556,6 +561,7 @@ body { background: var(--ml-ground); }
 .md-typeset .ml-card--l2 { --c: var(--ml-l2); }
 .md-typeset .ml-card--l3 { --c: var(--ml-l3); }
 .md-typeset .ml-card--capstone { --c: var(--ml-capstone); }
+.md-typeset .ml-card--ideas { --c: var(--ml-ideas); }
 
 .md-typeset .ml-card__kicker {
   font-family: var(--ml-mono);
@@ -745,4 +751,15 @@ body { background: var(--ml-ground); }
   .md-typeset .ml-capstone { grid-template-columns: minmax(0, 1fr); }
   .ml-window { transform: none; }
   .ml-hero { padding: 2.4rem 1rem 2rem; margin: 0 0 2rem; }
+}
+
+/* ── mermaid diagrams sit on a card, like code ─────────────────────────────────────────────── */
+
+.md-typeset .mermaid {
+  margin: 1.4rem 0;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  border: 1px solid var(--ml-rule);
+  background: var(--ml-surface);
+  text-align: center;
 }

@@ -72,13 +72,23 @@ markdown_extensions:
   - toc:
       permalink: "#"
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
 
 nav:
   - Home: index.md
+  - Ideas:
+      - ideas/README.md
+      - ideas/thinking-machines.md
+      - ideas/modal-systems.md
+      - ideas/semantics-and-accountability.md
+      - ideas/neuro-symbolic.md
   - Hilbert:
       - hilbert/01-what-hilbert-is.md
       - hilbert/02-the-four-dialects.md

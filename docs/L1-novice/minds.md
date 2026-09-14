@@ -8,6 +8,11 @@ descendant. A **modal logic** asks *how* something is true. Is it true **always*
 This page takes the first two questions: time, then obligation. Both turn out to be ordinary rules
 over one extra relation, and both come with a surprise that is worth more than the notation.
 
+> **Why any of this matters** (why a machine that confuses *ought* with *is* can cost a company in
+> court, and why possible worlds are the right way to put a thought into software) is the subject of
+> [Putting a thought into a machine](../ideas/thinking-machines.md) and
+> [When a chatbot makes a promise](../ideas/semantics-and-accountability.md).
+
 | Sample | The new idea |
 |---|---|
 | [Traffic](#traffic) | *always*, *eventually* and *until* are questions you can ask of a run |

@@ -4,6 +4,10 @@
 have seen the difference three ways: as one missing law, as an engine that catches somebody holding a
 false belief, and as a kernel that refuses to prove the difference away.
 
+> The names on this page (T, D, 4, 5, S5, KD45) are each explained, with what they mean for
+> knowledge, belief, obligation and time and when you would reject them, in
+> [The modal systems, explained](../ideas/modal-systems.md).
+
 | Sample | The new idea |
 |---|---|
 | [Knowledge](#knowledge) | knowledge is S5, belief is KD45, and the gap between them is one law |

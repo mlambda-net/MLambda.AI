@@ -19,6 +19,7 @@ pseudocode, and a proof that stops checking stops the build.
 </p>
 <div class="ml-actions">
 <a class="ml-button ml-button--primary" href="hilbert/01-what-hilbert-is/">Start with Hilbert →</a>
+<a class="ml-button ml-button--ghost" href="ideas/">Why it matters</a>
 <a class="ml-button ml-button--ghost" href="#three-levels">Pick your level</a>
 <a class="ml-button ml-button--ghost" href="https://github.com/mlambda-net/MLambda.AI">Source on GitHub</a>
 </div>
@@ -63,6 +64,36 @@ pseudocode, and a proof that stops checking stops the build.
 <a class="ml-step" style="--c: var(--ml-l1)" href="L1-novice/"><b>Level 1 · Novice</b><span>Facts, rules, and a machine working out what nobody wrote down.</span></a>
 <a class="ml-step" style="--c: var(--ml-l2)" href="L2-practitioner/"><b>Levels 2 and 3</b><span>What the notation buys you, then proving things about the systems.</span></a>
 <a class="ml-step" style="--c: var(--ml-capstone)" href="actuarial/"><b>The capstone</b><span>One real house, three agents, one verdict.</span></a>
+</div>
+
+<h2 class="ml-section-title">Why it matters</h2>
+<p class="ml-section-lead">Four short essays, no code required: what it takes to put a thought into a machine, and why it is not a prompt.</p>
+
+<div class="ml-cards">
+<a class="ml-card ml-card--ideas" href="ideas/thinking-machines/">
+<p class="ml-card__kicker">Minds</p>
+<p class="ml-card__title">Putting a thought into a machine</p>
+<p>Why belief, knowledge and intention defeat tables and text, and how possible worlds make them tractable.</p>
+<span class="ml-card__more">Read →</span>
+</a>
+<a class="ml-card ml-card--ideas" href="ideas/modal-systems/">
+<p class="ml-card__kicker">Logic</p>
+<p class="ml-card__title">The modal systems, explained</p>
+<p>K, T, D, S4, S5, KD45: six choices about what an attitude may do, and how to pick them for a real problem.</p>
+<span class="ml-card__more">Read →</span>
+</a>
+<a class="ml-card ml-card--ideas" href="ideas/semantics-and-accountability/">
+<p class="ml-card__kicker">Accountability</p>
+<p class="ml-card__title">When a chatbot makes a promise</p>
+<p>An airline paid for its chatbot's answer. What the answer meant, and the problems semantics solves.</p>
+<span class="ml-card__more">Read →</span>
+</a>
+<a class="ml-card ml-card--ideas" href="ideas/neuro-symbolic/">
+<p class="ml-card__kicker">Neuro-symbolic</p>
+<p class="ml-card__title">A network that proposes, a logic that checks</p>
+<p>Why AlphaGeometry and AlphaProof pair a model with a verifier, and what chain-of-thought cannot give you.</p>
+<span class="ml-card__more">Read →</span>
+</a>
 </div>
 
 <h2 class="ml-section-title" id="three-levels">Three levels</h2>

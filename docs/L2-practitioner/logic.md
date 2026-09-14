@@ -215,8 +215,10 @@ which leaves the theory in the proof inputs and out of the engine inputs. Compar
 
 ## Try it yourself
 
-1. Remove `symm` from the `axioms [...]` line in `Worlds.hp` and build. Which theorems still check?
-   You have just moved from S5 to S4 and found out what it cost.
+1. Remove `symm` from the `axioms [...]` line in `Worlds.hp` and build. Everything still checks,
+   because T and 5 give symmetry anyway: you are still in S5. Now remove `euclid` too. You have moved
+   to S4, and the theorems that fail are what negative introspection was buying. See
+   [the modal systems, explained](../ideas/modal-systems.md).
 2. Add a theorem to `Counting.hp` that is **false** — `a + b = a` — and watch the build fail. The
    certificate cannot be produced, and `HilbertProofStrict` will not let it through.
 3. Give `Worlds` a second declared place and ask what it sees.

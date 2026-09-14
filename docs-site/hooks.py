@@ -22,6 +22,7 @@ FENCE = re.compile(r"^(```|~~~)")
 
 # Folder -> (badge text, the page a bare folder link means).
 SECTIONS = {
+    "ideas": ("Ideas · Why it matters", "README.md"),
     "hilbert": ("Start here · How Hilbert works", "01-what-hilbert-is.md"),
     "L1-novice": ("Level 1 · Novice", "README.md"),
     "L2-practitioner": ("Level 2 · Practitioner", "README.md"),
