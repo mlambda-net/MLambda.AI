@@ -34,6 +34,82 @@ A **frame** is a set of worlds plus an **accessibility relation** saying which w
 
 ---
 
+## What a world is: an afternoon of rain
+
+A **possible world**, in Kripke's semantics, is a complete alternative way reality could be. Not a
+place, and not a part of reality: a whole version of everything.
+
+You are at home, and the curtains are closed. It might be raining outside, or it might not. So, for
+you, two worlds are still open:
+
+| world | you are | outside |
+|---|---|---|
+| **w_rain** | at home, curtains closed | it is raining |
+| **w_dry** | at home, curtains closed | it is dry |
+
+Both are the whole world, and you are inside the house in both. They differ only in what you can't
+see. One of them is the **actual** world, the one you are really in. The other is an alternative
+you have not ruled out.
+
+### Knowing
+
+> **You know p when p is true in every world you cannot rule out.**
+
+With the curtains closed you can't rule out either world. Rain holds in one and not the other, so
+**you don't know it is raining**, and you don't know it is dry either.
+
+Open the curtains. Now the world where it's dry (say it's actually raining) is ruled out. Only
+`w_rain` is left, rain holds in it, and **you know it is raining**.
+
+Because knowledge is **S5**, it has **T**: the actual world is always among the worlds you can't rule
+out, since you can't rule out where you really are. So whatever you know is true. You can't *know*
+it's raining on a dry afternoon.
+
+### Believing
+
+You hear a drumming on the roof and think *rain*. You haven't looked. Your **belief** settles on the
+worlds you take to be how things are: only `w_rain`.
+
+> **You believe p when p is true in every world you take to be actual.**
+
+Rain holds in `w_rain`, so **you believe it is raining**. Now suppose the drumming was a neighbour's
+washing machine, and the actual world is `w_dry`:
+
+| | worlds considered | raining in all of them? | verdict |
+|---|---|---|---|
+| **knowledge** | `w_rain`, `w_dry` (you haven't looked) | no | you **don't know** it's raining |
+| **belief** | `w_rain` (you settled on rain) | yes | you **believe** it's raining |
+| **truth** | `w_dry` (the actual world) | no | it **isn't** raining: the belief is false |
+
+That's possible only because belief is **KD45**, which has no T. The actual world, `w_dry`, can be
+missing from the worlds you believe in. Knowledge can never leave it out.
+
+This is the beauty of the idea. **One picture, worlds and which ones an attitude takes seriously,
+represents a mind that can be wrong, a mind that can't, and the difference between them.** A machine
+built on it can hold *"she believes it's raining"* and *"it isn't raining"* at the same time,
+without contradiction, and can conclude on its own that her belief is false. That is exactly what
+[Minds, L2](../L2-practitioner/minds.md) runs, with a door instead of the weather.
+
+### Four misreadings worth avoiding
+
+1. **"Inside the house is my world; outside is another world."** No. Each world is a *whole*
+   alternative: in both worlds you are inside, and outside differs. Worlds don't divide space; they
+   divide *possibilities*.
+2. **"Knowing means true in all possible worlds."** No. That would be *necessity*, what holds however
+   reality had gone, like 2 + 2 = 4. Knowing means true in all worlds **you cannot rule out**, a set
+   that shrinks as you learn. And **reality** is not all the worlds. It is **one** of them, the actual
+   world.
+3. **"In the logic K, beliefs count as knowledge."** No. K is too weak to be knowledge: it has no T, so
+   a single operator in K could "know" something false. What separates belief from knowledge isn't K
+   versus S5. It's the one axiom **T**, present for knowledge (S5) and absent for belief (KD45).
+4. **"You can believe something while knowing it is false."** Not if the logic links the two, as
+   [Minds](../L2-practitioner/minds.md) does: every world you believe in is a world you can't rule
+   out. If you *know* it's dry, every world you can't rule out is dry, so every world you believe in is
+   dry, so you believe it's dry, and D stops you believing rain as well. What *is* possible is that
+   **you** believe it's raining, it isn't, and **someone else**, who looked, knows it isn't.
+
+---
+
 ## The six choices
 
 ### K — distribution (every normal modal logic has it)
