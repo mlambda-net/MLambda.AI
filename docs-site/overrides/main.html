@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+  {#- EACH PAGE WEARS ITS SECTION'S COLOUR: the stylesheet reads this attribute. -#}
+  {%- set src = page.file.src_uri if page and page.file else "" -%}
+  {%- set section = src.split("/")[0] if "/" in src else "home" -%}
+  <script>document.documentElement.dataset.section = "{{ section }}";</script>
+{% endblock %}

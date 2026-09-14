@@ -4,3 +4,10 @@ Generated/
 *.user
 .vs/
 .idea/
+
+# Internal design notes and plans: not published with this public repository.
+docs/superpowers/
+
+# The built learning site (mkdocs build) and its hook cache.
+site/
+__pycache__/
