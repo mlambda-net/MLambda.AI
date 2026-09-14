@@ -8,6 +8,7 @@ using MLambda.Hilbert.Proof;
 using MLambda.Shin.Runtime;
 
 using Light = MLambda.AI.Minds.Traffic;
+using Rules = MLambda.AI.Minds.Duty;
 
 if (args.Length == 0)
 {
@@ -24,6 +25,7 @@ if (args.Length == 0)
 switch (args[0].ToLowerInvariant())
 {
     case "traffic": await Traffic(); break;
+    case "duty": await Duty(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -86,4 +88,34 @@ static async Task Traffic()
     Console.WriteLine($"  U  from m2, green until red:   {await light.WaitsUntil("m2", "green", "red")}");
 
     Verdicts("Traffic", typeof(TrafficProofs));
+}
+
+static async Task Duty()
+{
+    Console.WriteLine("An office: ana is the keyholder and staff, ben is staff.");
+    Console.WriteLine("Keyholders must lock up. Staff may not smoke.");
+    Console.WriteLine();
+
+    var office = Rules.DutyEngineFactory.Create();
+    office.AssertAll([
+        new Rules.PersonFact("ana"), new Rules.PersonFact("ben"),
+        new Rules.ActFact("lock_up"), new Rules.ActFact("smoke"), new Rules.ActFact("sweep"),
+        new Rules.PlaysFact("ana", "keyholder"), new Rules.PlaysFact("ana", "staff"), new Rules.PlaysFact("ben", "staff"),
+        new Rules.ObligesFact("keyholder", "lock_up"),
+        new Rules.ForbidsFact("staff", "smoke"),
+    ]);
+
+    Console.WriteLine($"  ana must:      {await Listed(office.Obligations("ana"))}");
+    Console.WriteLine($"  ben may:       {await Listed(office.Permissions("ben"))}");
+
+    var unmet = new List<string>();
+    await foreach (var row in office.Violations())
+    {
+        unmet.Add($"{row.Who} has not done {row.What}");
+    }
+
+    Console.WriteLine($"  unmet:         {(unmet.Count == 0 ? "(nothing)" : string.Join("; ", unmet))}");
+    Console.WriteLine("  An obligation says what ought to be. It does not make it so.");
+
+    Verdicts("Duty", typeof(DutyProofs));
 }

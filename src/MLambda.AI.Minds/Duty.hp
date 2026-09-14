@@ -1,0 +1,24 @@
+-- Duty.hp — D, and the inheritance of duty through a role.
+--
+-- `ideal(w, w)` IS NOT HERE AND CANNOT BE. No law concludes it, and `RefusalTests` asks the kernel
+-- for it and watches it refuse: what ought to be is not thereby what is.
+open Duty
+axioms [serialO, obligedBy, forbiddenBy]
+
+theorem every_seeded_situation_has_an_ideal : ∀ w u, idealSeed(w, u) ⇒ ideal(w, u)
+proof
+  intro w u seeded
+  apply serialO [seeded]
+qed
+
+theorem a_role_passes_its_obligations_to_whoever_plays_it : ∀ p r a, plays(p, r) ⇒ obliges(r, a) ⇒ obliged(p, a)
+proof
+  intro p r a playing rule
+  apply obligedBy [playing, rule]
+qed
+
+theorem and_its_prohibitions_too : ∀ p r a, plays(p, r) ⇒ forbids(r, a) ⇒ forbidden(p, a)
+proof
+  intro p r a playing rule
+  apply forbiddenBy [playing, rule]
+qed
