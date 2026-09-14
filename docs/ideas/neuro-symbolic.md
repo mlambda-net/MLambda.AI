@@ -142,8 +142,18 @@ It's tempting to see the checker as a brake. It is an engine:
 | errors compound over long reasoning | yes | yes | no: rejected steps don't survive |
 | explanation is the real reason | not guaranteed | not guaranteed (Turpin et al.) | ✔ the derivation *is* the reason |
 | can generate its own verified training data | ✘ | ✘ | ✔ |
-| cost | lowest | higher | highest; search can take long |
+| cost | one generation | grows with the length of the chain and the samples taken | **depends on the search space**: see below |
 | needs a formal model of the domain | no | no | **yes**, and that is the real work |
+
+**Cost is set by the size of the search, not by the architecture.** A neuro-symbolic system is
+expensive when the checker has an enormous space to explore and the model must be consulted again
+and again to steer it. Olympiad proofs are that case: AlphaProof trained for weeks on millions of
+problems, and some contest problems took days of search. But most practical problems have a
+**small** space. Checking a refund answer against a fare policy, a dose against a guideline, or an
+agent's action against its permissions is a handful of rule applications: one model call to read the
+question, then a derivation that takes milliseconds. That is often **cheaper** than chain-of-thought,
+where the model pays in tokens for every reasoning step it writes out, and pays again for each extra
+sample taken to vote on the answer.
 
 ---
 
