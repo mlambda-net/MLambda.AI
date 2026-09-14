@@ -45,36 +45,19 @@ public class DutyTests
     }
 
     [Fact]
-    public async Task And_doing_it_discharges_it()
+    public async Task And_doing_it_discharges_it_even_when_the_deed_is_reported_later()
     {
-        // THE SAME OFFICE, TOLD IN ONE BATCH that ana locked up. See the next test for why one batch.
-        var office = DutyEngineFactory.Create();
-        office.AssertAll([
-            new PersonFact("ana"), new ActFact("lock_up"),
-            new PlaysFact("ana", "keyholder"), new ObligesFact("keyholder", "lock_up"),
-            new DidFact("ana", "lock_up"),
-        ]);
+        // THE VIOLATION IS DRAWN FIRST, FROM AN ABSENCE, and withdrawn when the absence ends. The engine
+        // concluded `violation` from `¬ did`; the report that ana locked up defeats that `¬`, and the
+        // conclusion goes with it. One set of facts gives one answer however it arrived.
+        var office = Office();
+
+        Assert.Equal([new ViolationsRow("ana", "lock_up")], await Answers.Rows(office.Violations()));
+
+        office.AssertAll([new DidFact("ana", "lock_up")]);
 
         Assert.Equal(["lock_up"], await Answers.Sorted(office.Obligations("ana")));
         Assert.Empty(await Answers.Rows(office.Violations()));
-    }
-
-    [Fact]
-    public async Task But_today_a_deed_told_later_does_not_withdraw_the_violation_already_drawn()
-    {
-        // A LIMIT OF THE SHIN ENGINE, NOT OF THE LOGIC, pinned so its fix is noticed.
-        //
-        // `violation` rests on `¬ did`. The engine derived it from the first batch, when nothing said
-        // ana had locked up — and a later batch that says so does not revisit it. A conclusion drawn
-        // from an ABSENCE is not withdrawn when the absence ends: the forward engine recomputes what
-        // new facts ADD, not what they DEFEAT. Stratified semantics says the violation should go.
-        //
-        // IF THIS TEST STARTS FAILING, SHIN FIXED IT. Delete this test, fold the one above back into a
-        // second `AssertAll` on `Office()`, and remove the limit from docs/L3-advanced/minds.md.
-        var office = Office();
-        office.AssertAll([new DidFact("ana", "lock_up")]);
-
-        Assert.Equal([new ViolationsRow("ana", "lock_up")], await Answers.Rows(office.Violations()));
     }
 
     [Fact]

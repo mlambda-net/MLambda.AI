@@ -70,16 +70,10 @@ public class KnowledgeTests
     [Fact]
     public async Task Looking_properly_is_what_turns_a_belief_into_knowledge()
     {
-        // carol stands where alice stood and tries the handle, like bob: nothing is hidden from her.
-        // Asserted IN ONE BATCH with the scene — see DutyTests for why a later batch would not do.
-        var door = KnowledgeEngineFactory.Create();
-        door.AssertAll([
-            new WorldFact("home"), new WorldFact("locked_home"),
-            new AgentFact("carol"),
-            new PropFact("locked"), new PropFact("unlocked"),
-            new HoldsFact("home", "unlocked"), new HoldsFact("locked_home", "locked"),
-            new GuessFact("carol", "home", "home"),
-        ]);
+        // carol arrives after the scene, stands where alice stood and tries the handle, like bob:
+        // nothing is hidden from her.
+        var door = Door();
+        door.AssertAll([new AgentFact("carol"), new GuessFact("carol", "home", "home")]);
 
         Assert.Equal(["unlocked"], await Answers.Sorted(door.Known("carol", "home")));
         Assert.Empty(await Answers.Sorted(door.Mistaken("carol", "home")));

@@ -65,18 +65,15 @@ public class DeadlinesTests
     [Fact]
     public async Task Telling_someone_turns_an_excuse_into_a_breach()
     {
-        // ONE BATCH, as every scene here is asserted: a conclusion drawn from `¬ knows_due` is not
-        // withdrawn by a later batch today — see DutyTests.But_today_a_deed_told_later_… and
-        // docs/hilbert/06-diagnostics.md.
-        var week = DeadlineEngineFactory.Create();
-        week.AssertAll([
-            .. Calendar(),
-            new DueFact("cy", "report", "wed"),
-            new DidFact("thu", "cy", "report"),
-            new InformedFact("cy", "report", "tue"),
-        ]);
+        // LEARNED LATER, AND REVISED. The excuse rests on `¬ knows_due`; the news that cy was told on
+        // Tuesday ends that absence, and the engine withdraws the excuse and draws the breach.
+        var week = Week();
 
-        Assert.Empty(await Answers.Rows(week.ExcusedOf()));
+        Assert.Contains(new ExcusedOfRow("cy", "report"), await Answers.Rows(week.ExcusedOf()));
+
+        week.AssertAll([new InformedFact("cy", "report", "tue")]);
+
+        Assert.DoesNotContain(new ExcusedOfRow("cy", "report"), await Answers.Rows(week.ExcusedOf()));
         Assert.Contains(new BreachesOfRow("cy", "report"), await Answers.Rows(week.BreachesOf()));
     }
 

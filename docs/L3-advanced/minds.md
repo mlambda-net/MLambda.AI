@@ -167,19 +167,21 @@ write it.
 what follows. It doesn't reason about what fails to follow. So that sentence is
 `DeadlinesTests.A_kept_duty_is_never_breached`, not a theorem.
 
-### 6. An engine that learns later does not yet unlearn
+### 6. A conclusion from an absence is provisional
 
 Negation as failure concludes from an **absence**: no deed, so a violation; nobody told him, so
-excused. Today's Shin engine recomputes what new facts **add**, not what they **defeat**. A deed
-reported in a later `AssertAll` doesn't withdraw the violation already drawn. Every scene in Minds
-is therefore asserted in one batch, and
-`DutyTests.But_today_a_deed_told_later_does_not_withdraw_the_violation_already_drawn` pins the gap
-so its fix is noticed.
+excused. Such a conclusion is **non-monotonic**: learning *more* can make it *false*. Classical
+logic never does that: once proved, a theorem stays proved whatever you add. A reasoner that works
+from what it hasn't been told must be ready to take a conclusion back.
 
-This one is a limit of the **engine**, not the logic, and it matters: an agent that perceives the
-world over time must be able to revise a conclusion it drew from what it hadn't yet seen.
-It is written up, with the workaround, in
-[diagnostics](../hilbert/06-diagnostics.md#a-conclusion-drawn-from-an-absence-is-not-revised-when-the-absence-ends-open).
+The engine does. Report the deed in a later `AssertAll` and the violation is withdrawn; tell cy about
+the report and his excuse becomes a breach. `DutyTests.And_doing_it_discharges_it_even_when_the_deed_is_reported_later`
+and `DeadlinesTests.Telling_someone_turns_an_excuse_into_a_breach` assert exactly that.
+
+**Tell-tale:** an answer that depends on the *order* facts arrived in rather than on the facts. That
+is the one symptom of a reasoner that forgot a conclusion was provisional. Shin had exactly that
+defect while this subject was written; it is fixed, and written up in
+[diagnostics](../hilbert/06-diagnostics.md#a-conclusion-drawn-from-an-absence-is-withdrawn-when-the-absence-ends-fixed).
 
 > **An edge that turned out to be a bug.** "Always" over a transitive time order negates into a
 > recursive relation. Hilbert used to refuse that as `HS0031`, although it is ordinary stratified
@@ -208,7 +210,8 @@ dotnet run --project src/MLambda.AI.Minds -- Deadlines
 
 ## Try it yourself
 
-1. Tell cy about the report on Tuesday, in the same `AssertAll`. Predict both verdicts, then compare
+1. Tell cy about the report on Tuesday, in a second `AssertAll` after the verdicts print. Predict both
+   verdicts again, then compare
    with `Telling_someone_turns_an_excuse_into_a_breach`.
 2. Delete the `remembers` law. Predict ben's verdict, then read which theorem stops checking.
 3. Write `theorem belief_is_true : ∀ i w, agent(i) ⇒ world(w) ⇒ believes(i, w, w)` into

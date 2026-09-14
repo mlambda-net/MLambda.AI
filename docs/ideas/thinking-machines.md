@@ -166,8 +166,9 @@ a room of people can actually settle.
   and it is exactly where neural networks are strong. That combination is the subject of
   [Neuro-symbolic AI](neuro-symbolic.md).
 - **Existence and absence.** A rule engine can't conclude that something exists (every serial
-  relation here is seeded), and conclusions drawn from something being absent need care when facts
-  arrive later. [Minds, L3](../L3-advanced/minds.md) lists these edges.
+  relation here is seeded). A conclusion drawn from something being *absent* is provisional: learning
+  more can make it false, so the reasoner must be able to take it back. [Minds, L3](../L3-advanced/minds.md)
+  lists these edges.
 
 ---
 

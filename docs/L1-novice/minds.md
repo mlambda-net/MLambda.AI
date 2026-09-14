@@ -246,17 +246,16 @@ dotnet run --project src/MLambda.AI.Minds -- Duty
 
 - A role passes its obligations to whoever plays it, and only to them.
 - What is not forbidden is permitted.
-- An obligation does not make itself true, and doing it discharges it.
+- An obligation does not make itself true, and doing it discharges it, even when the deed is
+  reported after the violation was drawn. The engine takes back a conclusion it drew from an absence
+  once the absence ends; see [Minds, L3](../L3-advanced/minds.md#6-a-conclusion-from-an-absence-is-provisional).
 - A rulebook that obliges and forbids the same act is caught, for everyone it binds.
 - The kernel proves D, and refuses "what ought to be is".
-- **One limit, pinned:** a deed reported in a *later* batch of facts does not yet withdraw a
-  violation the engine already drew. That is a limit of today's engine, not of the logic, and it is
-  written up in [diagnostics](../hilbert/06-diagnostics.md#a-conclusion-drawn-from-an-absence-is-not-revised-when-the-absence-ends-open).
 
 ### Try it yourself
 
-1. Add `new Rules.DidFact("ana", "lock_up")` to the office in `Program.cs`, in the same `AssertAll`.
-   Predict *unmet*.
+1. After the office prints *unmet*, assert `new Rules.DidFact("ana", "lock_up")` in a second
+   `AssertAll` and print *unmet* again. Predict it first.
 2. Add `new Rules.ObligesFact("staff", "smoke")`. Now the rulebook contradicts itself. Add a line to
    print `office.Conflicts()` and see who it catches.
 3. Give ben the keyholder role too. What does `ben must` answer, and does it change `ben may`?

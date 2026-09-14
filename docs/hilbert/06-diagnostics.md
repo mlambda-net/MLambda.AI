@@ -117,9 +117,7 @@ belief relation. That is how it was found: writing [Minds](../L1-novice/minds.md
 a cycle as negative only when a `¬` edge lies **inside** it (MLambda.Hilbert `68e8c79`, with the
 failing cases in `ShinStratifyCase`).
 
-## A conclusion drawn from an absence is not revised when the absence ends — open
-
-Not an error code. The engine keeps answering something that is no longer true.
+## A conclusion drawn from an absence is withdrawn when the absence ends — fixed
 
 A rule with a `¬` concludes from something being **absent**:
 
@@ -127,22 +125,23 @@ A rule with a `¬` concludes from something being **absent**:
 law violates = ∀ p a, obliged(p, a) ∧ ¬ did(p, a) ⇒ violation(p, a)
 ```
 
-Assert the office with no `did` fact, and `violation(ana, lock_up)` is derived. Assert
-`did(ana, lock_up)` **in a later `AssertAll`**, and the violation is still there. Assert the same
-facts **in one batch**, and there is no violation. Two orderings of the same facts, two answers.
+Assert the office with no `did` fact, and `violation(ana, lock_up)` is derived. Then assert
+`did(ana, lock_up)` **in a later `AssertAll`**. The engine used to leave the violation standing, while
+the same facts asserted **in one batch** gave no violation: two orderings of the same facts, two
+answers, and no error to say so.
 
-**Why.** The Shin forward engine recomputes what new facts *add*. It never re-examines conclusions
-that new facts *defeat*: a conclusion that rested on `¬ did` is not withdrawn when `did` arrives.
-Stratified semantics says it should be. The engine's own comment covers the other direction
-(retracting a fact does not disturb a conclusion that rested on an absence), and this direction is
-the gap.
+**Why it happened.** The Shin forward engine recomputed what new facts *add* and never re-examined
+conclusions that new facts *defeat*. A conclusion resting on `¬ did` was not withdrawn when `did`
+arrived. Stratified semantics gives one model for one set of facts, however they were split across
+batches.
 
-**Until it is fixed:** assert everything a negation reads in the **same batch** as the rest of the
-scene, or build a fresh engine when those facts change. Every Minds sample does this, and
-[`DutyTests.But_today_a_deed_told_later_does_not_withdraw_the_violation_already_drawn`](../../test/MLambda.AI.Minds.Tests/DutyTests.cs)
-pins the behaviour, so the day Shin fixes it that test fails and says what to delete.
+**Fixed in MLambda.Shin** (`61002d9`). When a batch changes a predicate that some rule reads under a
+`¬` (or an aggregate), the engine rebuilds what was derived from the asserted facts, so the answer no
+longer depends on the order facts arrived in. Minds found it and now tests the corrected behaviour:
+`DutyTests.And_doing_it_discharges_it_even_when_the_deed_is_reported_later` and
+`DeadlinesTests.Telling_someone_turns_an_excuse_into_a_breach` both assert the news in a second batch.
 
-**Why it matters:** an engine that learns later must be able to *unlearn* a conclusion drawn from
+**Why it mattered:** an engine that learns later must be able to *unlearn* a conclusion drawn from
 what it had not yet been told. A duty is discharged when the deed is reported, an excuse ends when
 somebody was told, and a perception that arrives late must be able to overturn a default.
 
