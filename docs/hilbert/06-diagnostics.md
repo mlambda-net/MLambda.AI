@@ -92,6 +92,60 @@ the **reversed** question.
 MLambda.Shin now binds a query's inputs and outputs **by name**, so the declaration order and the
 body order are free to differ. `Animals.hs` asks `is_a` from both ends, `kinds` and `members`.
 
+## `HS0031` on a negation that is not in a cycle — fixed
+
+```
+error HS0031: Negation is not stratified: later → later depends on itself through a `¬`.
+```
+
+`HS0031` is right to refuse `p :- ¬ p`: a predicate cannot be defined by the failure to derive
+itself. It was wrong to refuse this, from [`Traffic.hs`](../../src/MLambda.AI.Minds/Traffic.hs):
+
+```
+law onwards  = ∀ m n o, later(m, n) ∧ later(n, o) ⇒ later(m, o)
+law breaksAt = ∀ m n c, later(m, n) ∧ colour(c) ∧ ¬ shows(n, c) ⇒ breaks(m, c)
+law alwaysIs = ∀ m c,   moment(m) ∧ colour(c) ∧ ¬ breaks(m, c) ⇒ always(m, c)
+```
+
+`later` is recursive, but **positively**. The `¬` is on the way *into* that recursion, from
+`always`, and nothing depends back on `always`. So `later` settles first and `always` asks
+afterwards, which is ordinary stratified negation. The check remembered the `¬` it crossed before the
+cycle began and blamed the cycle for it.
+
+Every "always" over a time order has this shape, and so does every "believes that" over a transitive
+belief relation. That is how it was found: writing [Minds](../L1-novice/minds.md). Hilbert now counts
+a cycle as negative only when a `¬` edge lies **inside** it (MLambda.Hilbert `68e8c79`, with the
+failing cases in `ShinStratifyCase`).
+
+## A conclusion drawn from an absence is not revised when the absence ends — open
+
+Not an error code. The engine keeps answering something that is no longer true.
+
+A rule with a `¬` concludes from something being **absent**:
+
+```
+law violates = ∀ p a, obliged(p, a) ∧ ¬ did(p, a) ⇒ violation(p, a)
+```
+
+Assert the office with no `did` fact, and `violation(ana, lock_up)` is derived. Assert
+`did(ana, lock_up)` **in a later `AssertAll`**, and the violation is still there. Assert the same
+facts **in one batch**, and there is no violation. Two orderings of the same facts, two answers.
+
+**Why.** The Shin forward engine recomputes what new facts *add*. It never re-examines conclusions
+that new facts *defeat*: a conclusion that rested on `¬ did` is not withdrawn when `did` arrives.
+Stratified semantics says it should be. The engine's own comment covers the other direction
+(retracting a fact does not disturb a conclusion that rested on an absence), and this direction is
+the gap.
+
+**Until it is fixed:** assert everything a negation reads in the **same batch** as the rest of the
+scene, or build a fresh engine when those facts change. Every Minds sample does this, and
+[`DutyTests.But_today_a_deed_told_later_does_not_withdraw_the_violation_already_drawn`](../../test/MLambda.AI.Minds.Tests/DutyTests.cs)
+pins the behaviour, so the day Shin fixes it that test fails and says what to delete.
+
+**Why it matters:** an engine that learns later must be able to *unlearn* a conclusion drawn from
+what it had not yet been told. A duty is discharged when the deed is reported, an excuse ends when
+somebody was told, and a perception that arrives late must be able to overturn a default.
+
 ## Writing an agent: three things the language insists on
 
 None of these is a bug. Each is the `.ha` dialect taking a position, and the error message says so.
