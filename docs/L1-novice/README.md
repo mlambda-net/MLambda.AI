@@ -10,5 +10,6 @@ seen a proof that those consequences always follow.
 | Agents | [agent.md](agent.md) |
 | Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | [learning.md](learning.md) |
+| Minds | [minds.md](minds.md) |
 
 At this level a sample uses no notation it has not introduced: `∀`, `⇒` and `∧`, and nothing else.

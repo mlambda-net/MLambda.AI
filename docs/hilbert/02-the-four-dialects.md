@@ -32,6 +32,11 @@ theory Animals (Thing)
 
 It becomes an **engine**: something you assert facts into and ask questions of.
 
+A theory may also declare a **modality**: `modality K(i) over knows at holds` says that "agent i
+knows p" is read over the relation `knows`. The laws on `knows` then decide *which* modal logic that
+is: reflexive, transitive and euclidean make it S5, knowledge; drop reflexivity and it is belief. See
+[Minds, L2](../L2-practitioner/minds.md) for both, running side by side.
+
 ## `.hp` — proofs about a theory
 
 The engine answers about the facts you gave it. A `.hp` proves things that hold whatever facts

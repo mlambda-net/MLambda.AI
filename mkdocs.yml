@@ -92,18 +92,21 @@ nav:
       - L1-novice/agent.md
       - L1-novice/ml.md
       - L1-novice/learning.md
+      - L1-novice/minds.md
   - L2 Practitioner:
       - L2-practitioner/README.md
       - L2-practitioner/logic.md
       - L2-practitioner/agent.md
       - L2-practitioner/ml.md
       - L2-practitioner/learning.md
+      - L2-practitioner/minds.md
   - L3 Advanced:
       - L3-advanced/README.md
       - L3-advanced/logic.md
       - L3-advanced/agent.md
       - L3-advanced/ml.md
       - L3-advanced/learning.md
+      - L3-advanced/minds.md
   - Capstone:
       - actuarial/README.md
       - actuarial/valuation.md

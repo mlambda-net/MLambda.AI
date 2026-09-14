@@ -24,8 +24,8 @@ pseudocode, and a proof that stops checking stops the build.
 </div>
 <div class="ml-stats">
 <div class="ml-stat"><b>3</b><span>levels, novice to advanced</span></div>
-<div class="ml-stat"><b>4</b><span>subjects at every level</span></div>
-<div class="ml-stat"><b>59</b><span>theorems the kernel checks</span></div>
+<div class="ml-stat"><b>5</b><span>subjects at every level</span></div>
+<div class="ml-stat"><b>83</b><span>theorems the kernel checks</span></div>
 <div class="ml-stat"><b>240</b><span>tests asserting behaviour</span></div>
 </div>
 </div>
@@ -73,21 +73,21 @@ pseudocode, and a proof that stops checking stops the build.
 <p class="ml-card__kicker">Level 1 · Novice</p>
 <p class="ml-card__title">Your first reasoning machine</p>
 <p>You have never written a rule for a computer to reason with. You will state facts and rules separately and watch consequences appear.</p>
-<ul><li>Animals, Families, Chains</li><li>A thermostat that intends</li><li>A line found from its points</li><li>A bandit that learns</li></ul>
+<ul><li>Animals, Families, Chains</li><li>A thermostat that intends</li><li>A line found from its points</li><li>A bandit that learns</li><li>Traffic lights and duties</li></ul>
 <span class="ml-card__more">Start L1 →</span>
 </a>
 <a class="ml-card ml-card--l2" href="L2-practitioner/">
 <p class="ml-card__kicker">Level 2 · Practitioner</p>
 <p class="ml-card__title">What the notation buys you</p>
 <p>You can read a theory and want to know why it is written that way: modal frames, certificates, agents that commit and give up.</p>
-<ul><li>Worlds and Counting</li><li>Collector and Cleaner</li><li>Perceptron and Classifier</li><li>Q-table and Sarsa</li></ul>
+<ul><li>Worlds and Counting</li><li>Collector and Cleaner</li><li>Perceptron and Classifier</li><li>Q-table and Sarsa</li><li>Knowing vs believing</li></ul>
 <span class="ml-card__more">Start L2 →</span>
 </a>
 <a class="ml-card ml-card--l3" href="L3-advanced/">
 <p class="ml-card__kicker">Level 3 · Advanced</p>
 <p class="ml-card__title">Proving things about the systems</p>
 <p>You want guarantees, not only programs: the theory beneath every agent, the law that is missing on purpose, the algebra learners stand on.</p>
-<ul><li>Sorts, and the missing law</li><li>Agency: belief, desire, intention</li><li>Nearest, and what is not claimed</li><li>Identities, proved by the kernel</li></ul>
+<ul><li>Sorts, and the missing law</li><li>Agency: belief, desire, intention</li><li>Nearest, and what is not claimed</li><li>Identities, proved by the kernel</li><li>Deadlines, and who knew</li></ul>
 <span class="ml-card__more">Start L3 →</span>
 </a>
 </div>
@@ -106,6 +106,12 @@ pseudocode, and a proof that stops checking stops the build.
 <td><a href="L1-novice/logic/"><b>Animals, Families, Chains</b><span>a rule works out what nobody wrote down</span></a></td>
 <td><a href="L2-practitioner/logic/"><b>Worlds and Counting</b><span>modal frames, arithmetic by certificate</span></a></td>
 <td><a href="L3-advanced/logic/"><b>Sorts</b><span>and the law that is missing</span></a></td>
+</tr>
+<tr>
+<th>Minds<small>time, duty, knowledge</small></th>
+<td><a href="L1-novice/minds/"><b>Traffic and Duty</b><span>always, eventually, and what ought to be</span></a></td>
+<td><a href="L2-practitioner/minds/"><b>Knowledge and Mind</b><span>knowing is not believing</span></a></td>
+<td><a href="L3-advanced/minds/"><b>Deadlines</b><span>and what these logics cannot say</span></a></td>
 </tr>
 <tr>
 <th>Agents<small>belief, desire, intention</small></th>

@@ -20,8 +20,7 @@ theory Families (Person)
   -- everybody is their own sibling.
   law siblings = ∀ p x y, parent(p, x) ∧ parent(p, y) ∧ x ≠ y ⇒ sibling(x, y)
 
-  -- INPUTS FIRST, THE `?` OUTPUT LAST, AND THE BODY ATOM IN THE SAME ORDER. Getting that backwards
-  -- gives a query that compiles and answers nothing -- see docs/hilbert/06-diagnostics.md.
+  -- A QUERY'S PARAMETERS ARE BOUND BY NAME, so their order need not follow the body atom's.
   query ancestors(of: Person, descendant?: Person) :- ancestor(of, descendant)
   query siblings_of(who: Person, other?: Person)   :- sibling(who, other)
 }
