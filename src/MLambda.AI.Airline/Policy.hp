@@ -1,0 +1,48 @@
+-- Policy.hp — axiom D, what an obligation means at an ideal, and the norms the Moffatt case turns on.
+--
+-- NORMS WITHOUT NEGATION ARE PROVED HERE; the ones with `¬` run in the engine and are tested there. What
+-- this file adds is that the frame is deontic and not merely a table: an obligation is what holds wherever
+-- the party does what it ought, and a forbidden act done is a violation whatever anyone said about it.
+open Policy
+axioms [serialO, atIdeal, owes, mustNot, violates, bereavementAfter, airlineCancelled]
+
+theorem every_seeded_situation_has_an_ideal : ∀ i w u, idealSeed(i, w, u) ⇒ ideal(i, w, u)
+proof
+  intro i w u seeded
+  apply serialO [seeded]
+qed
+
+theorem what_a_policy_obliges_holds_wherever_things_are_ideal : ∀ i a w u s, obliged(w, i, a, s) ⇒ ideal(i, w, u) ⇒ holds(u, a)
+proof
+  intro i a w u s norm best
+  have owed : ought(w, i, a) by apply owes [norm]
+  apply atIdeal [owed, best]
+qed
+
+theorem doing_what_a_policy_forbids_is_a_violation : ∀ w i a s, forbidden(w, i, a, s) ⇒ did(w, i, a) ⇒ violation(w, i, a)
+proof
+  intro w i a s norm done
+  have barred : oughtNot(w, i, a) by apply mustNot [norm]
+  apply violates [barred, done]
+qed
+
+theorem a_bereavement_fare_after_the_trip_is_forbidden : ∀ w, request(w, "bereavement_fare") ⇒ travelled(w) ⇒ forbidden(w, "airline", "bereavement_fare", "BRV-2")
+proof
+  intro w asked flown
+  apply bereavementAfter [asked, flown]
+qed
+
+theorem so_granting_it_anyway_is_a_violation : ∀ w, request(w, "bereavement_fare") ⇒ travelled(w) ⇒ did(w, "airline", "bereavement_fare") ⇒ violation(w, "airline", "bereavement_fare")
+proof
+  intro w asked flown done
+  have norm : forbidden(w, "airline", "bereavement_fare", "BRV-2") by apply bereavementAfter [asked, flown]
+  have barred : oughtNot(w, "airline", "bereavement_fare") by apply mustNot [norm]
+  apply violates [barred, done]
+qed
+
+theorem a_cancellation_by_the_airline_obliges_a_refund : ∀ w, request(w, "refund") ⇒ cancelledByAirline(w) ⇒ ought(w, "airline", "refund")
+proof
+  intro w asked cancelled
+  have norm : obliged(w, "airline", "refund", "REF-3") by apply airlineCancelled [asked, cancelled]
+  apply owes [norm]
+qed

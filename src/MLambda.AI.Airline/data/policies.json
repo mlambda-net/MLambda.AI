@@ -1,0 +1,40 @@
+{
+  "source": "Modelled on the bereavement policy described in Moffatt v. Air Canada, 2024 BCCRT 149, and on common airline refund rules. Simplified for this sample; not the carrier's tariff wording.",
+  "policies": [
+    {
+      "id": "BRV-1",
+      "title": "Bereavement fares are booked before travel",
+      "text": "A reduced bereavement fare is available for travel because of the death of an immediate family member. It must be requested before the trip, and documentation may be asked for."
+    },
+    {
+      "id": "BRV-2",
+      "title": "Bereavement fares are not retroactive",
+      "text": "A bereavement fare cannot be applied to travel that has already been completed. No refund of the difference is made after the trip."
+    },
+    {
+      "id": "REF-1",
+      "title": "Refundable fares are refunded",
+      "text": "A refundable fare that has not been flown is refunded to the original form of payment."
+    },
+    {
+      "id": "REF-2",
+      "title": "Non-refundable fares become travel credit",
+      "text": "A non-refundable fare is not refunded. When the booking is cancelled before departure, its value is kept as a travel credit."
+    },
+    {
+      "id": "REF-3",
+      "title": "Flights the airline cancels are refunded",
+      "text": "When the airline cancels a flight, the passenger may have the fare refunded to the original form of payment, whatever kind of fare it was."
+    },
+    {
+      "id": "REF-4",
+      "title": "Completed travel is not refunded",
+      "text": "A trip that has already been flown is not refunded."
+    },
+    {
+      "id": "CHAT-1",
+      "title": "The assistant commits the airline only to what a policy grants",
+      "text": "Nothing the assistant writes is an offer unless a written policy grants it for this booking. A draft that promises more is withheld."
+    }
+  ]
+}

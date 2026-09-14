@@ -1,0 +1,14 @@
+-- Reply.hk — the order a reply is made in, which no step can skip.
+--
+-- A PLAN CANNOT CALL C#, so it asks. Each step sends a command word on `act` and waits for the host's
+-- one-word answer on `done`. What the words mean is Desk.cs's job; what order they come in, and what a
+-- rejected answer leads to, is this file's.
+--
+-- REVIEW COMES BEFORE FORMAT, AND FORMAT IS CHECKED TOO. The model's draft is judged against the policy
+-- book first; then the model is asked to phrase the decision; and if that phrasing promises anything the
+-- book does not grant — or the model is unavailable — the reply is the plain template instead. There is
+-- no path from `act` to `print` that goes around `review`.
+plan AnswerSteps(act: chan Word, done: chan Word) : Assistant ≔ "review" → act ; v ← done ; match v { when "upheld" ↦ believe reviewed("upheld")  other ↦ believe reviewed("overruled") } ; "format" → act ; f ← done ; match f { when "formatted" ↦ SKIP  other ↦ "fallback" → act ; g ← done } ; "print" → act ; p ← done ; believe replied(1)
+
+-- AND WITH NO BOOKING THERE IS NOTHING TO DECIDE, so nothing to review: ask for the reference.
+plan ClarifySteps(act: chan Word, done: chan Word) : Assistant ≔ "ask" → act ; a ← done ; "print" → act ; p ← done ; believe replied(1)

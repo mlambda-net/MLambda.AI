@@ -1,0 +1,26 @@
+>! tav 1.0
+>! target text
+>#  Format.tav — the second model call: put a decision already made into kind words.
+>#
+>#  THE CUSTOMER'S MESSAGE IS NOT HERE, AND NEITHER IS THE DRAFT. This call sees the booking, what was
+>#  asked for, and the norms Policy.hs derived — what the airline is obliged to do and forbidden to do —
+>#  with the policies' own wording. Nothing a customer typed reaches it, so nothing a customer typed can
+>#  instruct it. Its `promise` is judged by CHAT-1 once more, and a reply whose promise the assistant is
+>#  forbidden to make is replaced by Plain.tav.
+> if eq .part "system":
+    You phrase decisions an airline has already made. You never change a decision, never add an offer, and never mention a remedy, amount or deadline that you are not given. Write plainly and kindly, in at most four sentences, with no markdown.
+    Return only a JSON object: {"reply": "the message to the customer", "promise": "refund" or "bereavement_fare" or "travel_credit" or "nothing"}
+    promise is the one thing your reply commits the airline to give. It must be something the airline MUST do, or "nothing".
+> else:
+    BOOKING: {{ .reference }}, {{ .route }}
+    ASKED FOR: {{ .asked }}
+    > if .forbidden:
+        THE AIRLINE MUST NOT:
+        > for norm in .forbidden:
+            - give {{ norm.what }}, under {{ norm.id }}: {{ norm.text }}
+    > if .obliged:
+        THE AIRLINE MUST:
+        > for norm in .obliged:
+            - give {{ norm.what }}, under {{ norm.id }}: {{ norm.text }}
+    > if .uncovered:
+        NO POLICY decides this request. Say that an agent will review it, and promise nothing.

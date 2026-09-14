@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MLambda.AI.Airline</RootNamespace>
+    <Description>An airline assistant that cannot do what Air Canada's chatbot did: a language model
+      drafts and phrases, a written rulebook decides, and every reply names the policy it rests on.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- THE POLICIES AND THE BOOKINGS ARE DATA, NOT CODE. Copied to the output so `dotnet run` and an
+         xunit host, whose working directory is its own bin/, read the same files. -->
+    <None Include="data\**" CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- THE PLAN IS INTERPRETED, NOT GENERATED. `PlanRunner` parses `.hk` text when the program runs,
+         so the text travels inside the assembly. -->
+    <EmbeddedResource Include="Reply.hk" LogicalName="MLambda.AI.Airline.Reply.hk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(HilbertRoot)\src\MLambda.Hilbert.Runtime\MLambda.Hilbert.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Shin\src\MLambda.Shin.Runtime\MLambda.Shin.Runtime.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Church\src\MLambda.Church.Semantic\MLambda.Church.Semantic.csproj" />
+
+    <!-- TAV. WHAT THE MODEL IS ASKED IS A TEMPLATE, NOT CONCATENATION: a person reads the prompt whole,
+         in the order the model reads it. The generator is a build-order reference only. -->
+    <ProjectReference Include="$(GenesisRoot)\modules\MLambda.Grammar\src\MLambda.Grammar.Tav\MLambda.Grammar.Tav.csproj" />
+    <ProjectReference Include="$(GenesisRoot)\src\Compiler\MLambda.Genesis.Generator.Bet\MLambda.Genesis.Generator.Bet.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TavFile Include="Templates/**/*.tav" />
+  </ItemGroup>
+
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Shin\MLambda.Hilbert.Shin.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+  <Import Project="$(GenesisRoot)\src\Compiler\MLambda.Genesis.Generator.Bet\build\MLambda.Genesis.Generator.Bet.targets" />
+</Project>

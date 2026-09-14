@@ -6,6 +6,7 @@
     <Project Path="src/MLambda.AI.Learning/MLambda.AI.Learning.csproj" />
     <Project Path="src/MLambda.AI.Minds/MLambda.AI.Minds.csproj" />
     <Project Path="src/MLambda.AI.Actuarial/MLambda.AI.Actuarial.csproj" />
+    <Project Path="src/MLambda.AI.Airline/MLambda.AI.Airline.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/MLambda.AI.Logic.Tests/MLambda.AI.Logic.Tests.csproj" />
@@ -14,5 +15,6 @@
     <Project Path="test/MLambda.AI.Learning.Tests/MLambda.AI.Learning.Tests.csproj" />
     <Project Path="test/MLambda.AI.Minds.Tests/MLambda.AI.Minds.Tests.csproj" />
     <Project Path="test/MLambda.AI.Actuarial.Tests/MLambda.AI.Actuarial.Tests.csproj" />
+    <Project Path="test/MLambda.AI.Airline.Tests/MLambda.AI.Airline.Tests.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,7 @@
+>! tav 1.0
+>! target text
+>#  Clarify.tav — the reply when there is a question but no booking to decide it for.
+>#
+>#  NO BOOKING, NO DECISION. Whether a refund or a bereavement fare is due depends on the fare and on whether
+>#  the trip was flown, and those come from the booking record, not from the conversation.
+I can help with {{ .asked }}. What I can offer depends on your booking, so please send me your six-character booking reference (for example MOF240).

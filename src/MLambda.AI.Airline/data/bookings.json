@@ -1,0 +1,9 @@
+{
+  "source": "Invented bookings. MOF240 is shaped like the Moffatt case: a non-refundable trip, already flown, taken because of a death in the family.",
+  "bookings": [
+    { "reference": "MOF240", "route": "Vancouver to Toronto", "fare": "nonrefundable", "travelled": true,  "cancelledByAirline": false },
+    { "reference": "FUT315", "route": "Montreal to Calgary",  "fare": "nonrefundable", "travelled": false, "cancelledByAirline": false },
+    { "reference": "RFD512", "route": "Ottawa to Halifax",    "fare": "refundable",    "travelled": false, "cancelledByAirline": false },
+    { "reference": "CXL777", "route": "Toronto to Winnipeg",  "fare": "nonrefundable", "travelled": false, "cancelledByAirline": true }
+  ]
+}
