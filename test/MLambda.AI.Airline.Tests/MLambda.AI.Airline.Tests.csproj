@@ -4,6 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="MLambda.AI.Airline.Chat" />
+    <Using Include="MLambda.AI.Airline.Expert" />
+    <Using Include="MLambda.AI.Airline.Llm" />
+    <Using Include="MLambda.AI.Airline.Records" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />

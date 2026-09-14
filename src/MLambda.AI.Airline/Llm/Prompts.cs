@@ -9,8 +9,10 @@
 using System.Text.RegularExpressions;
 using MLambda.AI.Airline.Templates;
 using MLambda.Grammar.Tav.Render;
+using MLambda.AI.Airline.Expert;
+using MLambda.AI.Airline.Records;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Llm;
 
 public sealed record Prompt(string System, string User);
 
@@ -19,9 +21,9 @@ public static partial class Prompts
     /// <summary>Longer than any honest question about a fare; a message past it is cut, not refused.</summary>
     public const int Longest = 2000;
 
-    public static Prompt Draft(PolicyBook book, Booking? booking, string message)
+    public static Prompt Draft(PolicyWording wording, Booking? booking, string message)
     {
-        var policies = book.All
+        var policies = wording.All
             .Select(TavValue (p) => Map(("id", p.Id), ("title", p.Title), ("text", p.Text)))
             .ToList();
 
@@ -62,7 +64,7 @@ public static partial class Prompts
     public static string Clarify(string request) =>
         ClarifyTemplate.Render(new TavMap(new Dictionary<string, TavValue>
         {
-            ["asked"] = new TavString(Rulebook.Say(request)),
+            ["asked"] = new TavString(PolicyExpert.Say(request)),
         })).Trim();
 
     /// <summary>The message as it may appear inside the fence: no marker-like brackets, no control characters, bounded.</summary>
@@ -80,14 +82,14 @@ public static partial class Prompts
             ["part"] = new TavString(part),
             ["reference"] = new TavString(decision.Booking.Reference),
             ["route"] = new TavString(decision.Booking.Route),
-            ["asked"] = new TavString(Rulebook.Say(decision.Request)),
+            ["asked"] = new TavString(PolicyExpert.Say(decision.Request)),
             ["obliged"] = Norms(decision.Obliged),
             ["forbidden"] = Norms(decision.Forbidden),
             ["uncovered"] = Flag(decision.Uncovered),
         });
 
     private static TavList Norms(IReadOnlyList<Norm> norms) =>
-        new([.. norms.Select(TavValue (n) => Map(("what", Rulebook.Say(n.Act)), ("id", n.Policy.Id), ("text", n.Policy.Text)))]);
+        new([.. norms.Select(TavValue (n) => Map(("what", PolicyExpert.Say(n.Act)), ("id", n.Policy.Id), ("text", n.Policy.Text)))]);
 
     private static TavMap Map(params (string Key, string Value)[] entries) =>
         new(entries.ToDictionary(e => e.Key, TavValue (e) => new TavString(e.Value)));

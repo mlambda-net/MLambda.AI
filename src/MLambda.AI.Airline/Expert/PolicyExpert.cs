@@ -1,14 +1,20 @@
-// Rulebook.cs — asks the policy expert, Policy.hs, what each party ought to do, and whether a promise violates it.
+// PolicyExpert.cs — the host's side of the policy expert: asks Policy.hs what each party ought to do, and
+// whether a promise violates it.
+//
+// NO RULE LIVES HERE. Which policy applies, whether it obliges or forbids, and what the assistant may promise
+// are all laws of Policy.hs. This class asserts one situation's facts — the request and the booking record —
+// runs the engine the build generated from the theory, and turns its answers into `Norm`s with their wording.
 //
 // A FRESH ENGINE PER QUESTION. The generated engine has no retract, and a promise checked against one
 // situation must not linger into the next, so each question asserts the situation's facts into a new
 // engine. Those are a handful of facts and a dozen rules; building the engine costs less than reasoning
 // about reuse.
 using Rules = MLambda.AI.Airline.Policy;
+using MLambda.AI.Airline.Records;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Expert;
 
-/// <summary>A norm the book derived: O(party) act or F(party) act, and the policy it comes from.</summary>
+/// <summary>A norm Policy.hs derived: O(party) act or F(party) act, and the policy it comes from.</summary>
 public sealed record Norm(char Modality, string Party, string Act, PolicyText Policy)
 {
     public const char Obligatory = 'O';
@@ -31,7 +37,7 @@ public sealed record Decision(
     public bool Uncovered => Obliged.Count == 0 && Forbidden.Count == 0;
 }
 
-public sealed class Rulebook(PolicyBook book)
+public sealed class PolicyExpert(PolicyWording wording)
 {
     public const string Airline = "airline";
     public const string Assistant = "assistant";
@@ -40,7 +46,7 @@ public sealed class Rulebook(PolicyBook book)
     /// <summary>Every remedy the book has a word for.</summary>
     public static readonly IReadOnlyList<string> Remedies = ["refund", "bereavement_fare", "travel_credit"];
 
-    public PolicyBook Book => book;
+    public PolicyWording Wording => wording;
 
     public async Task<Decision> DecideAsync(
         string situation, Booking booking, string request, bool bereavement, CancellationToken cancellationToken = default)
@@ -51,14 +57,14 @@ public sealed class Rulebook(PolicyBook book)
 
         await foreach (var row in engine.Obligations(situation, Airline, cancellationToken))
         {
-            obliged.Add(new Norm(Norm.Obligatory, Airline, row.What, book[row.Source]));
+            obliged.Add(new Norm(Norm.Obligatory, Airline, row.What, wording[row.Source]));
         }
 
         var forbidden = new List<Norm>();
 
         await foreach (var row in engine.Prohibitions(situation, Airline, cancellationToken))
         {
-            forbidden.Add(new Norm(Norm.Forbidden, Airline, row.What, book[row.Source]));
+            forbidden.Add(new Norm(Norm.Forbidden, Airline, row.What, wording[row.Source]));
         }
 
         return new Decision(situation, booking, request, bereavement, Ordered(obliged), Ordered(forbidden));
@@ -88,7 +94,7 @@ public sealed class Rulebook(PolicyBook book)
                 {
                     if (norm.What == promise)
                     {
-                        return new Norm(Norm.Forbidden, Assistant, promise, book[norm.Source]);
+                        return new Norm(Norm.Forbidden, Assistant, promise, wording[norm.Source]);
                     }
                 }
             }

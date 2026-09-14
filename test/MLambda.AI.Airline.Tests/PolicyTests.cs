@@ -3,12 +3,12 @@ namespace MLambda.AI.Airline.Tests;
 
 public class PolicyTests
 {
-    private static readonly Rulebook Rules = new(Shipped.Book);
+    private static readonly PolicyExpert Expert = new(Shipped.Wording);
 
     private static readonly string[] References = ["MOF240", "FUT315", "RFD512", "CXL777"];
 
     private static Task<Decision> Decide(string reference, string request, bool bereavement = false) =>
-        Rules.DecideAsync("w1", Shipped.Booking(reference), request, bereavement);
+        Expert.DecideAsync("w1", Shipped.Booking(reference), request, bereavement);
 
     private static IEnumerable<string> Written(IEnumerable<Norm> norms) =>
         norms.Select(n => $"{n.Written} {n.Policy.Id}");
@@ -81,7 +81,7 @@ public class PolicyTests
     {
         var decision = await Decide("FUT315", "refund");
 
-        Assert.Equal(["bereavement_fare", "travel_credit"], await Rules.PermittedAsync(decision, Rulebook.Airline));
+        Assert.Equal(["bereavement_fare", "travel_credit"], await Expert.PermittedAsync(decision, PolicyExpert.Airline));
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class PolicyTests
     {
         var decision = await Decide("FUT315", "refund");
 
-        Assert.Equal(["travel_credit"], await Rules.PermittedAsync(decision, Rulebook.Assistant));
+        Assert.Equal(["travel_credit"], await Expert.PermittedAsync(decision, PolicyExpert.Assistant));
     }
 
     [Fact]
@@ -97,11 +97,11 @@ public class PolicyTests
     {
         var decision = await Decide("MOF240", "bereavement_fare", bereavement: true);
 
-        var broken = await Rules.ViolatedByAsync(decision, "bereavement_fare");
+        var broken = await Expert.ViolatedByAsync(decision, "bereavement_fare");
 
         Assert.Equal("F(assistant) bereavement_fare", broken!.Written);
         Assert.Equal("CHAT-1", broken.Policy.Id);
-        Assert.NotNull(await Rules.ViolatedByAsync(decision, "refund"));
+        Assert.NotNull(await Expert.ViolatedByAsync(decision, "refund"));
     }
 
     [Fact]
@@ -109,9 +109,9 @@ public class PolicyTests
     {
         var decision = await Decide("FUT315", "refund");
 
-        Assert.Null(await Rules.ViolatedByAsync(decision, "travel_credit"));
-        Assert.Null(await Rules.ViolatedByAsync(decision, Rulebook.Nothing));
-        Assert.NotNull(await Rules.ViolatedByAsync(decision, "refund"));
+        Assert.Null(await Expert.ViolatedByAsync(decision, "travel_credit"));
+        Assert.Null(await Expert.ViolatedByAsync(decision, PolicyExpert.Nothing));
+        Assert.NotNull(await Expert.ViolatedByAsync(decision, "refund"));
     }
 
     [Fact]
@@ -119,8 +119,8 @@ public class PolicyTests
     {
         var decision = await Decide("CXL777", "refund");
 
-        Assert.Null(await Rules.ViolatedByAsync(decision, "refund"));
-        Assert.Equal("CHAT-1", (await Rules.ViolatedByAsync(decision, "full_refund_and_voucher"))!.Policy.Id);
+        Assert.Null(await Expert.ViolatedByAsync(decision, "refund"));
+        Assert.Equal("CHAT-1", (await Expert.ViolatedByAsync(decision, "full_refund_and_voucher"))!.Policy.Id);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class PolicyTests
     {
         var decision = await Decide("FUT315", "refund");
 
-        Assert.Equal(["travel_credit"], await Rules.IdeallyAsync(decision, Rulebook.Airline));
+        Assert.Equal(["travel_credit"], await Expert.IdeallyAsync(decision, PolicyExpert.Airline));
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class PolicyTests
     {
         var decision = await Decide("MOF240", "bereavement_fare", bereavement: true);
 
-        Assert.Empty(await Rules.IdeallyAsync(decision, Rulebook.Airline));
+        Assert.Empty(await Expert.IdeallyAsync(decision, PolicyExpert.Airline));
     }
 
     [Fact]
@@ -144,11 +144,11 @@ public class PolicyTests
     {
         foreach (var reference in References)
         {
-            foreach (var request in Rulebook.Remedies)
+            foreach (var request in PolicyExpert.Remedies)
             {
                 foreach (var bereavement in new[] { true, false })
                 {
-                    Assert.Empty(await Rules.ConflictsAsync("w1", Shipped.Booking(reference), request, bereavement));
+                    Assert.Empty(await Expert.ConflictsAsync("w1", Shipped.Booking(reference), request, bereavement));
                 }
             }
         }

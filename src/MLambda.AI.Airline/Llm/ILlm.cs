@@ -1,10 +1,10 @@
-// Llm.cs — the whole of what this assistant needs from a language model: one question, one answer.
+// ILlm.cs — the whole of what this assistant needs from a language model: one question, one answer.
 //
 // DELIBERATELY SMALL. A system prompt and a user prompt go in, text comes out, and that is the entire
 // seam. Nothing here streams, calls tools or keeps a conversation, because the model is not the part of
 // this program that has to be clever: it reads language and phrases decisions, and Policy.hs decides.
 // A test hands in a fake; Program.cs hands in DeepSeek.
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Llm;
 
 public interface ILlm
 {

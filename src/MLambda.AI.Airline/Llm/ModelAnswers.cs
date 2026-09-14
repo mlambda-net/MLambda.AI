@@ -5,8 +5,9 @@
 // "full_refund_and_voucher" is not tidied away into "nothing", it is checked like any other promise, and no
 // policy grants it. Reading a model generously is how a program ends up promising what the model made up.
 using System.Text.Json;
+using MLambda.AI.Airline.Expert;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Llm;
 
 /// <summary>What the first call read from the message, and the draft it wrote.</summary>
 public sealed record Draft(string Request, bool Bereavement, string Promise, string Text, bool FromModel)
@@ -46,7 +47,7 @@ public sealed record Draft(string Request, bool Bereavement, string Promise, str
         var refund = new[] { "refund", "money back", "reimburse", "cancel" }.Any(said.Contains);
         var request = bereavement ? "bereavement_fare" : refund ? "refund" : Other;
 
-        return new Draft(request, bereavement, Rulebook.Nothing, string.Empty, FromModel: false);
+        return new Draft(request, bereavement, PolicyExpert.Nothing, string.Empty, FromModel: false);
     }
 }
 

@@ -36,7 +36,7 @@ internal sealed class FakeLlm(string? draft, string? format) : ILlm
 /// <summary>The policy book and bookings the program ships with.</summary>
 internal static class Shipped
 {
-    public static PolicyBook Book { get; } = PolicyBook.Load("data/policies.json");
+    public static PolicyWording Wording { get; } = PolicyWording.Load("data/policies.json");
 
     public static Bookings Bookings { get; } = Bookings.Load("data/bookings.json");
 

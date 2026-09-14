@@ -9,7 +9,7 @@
 using System.Reflection;
 using MLambda.Hilbert.Runtime.Plans;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Chat;
 
 public static class Steps
 {

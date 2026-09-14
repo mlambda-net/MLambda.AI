@@ -10,7 +10,7 @@ public class DeskTests
     {
         var printed = new StringWriter();
 
-        return (new Desk(llm, Shipped.Book, Shipped.Bookings, printed), printed);
+        return (new Desk(llm, Shipped.Wording, Shipped.Bookings, printed), printed);
     }
 
     private static IEnumerable<string> Cited(Reply reply) => reply.Norms.Select(n => n.Policy.Id);

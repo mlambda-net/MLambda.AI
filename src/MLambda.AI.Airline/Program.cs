@@ -4,7 +4,9 @@
 // DeepSeek API key. The address the prompts go to is `DeepSeek.Endpoint`, a constant, and nothing reads it
 // from configuration.
 using System.Text;
-using MLambda.AI.Airline;
+using MLambda.AI.Airline.Chat;
+using MLambda.AI.Airline.Llm;
+using MLambda.AI.Airline.Records;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -24,8 +26,8 @@ Console.CancelKeyPress += (_, press) =>
     cancel.Cancel();
 };
 
-var book = PolicyBook.Load("data/policies.json");
-var desk = new Desk(new DeepSeek(http, key), book, Bookings.Load("data/bookings.json"), Console.Out);
+var wording = PolicyWording.Load("data/policies.json");
+var desk = new Desk(new DeepSeek(http, key), wording, Bookings.Load("data/bookings.json"), Console.Out);
 
 Console.WriteLine("Airline assistant — refunds and bereavement fares, answered from written policy.");
 Console.WriteLine();
@@ -39,7 +41,7 @@ Console.WriteLine("  FUT315  not flown yet, non-refundable");
 Console.WriteLine("  RFD512  not flown yet, refundable");
 Console.WriteLine("  CXL777  cancelled by the airline");
 Console.WriteLine();
-Console.WriteLine($"Policies: {book.Source}");
+Console.WriteLine($"Policies: {wording.Source}");
 Console.WriteLine("Type 'quit' to leave.");
 Console.WriteLine();
 

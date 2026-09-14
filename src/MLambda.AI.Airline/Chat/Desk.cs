@@ -21,8 +21,11 @@
 // phrasing call never sees the customer's words: the only text that could talk the model into lying is
 // kept out of the call whose words are shown.
 using Mind = MLambda.AI.Airline.Assistant;
+using MLambda.AI.Airline.Expert;
+using MLambda.AI.Airline.Llm;
+using MLambda.AI.Airline.Records;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Chat;
 
 public enum Outcome
 {
@@ -40,11 +43,11 @@ public sealed record Reply(
     IReadOnlyList<string> Steps,
     IReadOnlyList<string> Beliefs);
 
-public sealed class Desk(ILlm llm, PolicyBook book, Bookings bookings, TextWriter output)
+public sealed class Desk(ILlm llm, PolicyWording wording, Bookings bookings, TextWriter output)
 {
     private const string Self = "desk";
 
-    private readonly Rulebook rules = new(book);
+    private readonly PolicyExpert rules = new(wording);
 
     /// <summary>A question still waiting for its booking reference.</summary>
     private string? pending;
@@ -93,7 +96,7 @@ public sealed class Desk(ILlm llm, PolicyBook book, Bookings bookings, TextWrite
 
     private async Task<Draft> DraftAsync(string said, Booking? booking, CancellationToken cancellationToken)
     {
-        var prompt = Prompts.Draft(book, booking, said);
+        var prompt = Prompts.Draft(wording, booking, said);
 
         try
         {
@@ -167,13 +170,13 @@ public sealed class Desk(ILlm llm, PolicyBook book, Bookings bookings, TextWrite
 
                     if (await rules.ViolatedByAsync(decision, draft.Promise, token) is { } broken)
                     {
-                        Withheld(broken, $"The model's draft promised {Rulebook.Say(draft.Promise)}, which the airline is not obliged to give for booking {booking.Reference}; promising it violates {broken.Policy.Id}. The draft was withheld.");
+                        Withheld(broken, $"The model's draft promised {PolicyExpert.Say(draft.Promise)}, which the airline is not obliged to give for booking {booking.Reference}; promising it violates {broken.Policy.Id}. The draft was withheld.");
                         return "overruled";
                     }
 
-                    review.Add(draft.Promise == Rulebook.Nothing
+                    review.Add(draft.Promise == PolicyExpert.Nothing
                         ? "The model's draft promised nothing, so it violated no norm."
-                        : $"The model's draft promised {Rulebook.Say(draft.Promise)}, which the airline is obliged to give.");
+                        : $"The model's draft promised {PolicyExpert.Say(draft.Promise)}, which the airline is obliged to give.");
                     return "upheld";
 
                 case "format":
@@ -185,7 +188,7 @@ public sealed class Desk(ILlm llm, PolicyBook book, Bookings bookings, TextWrite
 
                     if (await rules.ViolatedByAsync(decision, phrasing.Promise, token) is { } breach)
                     {
-                        Withheld(breach, $"The model's wording promised {Rulebook.Say(phrasing.Promise)}, which violates {breach.Policy.Id}, so the plain wording was used.");
+                        Withheld(breach, $"The model's wording promised {PolicyExpert.Say(phrasing.Promise)}, which violates {breach.Policy.Id}, so the plain wording was used.");
                         return "overruled";
                     }
 

@@ -6,16 +6,16 @@ public class PromptTests
     [Fact]
     public void The_draft_system_prompt_carries_every_policy_and_asks_for_json()
     {
-        var prompt = Prompts.Draft(Shipped.Book, Shipped.Booking("MOF240"), "hello");
+        var prompt = Prompts.Draft(Shipped.Wording, Shipped.Booking("MOF240"), "hello");
 
-        Assert.All(Shipped.Book.All, policy => Assert.Contains($"- {policy.Id} {policy.Title}: {policy.Text}", prompt.System));
+        Assert.All(Shipped.Wording.All, policy => Assert.Contains($"- {policy.Id} {policy.Title}: {policy.Text}", prompt.System));
         Assert.Contains("JSON object", prompt.System);
     }
 
     [Fact]
     public void The_draft_user_prompt_states_the_booking_record_and_fences_the_message()
     {
-        var prompt = Prompts.Draft(Shipped.Book, Shipped.Booking("MOF240"), "Can I get the bereavement fare?");
+        var prompt = Prompts.Draft(Shipped.Wording, Shipped.Booking("MOF240"), "Can I get the bereavement fare?");
 
         Assert.Contains("reference MOF240, Vancouver to Toronto, nonrefundable fare, travel completed: yes, cancelled by the airline: no", prompt.User);
         Assert.EndsWith("<<<CUSTOMER\nCan I get the bereavement fare?\nCUSTOMER>>>", prompt.User.ReplaceLineEndings("\n"));
@@ -24,7 +24,7 @@ public class PromptTests
     [Fact]
     public void Without_a_booking_the_draft_says_so_instead_of_leaving_blanks()
     {
-        var prompt = Prompts.Draft(Shipped.Book, booking: null, "refund please");
+        var prompt = Prompts.Draft(Shipped.Wording, booking: null, "refund please");
 
         Assert.Contains("no booking reference was found in the message", prompt.User);
         Assert.DoesNotContain("travel completed", prompt.User);
@@ -41,7 +41,7 @@ public class PromptTests
     [Fact]
     public async Task The_format_prompt_is_the_norms_in_the_policies_wording()
     {
-        var decision = await new Rulebook(Shipped.Book).DecideAsync("c1", Shipped.Booking("FUT315"), "refund", bereavement: false);
+        var decision = await new PolicyExpert(Shipped.Wording).DecideAsync("c1", Shipped.Booking("FUT315"), "refund", bereavement: false);
 
         var prompt = Prompts.Format(decision);
 
@@ -57,12 +57,12 @@ public class PromptTests
     [Fact]
     public async Task The_plain_reply_says_what_is_forbidden_first_then_what_is_owed()
     {
-        var decision = await new Rulebook(Shipped.Book).DecideAsync("c1", Shipped.Booking("FUT315"), "refund", bereavement: false);
+        var decision = await new PolicyExpert(Shipped.Wording).DecideAsync("c1", Shipped.Booking("FUT315"), "refund", bereavement: false);
 
         var plain = Prompts.Plain(decision);
 
         Assert.True(plain.IndexOf("can't offer a refund", StringComparison.Ordinal) < plain.IndexOf("can have a travel credit", StringComparison.Ordinal));
-        Assert.Contains(Shipped.Book["REF-2"].Text, plain);
+        Assert.Contains(Shipped.Wording["REF-2"].Text, plain);
     }
 
     [Fact]

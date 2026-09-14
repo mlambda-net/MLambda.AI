@@ -13,7 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MLambda.AI.Airline;
+namespace MLambda.AI.Airline.Llm;
 
 public sealed class DeepSeek : ILlm
 {
