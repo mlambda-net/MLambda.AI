@@ -11,7 +11,7 @@ site_name: MLambda.AI
 site_description: >-
   Learn artificial intelligence by reading real Hilbert source: logic, agents, machine learning and
   reinforcement learning, at three levels, every sample compiled and every proof checked.
-site_url: https://mlambda-net.github.io/MLambda.AI/
+site_url: https://www.mlambda.net/MLambda.AI/
 repo_url: https://github.com/mlambda-net/MLambda.AI
 repo_name: mlambda-net/MLambda.AI
 edit_uri: edit/master/docs/
