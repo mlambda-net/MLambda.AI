@@ -7,8 +7,8 @@ public class PolicyTests
 
     private static readonly string[] References = ["MOF240", "FUT315", "RFD512", "CXL777"];
 
-    private static Task<Decision> Decide(string reference, string request, bool bereavement = false) =>
-        Expert.DecideAsync("w1", Shipped.Booking(reference), request, bereavement);
+    private static Task<Decision> Decide(string reference, string request, bool bereavement = false, params string[] before) =>
+        Expert.DecideAsync("w1", Shipped.Booking(reference), request, bereavement, before);
 
     private static IEnumerable<string> Written(IEnumerable<Norm> norms) =>
         norms.Select(n => $"{n.Written} {n.Policy.Id}");
@@ -149,6 +149,7 @@ public class PolicyTests
                 foreach (var bereavement in new[] { true, false })
                 {
                     Assert.Empty(await Expert.ConflictsAsync("w1", Shipped.Booking(reference), request, bereavement));
+                    Assert.Empty(await Expert.ConflictsAsync("w1", Shipped.Booking(reference), request, bereavement, ["fly"]));
                 }
             }
         }
@@ -167,5 +168,88 @@ public class PolicyTests
                 Assert.All(decision.Obliged.Concat(decision.Forbidden), n => Assert.NotEmpty(n.Policy.Text));
             }
         }
+    }
+
+    // ── time: the customer's plan, and the moment they would ask ──────────────────────────────────
+
+    [Fact]
+    public async Task Flying_on_a_refundable_fare_and_then_asking_for_a_refund_is_forbidden_under_REF_4()
+    {
+        var decision = await Decide("RFD512", "refund", false, "fly");
+
+        Assert.Equal(["F(airline) refund REF-4"], Written(decision.Forbidden));
+        Assert.Empty(decision.Obliged);
+        Assert.All(decision.Forbidden, n => Assert.Equal("after you fly", n.When));
+    }
+
+    [Fact]
+    public async Task The_refund_owed_today_lasts_only_until_the_flight()
+    {
+        var decision = await Decide("RFD512", "refund", false, "fly");
+
+        var lapse = Assert.Single(decision.Lapses);
+        Assert.Equal("O(airline) refund REF-1", $"{lapse.Owed.Written} {lapse.Owed.Policy.Id}");
+        Assert.Equal("fly", lapse.Event);
+        Assert.Equal("until you fly", lapse.Owed.When);
+    }
+
+    [Fact]
+    public async Task And_once_flown_a_refund_is_never_owed_again()
+    {
+        Assert.True((await Decide("RFD512", "refund", false, "fly")).NeverAgain);
+        Assert.False((await Decide("RFD512", "refund")).NeverAgain);
+    }
+
+    [Fact]
+    public async Task Asked_today_without_a_plan_nothing_lapses()
+    {
+        var decision = await Decide("RFD512", "refund");
+
+        Assert.Equal(["O(airline) refund REF-1"], Written(decision.Obliged));
+        Assert.Empty(decision.Lapses);
+        Assert.False(decision.Planned);
+    }
+
+    [Fact]
+    public async Task The_Moffatt_plan_fly_now_claim_the_bereavement_fare_later_is_forbidden_under_BRV_2_and_lapses_BRV_1()
+    {
+        var decision = await Decide("FUT315", "bereavement_fare", true, "fly");
+
+        Assert.Equal(["F(airline) bereavement_fare BRV-2"], Written(decision.Forbidden));
+        Assert.Equal(["O(airline) bereavement_fare BRV-1"], decision.Lapses.Select(l => $"{l.Owed.Written} {l.Owed.Policy.Id}"));
+        Assert.True(decision.NeverAgain);
+    }
+
+    [Fact]
+    public async Task A_flight_the_airline_cancelled_is_still_refunded_whatever_is_planned_so_nothing_lapses()
+    {
+        var decision = await Decide("CXL777", "refund", false, "fly");
+
+        Assert.Equal(["O(airline) refund REF-3"], Written(decision.Obliged));
+        Assert.Empty(decision.Lapses);
+        Assert.False(decision.NeverAgain);
+    }
+
+    [Fact]
+    public async Task A_trip_already_flown_on_record_is_never_owed_a_refund_from_now()
+    {
+        var decision = await Decide("MOF240", "refund");
+
+        Assert.True(decision.NeverAgain);
+        Assert.Empty(decision.Lapses);
+    }
+
+    [Fact]
+    public async Task A_refund_owed_today_does_not_license_promising_one_after_flying()
+    {
+        var today = await Decide("RFD512", "refund");
+        var afterFlying = await Decide("RFD512", "refund", false, "fly");
+
+        Assert.Null(await Expert.ViolatedByAsync(today, "refund"));
+
+        var broken = await Expert.ViolatedByAsync(afterFlying, "refund");
+        Assert.Equal("F(assistant) refund", broken!.Written);
+        Assert.Equal("CHAT-1", broken.Policy.Id);
+        Assert.Equal("after you fly", broken.When);
     }
 }

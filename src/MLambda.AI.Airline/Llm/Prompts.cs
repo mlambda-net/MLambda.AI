@@ -86,6 +86,14 @@ public static partial class Prompts
             ["obliged"] = Norms(decision.Obliged),
             ["forbidden"] = Norms(decision.Forbidden),
             ["uncovered"] = Flag(decision.Uncovered),
+            ["planned"] = Flag(decision.Planned),
+            ["plan"] = new TavString(string.Join(", then ", decision.Before)),
+            ["after"] = new TavString(decision.Planned ? $", once {PolicyExpert.Said(decision.Before)}," : string.Empty),
+            ["doing"] = new TavString(string.Join(" and ", decision.Before.Select(PolicyExpert.Doing))),
+            ["lapses"] = new TavList([.. decision.Lapses.Select(TavValue (l) => Map(
+                ("what", PolicyExpert.Say(l.Owed.Act)), ("id", l.Owed.Policy.Id), ("text", l.Owed.Policy.Text),
+                ("event", PolicyExpert.Say(l.Event)), ("step", l.Event)))]),
+            ["never"] = Flag(decision.Planned && decision.NeverAgain),
         });
 
     private static TavList Norms(IReadOnlyList<Norm> norms) =>

@@ -1,10 +1,12 @@
--- Policy.hp — axiom D, what an obligation means at an ideal, and the norms the Moffatt case turns on.
+-- Policy.hp — axiom D, what an obligation means at an ideal, what flying does to time, and the norms the
+-- Moffatt case turns on.
 --
 -- NORMS WITHOUT NEGATION ARE PROVED HERE; the ones with `¬` run in the engine and are tested there. What
--- this file adds is that the frame is deontic and not merely a table: an obligation is what holds wherever
--- the party does what it ought, and a forbidden act done is a violation whatever anyone said about it.
+-- this file adds is that the frame is deontic and temporal and not merely a table: an obligation is what
+-- holds wherever the party does what it ought, a flown trip stays flown, and a forbidden act done is a
+-- violation whatever anyone said about it.
 open Policy
-axioms [serialO, atIdeal, owes, mustNot, violates, bereavementAfter, airlineCancelled]
+axioms [serialO, atIdeal, owes, mustNot, violates, bereavementAfter, airlineCancelled, stepIsLater, onwards, flyingIsFlown, flownStaysFlown]
 
 theorem every_seeded_situation_has_an_ideal : ∀ i w u, idealSeed(i, w, u) ⇒ ideal(i, w, u)
 proof
@@ -19,30 +21,47 @@ proof
   apply atIdeal [owed, best]
 qed
 
-theorem doing_what_a_policy_forbids_is_a_violation : ∀ w i a s, forbidden(w, i, a, s) ⇒ did(w, i, a) ⇒ violation(w, i, a)
+theorem doing_what_a_policy_forbids_is_a_violation : ∀ m i a s, forbidden(m, i, a, s) ⇒ did(m, i, a) ⇒ violation(m, i, a)
 proof
-  intro w i a s norm done
-  have barred : oughtNot(w, i, a) by apply mustNot [norm]
+  intro m i a s norm done
+  have barred : oughtNot(m, i, a) by apply mustNot [norm]
   apply violates [barred, done]
 qed
 
-theorem a_bereavement_fare_after_the_trip_is_forbidden : ∀ w, request(w, "bereavement_fare") ⇒ travelled(w) ⇒ forbidden(w, "airline", "bereavement_fare", "BRV-2")
+theorem two_steps_are_later : ∀ m n o, next(m, n) ⇒ next(n, o) ⇒ later(m, o)
 proof
-  intro w asked flown
-  apply bereavementAfter [asked, flown]
+  intro m n o first second
+  have mn : later(m, n) by apply stepIsLater [first]
+  have no : later(n, o) by apply stepIsLater [second]
+  apply onwards [mn, no]
 qed
 
-theorem so_granting_it_anyway_is_a_violation : ∀ w, request(w, "bereavement_fare") ⇒ travelled(w) ⇒ did(w, "airline", "bereavement_fare") ⇒ violation(w, "airline", "bereavement_fare")
+theorem flying_leaves_the_trip_flown_two_moments_on : ∀ m n o, happens(m, "fly") ⇒ next(m, n) ⇒ next(n, o) ⇒ flown(o)
 proof
-  intro w asked flown done
-  have norm : forbidden(w, "airline", "bereavement_fare", "BRV-2") by apply bereavementAfter [asked, flown]
-  have barred : oughtNot(w, "airline", "bereavement_fare") by apply mustNot [norm]
+  intro m n o flying first second
+  have landed : flown(n) by apply flyingIsFlown [flying, first]
+  apply flownStaysFlown [landed, second]
+qed
+
+theorem a_bereavement_fare_asked_for_after_flying_is_forbidden : ∀ m n, happens(m, "fly") ⇒ next(m, n) ⇒ request(n, "bereavement_fare") ⇒ forbidden(n, "airline", "bereavement_fare", "BRV-2")
+proof
+  intro m n flying step asked
+  have landed : flown(n) by apply flyingIsFlown [flying, step]
+  apply bereavementAfter [asked, landed]
+qed
+
+theorem so_granting_it_anyway_is_a_violation : ∀ m n, happens(m, "fly") ⇒ next(m, n) ⇒ request(n, "bereavement_fare") ⇒ did(n, "airline", "bereavement_fare") ⇒ violation(n, "airline", "bereavement_fare")
+proof
+  intro m n flying step asked done
+  have landed : flown(n) by apply flyingIsFlown [flying, step]
+  have norm : forbidden(n, "airline", "bereavement_fare", "BRV-2") by apply bereavementAfter [asked, landed]
+  have barred : oughtNot(n, "airline", "bereavement_fare") by apply mustNot [norm]
   apply violates [barred, done]
 qed
 
-theorem a_cancellation_by_the_airline_obliges_a_refund : ∀ w, request(w, "refund") ⇒ cancelledByAirline(w) ⇒ ought(w, "airline", "refund")
+theorem a_cancellation_by_the_airline_obliges_a_refund : ∀ m, request(m, "refund") ⇒ cancelledByAirline(m) ⇒ ought(m, "airline", "refund")
 proof
-  intro w asked cancelled
-  have norm : obliged(w, "airline", "refund", "REF-3") by apply airlineCancelled [asked, cancelled]
+  intro m asked cancelled
+  have norm : obliged(m, "airline", "refund", "REF-3") by apply airlineCancelled [asked, cancelled]
   apply owes [norm]
 qed

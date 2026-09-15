@@ -8,7 +8,8 @@ public class ModelAnswerTests
     {
         var draft = Draft.Parse(FakeLlm.Drafted("bereavement_fare", "yes", "nothing", "Sorry for your loss."))!;
 
-        Assert.Equal(new Draft("bereavement_fare", true, "nothing", "Sorry for your loss.", FromModel: true), draft);
+        Assert.Equal(("bereavement_fare", true, "nothing", "Sorry for your loss.", true), (draft.Request, draft.Bereavement, draft.Promise, draft.Text, draft.FromModel));
+        Assert.Empty(draft.Before);
         Assert.True(draft.InScope);
     }
 
@@ -49,8 +50,26 @@ public class ModelAnswerTests
     [Fact]
     public void Without_a_model_the_request_is_guessed_from_words_and_nothing_is_promised()
     {
-        Assert.Equal(new Draft("bereavement_fare", true, "nothing", "", FromModel: false), Draft.Guess("My father died, is there a discount?"));
+        var guessed = Draft.Guess("My father died, is there a discount?");
+
+        Assert.Equal(("bereavement_fare", true, "nothing", "", false), (guessed.Request, guessed.Bereavement, guessed.Promise, guessed.Text, guessed.FromModel));
+        Assert.Empty(guessed.Before);
         Assert.Equal("refund", Draft.Guess("I want my money back").Request);
         Assert.Equal(Draft.Other, Draft.Guess("Where is my suitcase?").Request);
+    }
+
+    [Fact]
+    public void The_steps_before_asking_are_read_in_order_and_only_steps_the_book_knows_are_kept()
+    {
+        Assert.Equal(["fly"], Draft.Parse(FakeLlm.Drafted("refund", "no", "nothing", "", "fly"))!.Before);
+        Assert.Equal(["fly"], Draft.Parse(FakeLlm.Drafted("refund", "no", "nothing", "", "pack", "FLY", "dance"))!.Before);
+        Assert.Empty(Draft.Parse("""{"request": "refund", "before": "fly"}""")!.Before);
+    }
+
+    [Fact]
+    public void Without_a_model_flying_then_asking_is_still_read_as_a_plan()
+    {
+        Assert.Equal(["fly"], Draft.Guess("so I can fly on RFD512 and ask for a refund?").Before);
+        Assert.Empty(Draft.Guess("I want a refund for RFD512").Before);
     }
 }

@@ -80,8 +80,10 @@ commits anyone:
 
 - `Policy.hs` is the policy expert. Every policy is a norm of deontic logic — `O(airline) refund` under
   REF-1, `F(airline) bereavement_fare` under BRV-2 — read over ideal situations, and CHAT-1 forbids the
-  assistant to promise what the airline is not obliged to give. `Policy.hp` proves axiom D and the
-  norms the Moffatt case turns on.
+  assistant to promise what the airline is not obliged to give. It is temporal too: a question is a
+  trace of moments ("fly on RFD512, then ask for a refund"), flown is a fluent that persists, and the
+  expert derives what a step ends (`O refund U fly`) and what is never owed again (`G ¬O refund`).
+  `Policy.hp` proves axiom D, that flying leaves a trip flown, and the norms the Moffatt case turns on.
 - `Assistant.ha` chooses between answering, asking for a booking and declining.
 - `Reply.hk` fixes the order: review the draft, phrase the norms, fall back to plain wording, print.
 - The prompts are TAV templates; every reply prints the norms it rests on.

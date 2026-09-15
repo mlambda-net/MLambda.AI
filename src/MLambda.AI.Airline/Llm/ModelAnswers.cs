@@ -5,12 +5,17 @@
 // "full_refund_and_voucher" is not tidied away into "nothing", it is checked like any other promise, and no
 // policy grants it. Reading a model generously is how a program ends up promising what the model made up.
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using MLambda.AI.Airline.Expert;
 
 namespace MLambda.AI.Airline.Llm;
 
 /// <summary>What the first call read from the message, and the draft it wrote.</summary>
-public sealed record Draft(string Request, bool Bereavement, string Promise, string Text, bool FromModel)
+///
+/// <remarks>`Before` IS THE CUSTOMER'S PLAN: the steps they say they will take before asking — "fly on RFD512
+/// and then ask for a refund" is `["fly"]`. Only steps Policy.hs knows are kept; a step it has no law for
+/// changes no norm, so dropping it changes no answer.</remarks>
+public sealed partial record Draft(string Request, bool Bereavement, string Promise, string Text, bool FromModel, IReadOnlyList<string> Before)
 {
     public static readonly IReadOnlySet<string> Requests = new HashSet<string>(StringComparer.Ordinal) { "refund", "bereavement_fare" };
 
@@ -33,7 +38,8 @@ public sealed record Draft(string Request, bool Bereavement, string Promise, str
             Json.Word(root, "bereavement") == "yes",
             Json.Promise(root),
             Json.Text(root, "draft"),
-            FromModel: true);
+            FromModel: true,
+            Json.Words(root, "before").Where(PolicyExpert.Events.Contains).ToList());
     }
 
     /// <summary>A reading without a model, for when there is none: a few words, and no draft.</summary>
@@ -46,9 +52,13 @@ public sealed record Draft(string Request, bool Bereavement, string Promise, str
         var bereavement = new[] { "bereave", "passed away", "died", "death", "funeral" }.Any(said.Contains);
         var refund = new[] { "refund", "money back", "reimburse", "cancel" }.Any(said.Contains);
         var request = bereavement ? "bereavement_fare" : refund ? "refund" : Other;
+        IReadOnlyList<string> before = FlyThenAsk().IsMatch(said) ? [PolicyExpert.Fly] : [];
 
-        return new Draft(request, bereavement, PolicyExpert.Nothing, string.Empty, FromModel: false);
+        return new Draft(request, bereavement, PolicyExpert.Nothing, string.Empty, FromModel: false, before);
     }
+
+    [GeneratedRegex(@"\b(fly|flying|travel)\b.*\b(then|and|after|afterwards|later)\b.*\b(refund|money back|reimburse|bereave|discount)")]
+    private static partial Regex FlyThenAsk();
 }
 
 /// <summary>What the second call made of the decision.</summary>
@@ -92,6 +102,12 @@ internal static class Json
             : string.Empty;
 
     public static string Word(JsonElement root, string name) => Text(root, name).ToLowerInvariant();
+
+    /// <summary>A list of words, lower-cased; anything that is not an array of strings is an empty list.</summary>
+    public static IEnumerable<string> Words(JsonElement root, string name) =>
+        root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array
+            ? [.. value.EnumerateArray().Where(v => v.ValueKind == JsonValueKind.String).Select(v => v.GetString()!.Trim().ToLowerInvariant())]
+            : [];
 
     /// <summary>The promise as written; a missing one is "unstated", which no policy grants.</summary>
     public static string Promise(JsonElement root) => Word(root, "promise") is { Length: > 0 } word ? word : "unstated";

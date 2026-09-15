@@ -19,8 +19,16 @@ public class ProofTests
         Proved(PolicyProofs.DoingWhatAPolicyForbidsIsAViolation());
 
     [Fact]
-    public void A_bereavement_fare_after_the_trip_is_forbidden() =>
-        Proved(PolicyProofs.ABereavementFareAfterTheTripIsForbidden());
+    public void Two_steps_are_later() =>
+        Proved(PolicyProofs.TwoStepsAreLater());
+
+    [Fact]
+    public void Flying_leaves_the_trip_flown_two_moments_on() =>
+        Proved(PolicyProofs.FlyingLeavesTheTripFlownTwoMomentsOn());
+
+    [Fact]
+    public void A_bereavement_fare_asked_for_after_flying_is_forbidden() =>
+        Proved(PolicyProofs.ABereavementFareAskedForAfterFlyingIsForbidden());
 
     [Fact]
     public void So_granting_it_anyway_is_a_violation() =>

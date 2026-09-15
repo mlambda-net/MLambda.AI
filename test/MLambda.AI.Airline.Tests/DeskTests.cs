@@ -169,6 +169,46 @@ public class DeskTests
         Assert.Null(llm.FormatPrompt);
     }
 
+    [Fact]
+    public async Task Flying_first_and_asking_for_a_refund_after_is_answered_for_the_moment_after_flying()
+    {
+        // WHAT DEEPSEEK SAID BEFORE THE BOOK KNEW ABOUT TIME: "we will refund it ... you don't need to do anything".
+        var llm = new FakeLlm(
+            FakeLlm.Drafted("refund", "no", "refund", "Your fare is refundable, so we will refund it.", "fly"),
+            FakeLlm.Phrased("Because your fare is refundable, we will refund it. You don't need to do anything further.", "refund"));
+        var (desk, printed) = Open(llm);
+
+        var reply = await desk.HandleAsync("so I can fly on RFD512 and ask for a refound?");
+
+        Assert.Equal(["review", "format", "fallback", "print"], reply.Steps);
+        Assert.Equal(["F(airline) refund", "F(assistant) refund", "O(airline) refund"], reply.Norms.Select(n => n.Written).Order());
+        Assert.Contains("For booking RFD512, once you fly, I can't offer a refund.", reply.Text);
+        Assert.Contains("Until you fly, you can have a refund.", reply.Text);
+        Assert.Contains("So flying first and then getting a refund is not possible.", reply.Text);
+        Assert.DoesNotContain("we will refund", printed.ToString());
+        Assert.Contains("time    O(airline) refund holds until you fly (REF-1)", printed.ToString());
+        Assert.Contains("time    after you fly, a refund is never owed again", printed.ToString());
+        Assert.Contains(reply.Review, line => line.Contains("after you fly; promising it violates CHAT-1"));
+    }
+
+    [Fact]
+    public async Task The_phrasing_call_is_told_the_plan_the_lapse_and_that_the_plan_is_not_possible()
+    {
+        var llm = new FakeLlm(
+            FakeLlm.Drafted("refund", "no", "nothing", "Not after flying.", "fly"),
+            FakeLlm.Phrased("You can get a refund only before you fly; once you have flown, it isn't refundable.", "nothing"));
+        var (desk, _) = Open(llm);
+
+        var reply = await desk.HandleAsync("can I fly on RFD512 and then get a refund?");
+
+        var asked = llm.FormatPrompt!.User;
+        Assert.Contains("THE CUSTOMER'S PLAN: first fly, then ask for a refund.", asked);
+        Assert.Contains("- the airline must give a refund until they fly, under REF-1:", asked);
+        Assert.Contains("ONCE THEY fly, a refund IS NEVER OWED AGAIN.", asked);
+        Assert.Equal(["review", "format", "print"], reply.Steps);
+        Assert.StartsWith("You can get a refund only before you fly", reply.Text);
+    }
+
     private static int CountOf(string text, string part) =>
         (text.Length - text.Replace(part, string.Empty, StringComparison.Ordinal).Length) / part.Length;
 }

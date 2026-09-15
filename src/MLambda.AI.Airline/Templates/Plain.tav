@@ -2,12 +2,17 @@
 >! target text
 >#  Plain.tav — the reply when the model is unavailable, or phrased the decision into a promise.
 >#
->#  NO MODEL, SO NOTHING TO CHECK. Every sentence below is a norm Policy.hs derived, in its policy's own wording,
->#  and the assistant is exactly as correct without a language model as with one — only less warm.
+>#  NO MODEL, SO NOTHING TO CHECK. Every sentence below is a norm Policy.hs derived, in its policy's own
+>#  wording, and the assistant is exactly as correct without a language model as with one — only less warm.
+>#  `.after` is empty for a question about now, and ", once you fly," for one asked after the customer's plan.
 > if .uncovered:
     No written policy decides this request for booking {{ .reference }}, so I can't promise anything. An agent will review it and contact you.
 > else:
     > for norm in .forbidden:
-        For booking {{ .reference }} I can't offer {{ norm.what }}. {{ norm.text }}
+        For booking {{ .reference }}{{ .after }} I can't offer {{ norm.what }}. {{ norm.text }}
     > for norm in .obliged:
-        For booking {{ .reference }} you can have {{ norm.what }}. {{ norm.text }}
+        For booking {{ .reference }}{{ .after }} you can have {{ norm.what }}. {{ norm.text }}
+    > for lapse in .lapses:
+        Until {{ lapse.event }}, you can have {{ lapse.what }}. {{ lapse.text }}
+    > if .never:
+        So {{ .doing }} first and then getting {{ .asked }} is not possible.

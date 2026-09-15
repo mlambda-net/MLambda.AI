@@ -7,6 +7,10 @@
 >#  with the policies' own wording. Nothing a customer typed reaches it, so nothing a customer typed can
 >#  instruct it. Its `promise` is judged by CHAT-1 once more, and a reply whose promise the assistant is
 >#  forbidden to make is replaced by Plain.tav.
+>#
+>#  AND WHEN. A customer who plans to fly first and ask afterwards is answered for the moment after flying;
+>#  what was owed before, and which step ends it, is stated too, so the model cannot phrase today's refund as
+>#  a promise about next week.
 > if eq .part "system":
     You phrase decisions an airline has already made. You never change a decision, never add an offer, and never mention a remedy, amount or deadline that you are not given. Write plainly and kindly, in at most four sentences, with no markdown.
     Return only a JSON object: {"reply": "the message to the customer", "promise": "refund" or "bereavement_fare" or "travel_credit" or "nothing"}
@@ -14,6 +18,8 @@
 > else:
     BOOKING: {{ .reference }}, {{ .route }}
     ASKED FOR: {{ .asked }}
+    > if .planned:
+        THE CUSTOMER'S PLAN: first {{ .plan }}, then ask for {{ .asked }}. What the airline must and must not do below is judged at the moment they would ask, after they {{ .plan }}.
     > if .forbidden:
         THE AIRLINE MUST NOT:
         > for norm in .forbidden:
@@ -22,5 +28,11 @@
         THE AIRLINE MUST:
         > for norm in .obliged:
             - give {{ norm.what }}, under {{ norm.id }}: {{ norm.text }}
+    > if .lapses:
+        BEFORE THAT, AND ONLY UNTIL THE STEP NAMED:
+        > for lapse in .lapses:
+            - the airline must give {{ lapse.what }} until they {{ lapse.step }}, under {{ lapse.id }}: {{ lapse.text }}
+    > if .never:
+        ONCE THEY {{ .plan }}, {{ .asked }} IS NEVER OWED AGAIN. Say plainly that doing that first and then getting {{ .asked }} is not possible, and say what is possible instead.
     > if .uncovered:
         NO POLICY decides this request. Say that an agent will review it, and promise nothing.

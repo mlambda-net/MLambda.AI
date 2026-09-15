@@ -25,8 +25,8 @@ internal sealed class FakeLlm(string? draft, string? format) : ILlm
     }
 
     /// <summary>A draft answer as the Draft.tav contract asks for it.</summary>
-    public static string Drafted(string request, string bereavement, string promise, string text) =>
-        $$"""{"request": "{{request}}", "bereavement": "{{bereavement}}", "promise": "{{promise}}", "draft": "{{text}}"}""";
+    public static string Drafted(string request, string bereavement, string promise, string text, params string[] before) =>
+        $$"""{"request": "{{request}}", "bereavement": "{{bereavement}}", "before": [{{string.Join(", ", before.Select(b => "\"" + b + "\""))}}], "promise": "{{promise}}", "draft": "{{text}}"}""";
 
     /// <summary>A phrasing answer as the Format.tav contract asks for it.</summary>
     public static string Phrased(string reply, string promise) =>

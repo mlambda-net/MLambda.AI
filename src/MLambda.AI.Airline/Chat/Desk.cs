@@ -5,7 +5,8 @@
 //   2. The booking is looked up by reference, from the records — not from the model.
 //   3. The agent (Assistant.ha) decides the kind of reply: answer, ask for a booking, or decline.
 //   4. To answer, the policy expert (Policy.hs) derives the norms — what the airline is obliged and
-//      forbidden to do for this booking — and the plan (Reply.hk) runs: review the draft's promise under
+//      forbidden to do for this booking, at the moment the customer would ask, after any steps they plan
+//      to take first, and which of today's obligations those steps would end — and the plan (Reply.hk) runs: review the draft's promise under
 //      CHAT-1, ask the model to phrase the norms (Format.tav), judge that phrasing's promise too, fall back to
 //      the plain wording (Plain.tav) if it fails, and print — with every norm the reply rests on.
 //
@@ -141,8 +142,8 @@ public sealed class Desk(ILlm llm, PolicyWording wording, Bookings bookings, Tex
 
     private async Task<Reply> AnswerAsync(string claim, Booking booking, Draft draft, CancellationToken cancellationToken)
     {
-        var decision = await rules.DecideAsync(claim, booking, draft.Request, draft.Bereavement, cancellationToken);
-        var cited = decision.Forbidden.Concat(decision.Obliged).ToList();
+        var decision = await rules.DecideAsync(claim, booking, draft.Request, draft.Bereavement, draft.Before, cancellationToken);
+        var cited = decision.Forbidden.Concat(decision.Obliged).Concat(decision.Lapses.Select(l => l.Owed)).ToList();
         var review = new List<string>();
         var journal = new Journal();
         var text = Prompts.Plain(decision);
@@ -170,7 +171,7 @@ public sealed class Desk(ILlm llm, PolicyWording wording, Bookings bookings, Tex
 
                     if (await rules.ViolatedByAsync(decision, draft.Promise, token) is { } broken)
                     {
-                        Withheld(broken, $"The model's draft promised {PolicyExpert.Say(draft.Promise)}, which the airline is not obliged to give for booking {booking.Reference}; promising it violates {broken.Policy.Id}. The draft was withheld.");
+                        Withheld(broken, $"The model's draft promised {PolicyExpert.Say(draft.Promise)}, which the airline is not obliged to give for booking {booking.Reference} {broken.When}; promising it violates {broken.Policy.Id}. The draft was withheld.");
                         return "overruled";
                     }
 
@@ -200,7 +201,7 @@ public sealed class Desk(ILlm llm, PolicyWording wording, Bookings bookings, Tex
                     return "done";
 
                 case "print":
-                    Print(text, cited, review);
+                    Print(text, cited, review, Timing(decision));
                     return "done";
 
                 default:
@@ -231,13 +232,39 @@ public sealed class Desk(ILlm llm, PolicyWording wording, Bookings bookings, Tex
         }
     }
 
-    private void Print(string text, IReadOnlyList<Norm> norms, IReadOnlyList<string> review)
+    /// <summary>What time does to the answer, as temporal logic says it — only when the customer described a plan.</summary>
+    private static IEnumerable<string> Timing(Decision decision)
+    {
+        if (!decision.Planned)
+        {
+            yield break;
+        }
+
+        var asked = PolicyExpert.Say(decision.Request);
+
+        foreach (var lapse in decision.Lapses)
+        {
+            yield return $"{lapse.Owed.Written} holds until {PolicyExpert.Say(lapse.Event)} ({lapse.Owed.Policy.Id}): O {lapse.Owed.Act} U {lapse.Event}.";
+        }
+
+        if (decision.NeverAgain)
+        {
+            yield return $"after {PolicyExpert.Said(decision.Before)}, {asked} is never owed again: G ¬O {decision.Request}.";
+        }
+    }
+
+    private void Print(string text, IReadOnlyList<Norm> norms, IReadOnlyList<string> review, IEnumerable<string>? timing = null)
     {
         output.WriteLine($"Assistant: {text}");
 
         foreach (var norm in norms)
         {
-            output.WriteLine($"  policy  {norm.Policy.Id,-6}  {norm.Written,-30}  {norm.Policy.Title}");
+            output.WriteLine($"  policy  {norm.Policy.Id,-6}  {norm.Written,-28}  {norm.When,-16}  {norm.Policy.Title}");
+        }
+
+        foreach (var line in timing ?? [])
+        {
+            output.WriteLine($"  time    {line}");
         }
 
         foreach (var line in review)
