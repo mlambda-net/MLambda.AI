@@ -88,6 +88,9 @@ commits anyone:
 - `Reply.hk` fixes the order: review the draft, phrase the norms, fall back to plain wording, print.
 - The prompts are TAV templates; every reply prints the norms it rests on.
 
+The case study [docs/airline](docs/airline/) explains the rules, adds the temporal logic step by step,
+and goes through a recorded session of someone trying to trick the bot into a refund.
+
 It needs a DeepSeek key in the environment variable `LLM-API` (or `LLM_API`); the endpoint is a
 constant in `DeepSeek.cs`. Its tests use a fake model, including one taken over by a prompt injection.
 

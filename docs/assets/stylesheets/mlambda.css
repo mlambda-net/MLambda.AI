@@ -114,6 +114,7 @@
 [data-section="L2-practitioner"] [data-md-color-scheme] { --ml-section: var(--ml-l2); --ml-section-2: var(--ml-capstone); }
 [data-section="L3-advanced"] [data-md-color-scheme] { --ml-section: var(--ml-l3); --ml-section-2: var(--ml-capstone); }
 [data-section="actuarial"] [data-md-color-scheme] { --ml-section: var(--ml-capstone); --ml-section-2: var(--ml-l2); }
+[data-section="airline"] [data-md-color-scheme] { --ml-section: var(--ml-capstone); --ml-section-2: var(--ml-hilbert); }
 [data-section="ideas"] [data-md-color-scheme] { --ml-section: var(--ml-ideas); --ml-section-2: var(--ml-hilbert); }
 
 /* ── chrome ─────────────────────────────────────────────────────────────────────────────── */

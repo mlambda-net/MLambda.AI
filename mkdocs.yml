@@ -123,3 +123,9 @@ nav:
       - actuarial/condition.md
       - actuarial/credit.md
       - actuarial/adjudicator.md
+  - Case study:
+      - airline/README.md
+      - airline/rules.md
+      - airline/time.md
+      - airline/hacking.md
+      - airline/writing-rules.md

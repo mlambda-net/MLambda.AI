@@ -28,6 +28,7 @@ SECTIONS = {
     "L2-practitioner": ("Level 2 · Practitioner", "README.md"),
     "L3-advanced": ("Level 3 · Advanced", "README.md"),
     "actuarial": ("Capstone · Actuarial", "README.md"),
+    "airline": ("Case study · Airline", "README.md"),
 }
 
 _root = None

@@ -178,7 +178,7 @@ public class DeskTests
             FakeLlm.Phrased("Because your fare is refundable, we will refund it. You don't need to do anything further.", "refund"));
         var (desk, printed) = Open(llm);
 
-        var reply = await desk.HandleAsync("so I can fly on RFD512 and ask for a refound?");
+        var reply = await desk.HandleAsync("so I can fly on RFD512 and ask for a refund?");
 
         Assert.Equal(["review", "format", "fallback", "print"], reply.Steps);
         Assert.Equal(["F(airline) refund", "F(assistant) refund", "O(airline) refund"], reply.Norms.Select(n => n.Written).Order());

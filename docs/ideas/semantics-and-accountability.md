@@ -149,6 +149,10 @@ So the winning design is not "logic instead of neural networks". It is **neural 
 propose, and logic that decides what may be committed to**. That combination has a name, and some
 very public successes: [Neuro-symbolic AI](neuro-symbolic.md).
 
+**See it built.** The case study [An airline assistant that cannot be talked into a refund](../airline/README.md)
+writes this page's policies as obligations and prohibitions over time, and shows a real session of someone
+trying to trick it.
+
 ---
 
 **Sources.** *Moffatt v. Air Canada*, 2024 BCCRT 149 ([CanLII](https://www.canlii.org/en/bc/bccrt/doc/2024/2024bccrt149/2024bccrt149.html)).
