@@ -1,8 +1,14 @@
 <Project>
   <!-- THE ONLY FILE THAT KNOWS WHERE HILBERT LIVES. Every project writes $(HilbertRoot)\… or
        $(GenesisRoot)\… and nothing else, so migrating to NuGet later is a change here plus one
-       ItemGroup per project. -->
+       ItemGroup per project.
+
+       TWO LAYOUTS ARE REAL, SO THE FIRST CONDITION PROBES BEFORE THE SECOND ASSUMES. Cloned
+       beside Genesis, Genesis is a sibling; checked out as Genesis's own submodule at
+       modules/MLambda.AI, Genesis is two directories up. The probe asks for Hilbert rather than
+       for a directory called MLambda.Genesis, so a renamed checkout still resolves. -->
   <PropertyGroup>
+    <GenesisRoot Condition="'$(GenesisRoot)' == '' AND Exists('$(MSBuildThisFileDirectory)..\..\modules\MLambda.Hilbert')">$(MSBuildThisFileDirectory)..\..</GenesisRoot>
     <GenesisRoot Condition="'$(GenesisRoot)' == ''">$(MSBuildThisFileDirectory)..\MLambda.Genesis</GenesisRoot>
     <HilbertRoot Condition="'$(HilbertRoot)' == ''">$(GenesisRoot)\modules\MLambda.Hilbert</HilbertRoot>
   </PropertyGroup>
