@@ -309,6 +309,17 @@ something — `box(Int)` — becomes a record hierarchy, and there is no string 
 builds one. Refused here, or the class generated for the thought would fail to compile against a file
 nobody wrote.
 
+### `HS0076` — binding a field the thought cannot supply
+
+```
+error HS0076: 'Report' binds 'd' of sort Text to 'traffic'.route, which is Route.
+```
+
+`ask stated(item)` binds a predicate's leading fields, in order, to the thought's parameters: the host
+supplies them and the model fills the rest. Each argument must be a parameter of the thought, of the sort of
+the field it binds, and there cannot be more of them than the predicate has fields. A bound field is left
+out of the schema, and a model that sends one anyway is ignored for it — the host's value is the one asserted.
+
 ### `HS0074` — asking for something that cannot change the verdict
 
 ```
