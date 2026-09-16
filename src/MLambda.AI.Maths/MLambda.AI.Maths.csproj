@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MLambda.AI.Maths</RootNamespace>
+    <Description>Mathematics as the laws that do it. Formulas in `.hb` the build folds, a CAS the
+      program calls, and a `.hp` proof of the rule the CAS spent.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- A SAMPLE LANDS COMPLETE OR NOT AT ALL. `sorry` is HP0002 and the build stops, so a reader
+         never finds a theorem that quietly became something somebody meant to prove. -->
+    <HilbertProofStrict>true</HilbertProofStrict>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- THE ONE THING A `.hb` CONSUMER REFERENCES: the objects the generated code is over. The
+         Proof targets add their own reference to MLambda.Hilbert.Proof, so it is not named here. -->
+    <ProjectReference Include="$(HilbertRoot)\src\MLambda.Hilbert.Runtime\MLambda.Hilbert.Runtime.csproj" />
+  </ItemGroup>
+
+  <!-- TWO DIALECTS, NOT THREE. `.hb` formulas compile; `Maths.hp` is checked by the kernel. The
+       Shin targets are deliberately absent — `Maths.hs` quantifies over `Double` so that `ring`
+       has numbers to work with, and `Double` may not be a theory's own sort for a Shin lowering
+       (HS0040). This is the split upstream gets by importing only the Proof targets in its
+       corpus project. -->
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\MLambda.Hilbert.targets" />
+  <Import Project="$(HilbertRoot)\src\MLambda.Hilbert.Compiler\Proof\MLambda.Hilbert.Proof.targets" />
+</Project>
