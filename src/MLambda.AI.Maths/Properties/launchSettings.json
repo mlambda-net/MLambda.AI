@@ -15,6 +15,10 @@
     "Solve": {
       "commandName": "Project",
       "commandLineArgs": "Solve"
+    },
+    "Linear": {
+      "commandName": "Project",
+      "commandLineArgs": "Linear"
     }
   }
 }

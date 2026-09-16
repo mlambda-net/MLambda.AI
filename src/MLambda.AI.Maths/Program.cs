@@ -13,6 +13,7 @@ if (args.Length == 0)
     Console.WriteLine("  Algebra     the laws are the knowledge, and they say which one acted");
     Console.WriteLine("  Calculus    a derivative taken before you ran anything — and one that was not");
     Console.WriteLine("  Solve       what the CAS refuses to guess, and the two laws that end the refusal");
+    Console.WriteLine("  Linear      one contraction underneath, and two words spelled solve");
     return 0;
 }
 
@@ -21,6 +22,7 @@ switch (args[0].ToLowerInvariant())
     case "algebra": Algebra(); break;
     case "calculus": Calculus(); break;
     case "solve": Solve(); break;
+    case "linear": Linear(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -98,4 +100,34 @@ static void Solve()
     Console.WriteLine("No prelude ships them. Transposition needs what you divide by to be non-zero, and");
     Console.WriteLine("a rewrite rule cannot check that — so the assumption is yours to declare, in the");
     Console.WriteLine("file that leans on it. The refusal was the honest answer.");
+}
+
+static void Linear()
+{
+    MLambda.Hilbert.Runtime.Matrix a = new double[,] { { 1, 2 }, { 3, 4 } };
+
+    var named = MLambda.AI.Maths.Linear.Product(a, a);
+    var spelled = MLambda.AI.Maths.Linear.Contracted(a, a);
+
+    Console.WriteLine("[1 2; 3 4] squared, by two names for one contraction.");
+    Console.WriteLine();
+    Console.WriteLine($"  mul(a, a)                      [{named[0, 0]} {named[0, 1]}; {named[1, 0]} {named[1, 1]}]");
+    Console.WriteLine($"  einsum(\"ij,jk->ik\", a, a)      [{spelled[0, 0]} {spelled[0, 1]}; {spelled[1, 0]} {spelled[1, 1]}]");
+    Console.WriteLine();
+    Console.WriteLine("`mul` IS that einsum — the prelude defines it that way and a `def` is inlined, so");
+    Console.WriteLine("the two doorways compile to the same arithmetic. Transpose, dot and outer are the");
+    Console.WriteLine("same contraction with different indices.");
+    Console.WriteLine();
+
+    MLambda.Hilbert.Runtime.Matrix diagonal = new double[,] { { 2, 0 }, { 0, 3 } };
+    MLambda.Hilbert.Runtime.Vector rhs = new double[] { 4, 9 };
+    var x = MLambda.AI.Maths.Linear.Solved(diagonal, rhs);
+
+    Console.WriteLine("And two different things are called solve:");
+    Console.WriteLine();
+    Console.WriteLine($"  solve(a, b)   here, numeric      x = [{x[0]:0.######} {x[1]:0.######}]   conjugate gradient");
+    Console.WriteLine($"  Compute.Solve  in Solve.hb       {MLambda.AI.Maths.Solve.Compute.Solve("2 · x + 3 = 7", "x")}          rewriting, by ⇔ laws");
+    Console.WriteLine();
+    Console.WriteLine("One takes numbers and returns numbers. The other takes an equation and returns an");
+    Console.WriteLine("expression. They share a word and nothing else.");
 }
