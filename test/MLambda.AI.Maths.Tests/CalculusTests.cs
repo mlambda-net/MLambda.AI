@@ -58,4 +58,17 @@ public class CalculusTests
         var unresolved = Assert.IsType<Unresolved>(derivative);
         Assert.Contains("∂", unresolved.Text);
     }
+
+    // ── where the mathematics meets the AI ─────────────────────────────────────────────────────
+
+    [Fact]
+    public void The_gradient_the_ML_subject_descends_is_one_the_laws_can_derive()
+    {
+        // Perceptron.hb's loss is mean squared error: `(out − y)²` summed over examples. For one
+        // linear unit that is `(w · x − y)²`, and the update descends its gradient in w.
+        var gradient = Calculus.Compute.Derivate("(w · x − y)²", "w");
+
+        var resolved = Assert.IsType<Resolved>(gradient);
+        Assert.Equal("2(w · x − y) · x", resolved.Text);
+    }
 }

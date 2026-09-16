@@ -14,6 +14,7 @@ if (args.Length == 0)
     Console.WriteLine("  Calculus    a derivative taken before you ran anything — and one that was not");
     Console.WriteLine("  Solve       what the CAS refuses to guess, and the two laws that end the refusal");
     Console.WriteLine("  Linear      one contraction underneath, and two words spelled solve");
+    Console.WriteLine("  Proof       three grades of certainty, and the rule the CAS spent");
     return 0;
 }
 
@@ -23,6 +24,7 @@ switch (args[0].ToLowerInvariant())
     case "calculus": Calculus(); break;
     case "solve": Solve(); break;
     case "linear": Linear(); break;
+    case "proof": Proof(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -130,4 +132,34 @@ static void Linear()
     Console.WriteLine();
     Console.WriteLine("One takes numbers and returns numbers. The other takes an equation and returns an");
     Console.WriteLine("expression. They share a word and nothing else.");
+}
+
+static void Proof()
+{
+    var found = MLambda.AI.Maths.Algebra.Compute.Demonstrate("theorem t : x · 1 + 0 = x");
+    var searched = found as MLambda.Hilbert.Algebra.Demonstrated;
+    var verified = searched is null ? null : MLambda.AI.Maths.Algebra.Compute.Proof(searched.Theorem);
+
+    Console.WriteLine("Three grades of certainty, weakest first.");
+    Console.WriteLine();
+    Console.WriteLine($"  Demonstrate   searched, and found    {found}");
+    Console.WriteLine($"  Proof         checked those steps    {verified}");
+    Console.WriteLine($"  the .hp       checked by the build   {MathsProofs.DerivOfXSquared().Status}");
+    Console.WriteLine();
+    Console.WriteLine("The first may fail to find anything — the search is bounded, on purpose, so it");
+    Console.WriteLine("always comes back. The second only checks what you hand it. The third ran before");
+    Console.WriteLine("this program was allowed to exist: `deriv_of_x_squared` is the L2 derivative of");
+    Console.WriteLine("x², proved from the product rule, and a break in it is a build failure.");
+    Console.WriteLine();
+
+    var gradient = MLambda.AI.Maths.Calculus.Compute.Derivate("(w · x − y)²", "w");
+
+    Console.WriteLine("And the reason a mathematics section belongs beside the AI ones:");
+    Console.WriteLine();
+    Console.WriteLine("  Perceptron.hb's loss, for one linear unit    (w · x − y)²");
+    Console.WriteLine($"  ∂ of it in w, by the same thirteen laws      {gradient}");
+    Console.WriteLine($"                                              by [{string.Join(", ", gradient.Steps)}]");
+    Console.WriteLine();
+    Console.WriteLine("That is the update the ML subject writes by hand. Nobody derived it there; it was");
+    Console.WriteLine("stated. Here it is derived, and a test fails if the two ever stop agreeing.");
 }

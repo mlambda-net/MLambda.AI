@@ -19,6 +19,10 @@
     "Linear": {
       "commandName": "Project",
       "commandLineArgs": "Linear"
+    },
+    "Proof": {
+      "commandName": "Project",
+      "commandLineArgs": "Proof"
     }
   }
 }
