@@ -27,4 +27,29 @@ public class AlgebraTests
         // test above stopped meaning anything.
         Assert.NotEqual(1d, (Math.Sin(0.009) * Math.Sin(0.009)) + (Math.Cos(0.009) * Math.Cos(0.009)));
     }
+
+    // ── the CAS the file carries ───────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Simplifying_names_the_laws_that_did_it()
+    {
+        var simplified = Algebra.Compute.Simplify("x · 1 + 0");
+
+        Assert.Equal("x", simplified.Text);
+        Assert.Equal(["unit", "zero"], simplified.Steps);
+    }
+
+    [Fact]
+    public void Substitution_replaces_a_free_name_and_then_simplifies()
+    {
+        var substituted = Algebra.Compute.Substitute("x · 1", "x", "a + 1");
+
+        Assert.Equal("a + 1", substituted.Text);
+    }
+
+    [Fact]
+    public void Two_expressions_are_equivalent_when_the_open_laws_can_meet_them()
+    {
+        Assert.True(Algebra.Compute.Equivalent("x · 1 + 0", "x"));
+    }
 }

@@ -34,4 +34,17 @@ static void Algebra()
     Console.WriteLine("Those are different numbers. `pythagorean` removed the sine and the cosine while");
     Console.WriteLine("this project was building, so the first one is a literal the method returns —");
     Console.WriteLine("not a rounding of the second.");
+    Console.WriteLine();
+
+    var simplified = MLambda.AI.Maths.Algebra.Compute.Simplify("x · 1 + 0");
+    var narrow = OneLaw.Compute.Simplify("x · 1 + 0");
+
+    Console.WriteLine("And the same laws, called at run time instead:");
+    Console.WriteLine();
+    Console.WriteLine($"  Algebra.hb says    x · 1 + 0  ↦  {simplified}   by [{string.Join(", ", simplified.Steps)}]");
+    Console.WriteLine($"  OneLaw.hb says     x · 1 + 0  ↦  {narrow}   by [{string.Join(", ", narrow.Steps)}]");
+    Console.WriteLine();
+    Console.WriteLine("Two files in one assembly, two different answers. OneLaw.hb opens nothing and");
+    Console.WriteLine("declares one law, so its CAS can remove the `· 1` and not the `+ 0`. The answer");
+    Console.WriteLine("arrived with the reason, which is the only reason to trust it.");
 }
