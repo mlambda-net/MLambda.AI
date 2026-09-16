@@ -36,6 +36,7 @@ dotnet run --project src/MLambda.AI.Agent     # list the agents
 dotnet run --project src/MLambda.AI.ML        # list the models
 dotnet run --project src/MLambda.AI.Learning  # list the learners
 dotnet run --project src/MLambda.AI.Minds     # time, duty, knowledge, belief
+dotnet run --project src/MLambda.AI.Maths     # the laws that do the mathematics
 dotnet run --project src/MLambda.AI.Actuarial # one house, three agents, one verdict
 dotnet run --project src/MLambda.AI.Airline   # a chat that cannot promise what policy does not grant
 ```
@@ -64,6 +65,7 @@ And what the build checked before this program was allowed to run:
 | [`MLambda.AI.ML`](src/MLambda.AI.ML/) | machine learning | `.hb` |
 | [`MLambda.AI.Learning`](src/MLambda.AI.Learning/) | reinforcement learning | `.hb` `.hp` |
 | [`MLambda.AI.Minds`](src/MLambda.AI.Minds/) | modal logic: time, duty, knowledge, belief, mental states | `.hs` `.hp` |
+| [`MLambda.AI.Maths`](src/MLambda.AI.Maths/) | mathematics: algebra, calculus, linear algebra, proof | `.hb` `.hs` `.hp` |
 | [`MLambda.AI.Actuarial`](src/MLambda.AI.Actuarial/) | house-purchase risk, from `houses.csv` | all four |
 | [`MLambda.AI.Airline`](src/MLambda.AI.Airline/) | an LLM assistant held to policies as deontic norms (Moffatt v. Air Canada) | `.hs` `.hp` `.ha` `.hk` + TAV |
 

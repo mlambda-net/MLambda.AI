@@ -11,5 +11,6 @@ seen a proof that those consequences always follow.
 | Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | [learning.md](learning.md) |
 | Minds | [minds.md](minds.md) |
+| Mathematics | [maths.md](maths.md) |
 
 At this level a sample uses no notation it has not introduced: `∀`, `⇒` and `∧`, and nothing else.

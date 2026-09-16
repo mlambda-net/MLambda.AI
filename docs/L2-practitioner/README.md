@@ -10,6 +10,7 @@ which choices are real choices, and which restrictions are the language telling 
 | Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | [learning.md](learning.md) |
 | Minds | [minds.md](minds.md) |
+| Mathematics | [maths.md](maths.md) |
 
 At this level a sample may open any Prelude module it needs, and may use notation L1 avoided — `⊤`,
 `≠`, sorts declared outside a theory, and proofs discharged by certificate rather than by law.

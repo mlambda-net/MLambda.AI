@@ -10,6 +10,7 @@ You want to prove things about the systems, not only build them — and to know 
 | Machine learning | [ml.md](ml.md) |
 | Reinforcement learning | [learning.md](learning.md) |
 | Minds | [minds.md](minds.md) |
+| Mathematics | [maths.md](maths.md) |
 
 At this level a sample may state a **non-theorem** — a claim the corpus deliberately does not prove,
 because knowing what fails is the lesson. It is recorded as a commented claim plus a test asserting
