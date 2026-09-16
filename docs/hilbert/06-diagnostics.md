@@ -320,6 +320,17 @@ supplies them and the model fills the rest. Each argument must be a parameter of
 the field it binds, and there cannot be more of them than the predicate has fields. A bound field is left
 out of the schema, and a model that sends one anyway is ignored for it — the host's value is the one asserted.
 
+### `HS0077` — prose from a query that cannot supply it
+
+```
+error HS0077: 'lines_of' is not a query this theory declares, so 'Report' has no prose to read.
+```
+
+`about from q(args)` opens the prompt with the rows of a query instead of a sentence, so the question follows
+whatever the theory holds — a book's obligations for the item's kind, say — rather than a copy of it. The
+query must exist in the theory, have at least one output to render, and have its inputs bound by the
+thought's parameters the way a goal's are. Each row becomes one line, its outputs joined by an em dash.
+
 ### `HS0074` — asking for something that cannot change the verdict
 
 ```
