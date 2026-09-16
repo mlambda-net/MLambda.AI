@@ -255,3 +255,69 @@ fn loanToValueOf(price, seed) ↦ 0.60 + 0.35 · scatter01(price, seed)
 
 compiles. `def` is still the convention for a helper that nothing outside the file calls, which is how
 the Prelude is written. Found writing [`Credit.hb`](../../src/MLambda.AI.Actuarial/Credit.hb).
+
+## Writing a thought: six things the compiler checks
+
+A `thought` names a goal a theory wants decided and the predicates a language model may fill to
+decide it. The prompt and the reply's JSON schema are generated from those names, so a wrong name would
+not fail anywhere at run time — the model would simply be asked the wrong question, forever. These five
+checks are why that cannot happen quietly.
+
+### `HS0070` — asking for a predicate the theory does not declare
+
+```
+error HS0070: 'weather' is not a predicate this theory declares, so 'Assign' cannot ask for it.
+```
+
+Every name after `ask` must be a predicate of the theory. A renamed `def` would otherwise leave a thought
+asking for something no fact can ever be asserted as.
+
+### `HS0071` — a goal that is not a query
+
+```
+error HS0071: 'refusals' is not a query this theory declares, so 'Assign' has no goal to decide.
+```
+
+The goal after `:-` names a `query`, because the verdict a thought produces is that query's rows.
+
+### `HS0072` — a goal the thought's parameters do not bind
+
+```
+error HS0072: 'Assign' passes 'route' of sort Truck where 'rejections' expects Route.
+```
+
+Each goal argument is bound by the thought parameter of the same name, sort for sort, and only the
+query's inputs are matched — its `?` outputs are what comes back. The same code refuses a goal with the
+wrong number of arguments, an argument no parameter declares, and a `?` on a thought's own parameter:
+every parameter of a thought is an input.
+
+### `HS0073` — asking for nothing, or for one thing twice
+
+```
+error HS0073: 'Assign' asks for 'status' twice.
+```
+
+### `HS0075` — asking for a field no model could fill
+
+```
+error HS0075: 'Look' asks for 'drawn', whose field 'shape' is of sort Shape; a model can only name a constructor that carries nothing.
+```
+
+A model answers in flat JSON. A sort whose constructors are all bare — `sort Level = low | medium | high` —
+becomes a JSON `enum` and a C# `enum`, and a model can name one. A sort with a constructor that carries
+something — `box(Int)` — becomes a record hierarchy, and there is no string a model could send that
+builds one. Refused here, or the class generated for the thought would fail to compile against a file
+nobody wrote.
+
+### `HS0074` — asking for something that cannot change the verdict
+
+```
+error HS0074: no law connects 'weather' to 'rejections', so telling 'Assign' about it cannot change the verdict.
+```
+
+**This is the check that makes `thought` a language feature rather than a library.** A predicate is
+reachable when the goal's query mentions it, or when it appears in the body of a law — or a defined
+predicate — whose head is already reachable. Negation counts: `¬ part(i, s)` still decides a verdict, so
+asking for `part` is allowed. An unreachable predicate produces a well-formed prompt, a reply that is
+asserted, a goal that runs, and a question that was never going to matter; nothing downstream can
+notice. The compiler, holding the law graph, can.
