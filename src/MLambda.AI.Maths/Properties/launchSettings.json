@@ -11,6 +11,10 @@
     "Calculus": {
       "commandName": "Project",
       "commandLineArgs": "Calculus"
+    },
+    "Solve": {
+      "commandName": "Project",
+      "commandLineArgs": "Solve"
     }
   }
 }

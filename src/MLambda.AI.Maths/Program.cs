@@ -12,6 +12,7 @@ if (args.Length == 0)
     Console.WriteLine();
     Console.WriteLine("  Algebra     the laws are the knowledge, and they say which one acted");
     Console.WriteLine("  Calculus    a derivative taken before you ran anything — and one that was not");
+    Console.WriteLine("  Solve       what the CAS refuses to guess, and the two laws that end the refusal");
     return 0;
 }
 
@@ -19,6 +20,7 @@ switch (args[0].ToLowerInvariant())
 {
     case "algebra": Algebra(); break;
     case "calculus": Calculus(); break;
+    case "solve": Solve(); break;
     default:
         Console.Error.WriteLine($"There is no sample called '{args[0]}'. Run with no arguments for the list.");
         return 1;
@@ -77,4 +79,23 @@ static void Calculus()
     Console.WriteLine("generated class and it is not there — a doorway that still holds a derivative is");
     Console.WriteLine("not emitted, and the build says nothing at all. The CAS above is the kinder of");
     Console.WriteLine("the two: it hands back what it could not finish.");
+}
+
+static void Solve()
+{
+    Console.WriteLine("2 · x + 3 = 7 — asked of two files.");
+    Console.WriteLine();
+    Console.WriteLine($"  Algebra.hb   {MLambda.AI.Maths.Algebra.Compute.Solve("2 · x + 3 = 7", "x")}");
+    Console.WriteLine($"  Solve.hb     {MLambda.AI.Maths.Solve.Compute.Solve("2 · x + 3 = 7", "x")}");
+    Console.WriteLine();
+    Console.WriteLine("Algebra.hb has fifteen laws and cannot do it. Every one of them is a term law,");
+    Console.WriteLine("which moves a sub-term; isolating x means moving the equation. Solve.hb declares");
+    Console.WriteLine("two laws with ⇔ and that is the whole difference:");
+    Console.WriteLine();
+    Console.WriteLine("    law sub_add = a + b = c ⇔ a = c − b");
+    Console.WriteLine("    law div_mul = a · b = c ⇔ b = c / a");
+    Console.WriteLine();
+    Console.WriteLine("No prelude ships them. Transposition needs what you divide by to be non-zero, and");
+    Console.WriteLine("a rewrite rule cannot check that — so the assumption is yours to declare, in the");
+    Console.WriteLine("file that leans on it. The refusal was the honest answer.");
 }
