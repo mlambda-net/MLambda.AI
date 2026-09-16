@@ -1,0 +1,42 @@
+-- Maths.hp — the rule the CAS spent, proved rather than assumed.
+--
+-- A THEOREM IS THE RECORD OF AN ACTUAL COMPUTATION. The L2 page watched `∂ x² / ∂ x` become `2x`
+-- and trusted it, because the generated C# said `Reduced by power, self, unit, power_one` and
+-- those are real law names. Trusting a list of names is still trusting. Here the kernel walks the
+-- derivation one law at a time and `ring` closes what is left, and if any step stops working the
+-- build stops with it.
+--
+-- NOTHING BELOW IS A BUILT-IN. `d(times(var, var))` is not differentiated by the prover; it is
+-- rewritten by `d_times`, which is the product rule written out in Maths.hs.
+open Maths
+axioms [d_var, d_konst, d_times, unit_left, unit_right, double]
+
+-- ── the product rule, applied to x · x ─────────────────────────────────────────────────────────
+--
+--   1.  d(x·x)                the product rule
+--   2.  d(x)·x + x·d(x)       `d_var`, twice
+--   3.  1·x + x·1             the unit laws
+--   4.  x + x                 u + u = 2u
+--   5.  2·x
+
+theorem deriv_of_x_squared : d(times(var, var)) = times(konst(2), var)
+proof
+  rewrite [d_times, d_var, d_var, unit_left, unit_right, double]
+  ring
+qed
+
+-- ── and the rule it leans on, on its own ───────────────────────────────────────────────────────
+
+theorem the_product_rule_is_usable : ∀ u v, d(times(u, v)) = plus(times(d(u), v), times(u, d(v)))
+proof
+  intro u v
+  rewrite [d_times]
+  ring
+qed
+
+theorem a_constant_has_no_slope : ∀ c, d(konst(c)) = konst(0)
+proof
+  intro c
+  rewrite [d_konst]
+  ring
+qed
