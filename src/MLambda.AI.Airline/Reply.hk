@@ -8,7 +8,21 @@
 -- book first; then the model is asked to phrase the decision; and if that phrasing promises anything the
 -- book does not grant — or the model is unavailable — the reply is the plain template instead. There is
 -- no path from `act` to `print` that goes around `review`.
-plan AnswerSteps(act: chan Word, done: chan Word) : Assistant ≔ "review" → act ; v ← done ; match v { when "upheld" ↦ believe reviewed("upheld")  other ↦ believe reviewed("overruled") } ; "format" → act ; f ← done ; match f { when "formatted" ↦ SKIP  other ↦ "fallback" → act ; g ← done } ; "print" → act ; p ← done ; believe replied(1)
+plan AnswerSteps(act: chan Word, done: chan Word) : Assistant ≔
+  "review" → act ;
+  v ← done ;
+  match v { when "upheld" ↦ believe reviewed("upheld")  other ↦ believe reviewed("overruled") } ;
+  "format" → act ;
+  f ← done ;
+  match f { when "formatted" ↦ SKIP  other ↦ "fallback" → act ; g ← done } ;
+  "print" → act ;
+  p ← done ;
+  believe replied(1)
 
 -- AND WITH NO BOOKING THERE IS NOTHING TO DECIDE, so nothing to review: ask for the reference.
-plan ClarifySteps(act: chan Word, done: chan Word) : Assistant ≔ "ask" → act ; a ← done ; "print" → act ; p ← done ; believe replied(1)
+plan ClarifySteps(act: chan Word, done: chan Word) : Assistant ≔
+  "ask" → act ;
+  a ← done ;
+  "print" → act ;
+  p ← done ;
+  believe replied(1)
