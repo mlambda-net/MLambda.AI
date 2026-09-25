@@ -11,7 +11,6 @@ agent CreditAgent(id: String) : Risk
   belief chance(basisPoints: Int)
   belief tolerance(basisPoints: Int)
   belief ceiling(basisPoints: Int)
-  belief settled(done: Int)
 
   desire Decided reachable by [Buy, Negotiate, Walk]
 
@@ -22,7 +21,9 @@ agent CreditAgent(id: String) : Risk
   intend Negotiate for Decided when B(self) chance(p) ∧ B(self) tolerance(t) ∧ B(self) ceiling(c) ∧ p > t ∧ p ≤ c
   intend Walk      for Decided when B(self) chance(p) ∧ B(self) ceiling(c) ∧ p > c
 
-  achieved Decided when B(self) settled(1)
+  -- MET ONCE THE HOST SAYS IT ACTED: the vocabulary's `settled(child, how)`, the verdict it carried out
+  -- and "acted" -- see ValuationAgent.ha.
+  achieved Decided when B(self) settled(_verdict, "acted")
 
   plan Buy       ↦ Purchase.Proceed
   plan Negotiate ↦ Purchase.Counter

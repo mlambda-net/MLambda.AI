@@ -58,10 +58,12 @@ public class LineTests
     public void The_formula_is_also_an_onnx_graph()
     {
         // THE FORMULA COMPILED TWICE: once to C# arithmetic, and once to a graph an executor runs.
-        // `errorOf` is one line of source and three ONNX nodes -- two subtractions and a multiply,
-        // because `(p − a) · (p − a)` names the difference twice and nothing folded it.
+        // `errorOf` is one line of source and two ONNX nodes -- one subtraction and a multiply that
+        // reads it twice. `(p − a) · (p − a)` names the difference twice, and the graph emitter keeps
+        // one node per structurally distinct term, so the second mention is the first node again.
         Assert.Equal("errorOf", Line.ErrorOfGraph.Name);
-        Assert.Equal(3, Line.ErrorOfGraph.Nodes.Count);
+        Assert.Equal(2, Line.ErrorOfGraph.Nodes.Count);
+        Assert.Equal(["sub", "sub"], Line.ErrorOfGraph.Nodes[1].Inputs);
 
         Assert.Equal("slopeOf", Line.SlopeOfGraph.Name);
         Assert.Single(Line.SlopeOfGraph.Nodes);

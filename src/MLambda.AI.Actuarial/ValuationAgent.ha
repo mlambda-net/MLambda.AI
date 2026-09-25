@@ -9,7 +9,6 @@ agent ValuationAgent(id: String) : Risk
   belief excess(hundredths: Int)
   belief tolerance(hundredths: Int)
   belief ceiling(hundredths: Int)
-  belief settled(done: Int)
 
   desire Decided reachable by [Buy, Negotiate, Walk]
 
@@ -23,7 +22,10 @@ agent ValuationAgent(id: String) : Risk
   -- A DESIRE MUST BE REACHABLE (HS0062: "an agent may not want what it can never reach"). Deciding is
   -- met once the host has acted on the intention and told the agent so -- the agent does not decide
   -- that it has decided.
-  achieved Decided when B(self) settled(1)
+  --
+  -- `settled` IS THE AGENCY VOCABULARY'S, NOT A BELIEF OF THIS AGENT (HS0082): `settled(child, how)`,
+  -- asserted by the host. Here the child is the verdict the host carried out and `how` is "acted".
+  achieved Decided when B(self) settled(_verdict, "acted")
 
   plan Buy       ↦ Purchase.Proceed
   plan Negotiate ↦ Purchase.Counter
