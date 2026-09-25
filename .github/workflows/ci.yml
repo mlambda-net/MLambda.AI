@@ -1,12 +1,18 @@
 name: CI
 
-# Build + test on every push and pull request; an RC package on every push to master; a release on a
-# v-tag (`./versioning patch`). The steps are Genesis's shared dotnet.yml, which every MLambda repo runs.
+# Build + test on every push and pull request, MOUNTED: this commit is built inside a Genesis checkout,
+# where Hilbert, Shin and Church are source.
+#
+# A COPY OF GENESIS'S dotnet.yml (mode mounted), NOT A CALL TO IT: this repository is public and Genesis is
+# private, and a public repository cannot use a private repository's reusable workflow. Keep the steps in
+# step with MLambda.Genesis/.github/workflows/dotnet.yml. Nothing here is packable, so nothing publishes.
+#
+# GENESIS_DEPLOY_KEYS: one read-only deploy key per MLambda repo. A pull request from a fork gets no secrets,
+# so only branches of this repository build mounted.
 
 on:
   push:
     branches: [master]
-    tags: ['v[0-9]+.[0-9]+.[0-9]+', 'v[0-9]+.[0-9]+.[0-9]+-*']
   pull_request:
   workflow_dispatch:
 
@@ -15,13 +21,57 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 
 jobs:
-  dotnet:
-    uses: mlambda-net/MLambda.Genesis/.github/workflows/dotnet.yml@standarize
-    with:
-      mode: mounted
-      publish: false
-    secrets: inherit
+  mounted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: self
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.GENESIS_DEPLOY_KEYS }}
+
+      - name: Lay out the tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          url=git@github.com:mlambda-net/MLambda.Genesis.git
+          ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref=master
+          echo "Genesis at $ref"
+          git clone -q --depth 1 --branch "$ref" "$url" genesis
+          others=$(git -C genesis config -f .gitmodules --get-regexp '\.path$' | awk '{print $2}' | grep -vx modules/MLambda.AI)
+          git -C genesis submodule update --init --recursive --depth 1 --jobs 8 -- $others
+          rm -rf genesis/modules/MLambda.AI && mv self genesis/modules/MLambda.AI
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        working-directory: genesis/modules/MLambda.AI
+        run: dotnet build MLambda.AI.slnx -c Release -m:1
+
+      - name: Test
+        working-directory: genesis/modules/MLambda.AI
+        run: >
+          dotnet test MLambda.AI.slnx -c Release --no-build --blame-hang-timeout 15m
+          --logger "trx;LogFileName=results.trx" --logger "console;verbosity=minimal"
+
+      - name: Test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: genesis/modules/MLambda.AI/**/TestResults/*.trx
+          if-no-files-found: ignore
+          retention-days: 14
