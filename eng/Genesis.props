@@ -1,0 +1,74 @@
+<Project>
+  <!--
+    GENESIS.PROPS — every MLambda module carries a byte-identical copy at <module>/eng/Genesis.props.
+    The canonical copy is MLambda.Genesis/eng/module/Genesis.props; Genesis CI fails when a copy drifts.
+    Import it first thing in the module's Directory.Build.props, and pair it with eng/Genesis.targets.
+
+    WHERE THE SIBLINGS COME FROM. A module is built in one of two modes, decided by LOOKING:
+
+      LOCAL     the module is mounted in Genesis at modules/<Module>, so MLambda.Genesis.slnx sits two
+                folders up. A sibling is a ProjectReference to its source next door: edit, rebuild, done.
+      PACKAGES  the module stands alone (a fresh clone, its own CI). A sibling is a PackageReference to
+                what that sibling published on GitHub Packages (https://nuget.pkg.github.com/mlambda-net).
+
+    Projects never spell out either form. They declare
+
+        <GenesisReference Include="MLambda.Grammar.Aleph" Module="MLambda.Grammar" />
+
+    and Genesis.targets turns it into the right reference. Overrides (plain properties, so -p: works):
+
+      -p:GenesisLocal=false          build a mounted module against PACKAGES — reproduces CI locally
+      -p:GenesisPackageVersion=X     pin sibling packages; the default floats to the newest RC or release
+
+    Every property is conditioned on being empty, so importing this file twice is a no-op. Genesis.targets
+    imports it again on purpose: a nested Directory.Build.props STOPS MSBuild's upward search, so the
+    module's props may never run for some project, but the module's .targets still does.
+  -->
+  <!--
+    THE MODULE'S VERSION. CI (Genesis's dotnet.yml) writes eng/version.g.props from the module's own tags:
+    X.Y.(Z+n)-rc on master, X.Y.Z on a tagged commit, -ci.<run> elsewhere. It is git-ignored; a local build
+    without it gets the SDK default. A module sets no <Version> of its own — the tags are the version.
+  -->
+  <Import Project="$(MSBuildThisFileDirectory)version.g.props" Condition="Exists('$(MSBuildThisFileDirectory)version.g.props')" />
+
+  <PropertyGroup>
+    <GenesisPropsImported>true</GenesisPropsImported>
+    <GenesisModuleRoot Condition="'$(GenesisModuleRoot)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..'))</GenesisModuleRoot>
+    <GenesisModulesRoot Condition="'$(GenesisModulesRoot)' == ''">$([MSBuild]::NormalizeDirectory('$(GenesisModuleRoot)', '..'))</GenesisModulesRoot>
+    <GenesisRoot Condition="'$(GenesisRoot)' == ''">$([MSBuild]::NormalizeDirectory('$(GenesisModulesRoot)', '..'))</GenesisRoot>
+    <GenesisLocal Condition="'$(GenesisLocal)' == '' And Exists('$(GenesisRoot)MLambda.Genesis.slnx')">true</GenesisLocal>
+    <GenesisLocal Condition="'$(GenesisLocal)' == ''">false</GenesisLocal>
+    <GenesisPackageVersion Condition="'$(GenesisPackageVersion)' == ''">*-*</GenesisPackageVersion>
+    <GenesisFeed Condition="'$(GenesisFeed)' == ''">https://nuget.pkg.github.com/mlambda-net/index.json</GenesisFeed>
+  </PropertyGroup>
+
+  <!--
+    THE SETTINGS EVERY MODULE COMPILES UNDER. They used to come from Genesis's root Directory.Build.props,
+    which a mounted module inherited and a cloned one did not, so the two modes compiled differently.
+    A module may still override any of them after this import.
+  -->
+  <PropertyGroup>
+    <Authors Condition="'$(Authors)' == ''">Roy Gonzalez</Authors>
+    <Company Condition="'$(Company)' == ''">MLambda</Company>
+    <Copyright Condition="'$(Copyright)' == ''">Copyright (c) MLambda</Copyright>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
+    <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
+    <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == ''">false</TreatWarningsAsErrors>
+    <IsPackable Condition="'$(IsPackable)' == '' And ($(MSBuildProjectName.EndsWith('.Tests')) Or $(MSBuildProjectName.EndsWith('.Test')) Or $(MSBuildProjectName.EndsWith('.EndTest')))">false</IsPackable>
+    <!-- Sonar rules that fight codegen/DSL idioms; the rationale is in Genesis's root Directory.Build.props. -->
+    <NoWarn>$(NoWarn);S125;S127;S1006;S1066;S1121;S1481;S1643;S1871;S2094;S2325;S2326;S3267;S3358;S3376;S3400;S3440;S6608;S6966</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    A LOCAL BUILD DOES NOT STAMP THE COMMIT: with the hash in the informational version every commit
+    rewrites AssemblyInfo and every generator reruns. CI (GITHUB_ACTIONS / CI set) keeps both, so a
+    published package still names its exact commit.
+  -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true' And '$(CI)' != 'true'">
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <EnableSourceLink>false</EnableSourceLink>
+  </PropertyGroup>
+</Project>

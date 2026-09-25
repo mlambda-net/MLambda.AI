@@ -11,3 +11,6 @@ docs/superpowers/
 # The built learning site (mkdocs build) and its hook cache.
 site/
 __pycache__/
+
+# Written by CI from the tags (Genesis dotnet.yml); never committed.
+eng/version.g.props

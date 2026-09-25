@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# versioning — bump the most recent semver tag and push it, triggering the release
+# workflow.
+#
+# IT LIVES AT THE ROOT AND HAS NO EXTENSION, because it is a command you run rather than a file you
+# open: `./versioning patch`. The PowerShell twin it used to mirror is gone — it took the same
+# arguments under different spellings, and one script that works in every shell on this machine is
+# worth more than two that must be kept in step.
+#
+# Usage:
+#   ./versioning patch                # vX.Y.Z+1
+#   ./versioning minor                # vX.Y+1.0
+#   ./versioning major                # vX+1.0.0
+#   ./versioning minor --pre alpha    # vX.Y+1.0-alpha.1
+#   ./versioning patch --pre rc       # vX.Y.Z+1-rc.1
+#   ./versioning patch --dry-run
+
+set -euo pipefail
+
+KIND=""
+PRE=""
+DRY_RUN=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        major|minor|patch) KIND="$1"; shift ;;
+        --pre)             PRE="$2"; shift 2 ;;
+        --dry-run)         DRY_RUN=1; shift ;;
+        -h|--help)
+            sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0 ;;
+        *) printf 'bump-version: unknown argument: %s\n' "$1" >&2; exit 1 ;;
+    esac
+done
+
+if [ -z "$KIND" ]; then
+    printf 'bump-version: missing bump kind (major|minor|patch)\n' >&2
+    exit 1
+fi
+
+latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n 1)
+[ -z "$latest" ] && latest="v0.0.0"
+
+if [[ ! "$latest" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-[A-Za-z0-9.-]+)?$ ]]; then
+    printf 'bump-version: latest tag %s does not match semver\n' "$latest" >&2
+    exit 1
+fi
+
+MAJOR="${BASH_REMATCH[1]}"
+MINOR="${BASH_REMATCH[2]}"
+PATCH="${BASH_REMATCH[3]}"
+
+case "$KIND" in
+    major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+    minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+    patch)
+        # Patch bump matches the RC stream: PATCH += <commits since
+        # the latest tag>. This keeps the prod tag aligned with the
+        # most recent RC version (consumers transitioning from
+        # -rc → prod see the same number, just without the suffix).
+        if [ "$latest" = "v0.0.0" ]; then
+            COMMITS=$(git rev-list --count HEAD)
+        else
+            COMMITS=$(git rev-list --count "${latest}..HEAD")
+        fi
+        if [ "$COMMITS" -lt 1 ]; then
+            printf 'bump-version: no commits since %s — nothing to bump\n' "$latest" >&2
+            exit 1
+        fi
+        PATCH=$((PATCH + COMMITS))
+        ;;
+esac
+
+core="v${MAJOR}.${MINOR}.${PATCH}"
+
+if [ -n "$PRE" ]; then
+    # Find the next number in the <PRE>.N series for this version
+    n=1
+    existing=$(git tag --list "${core}-${PRE}.*" || true)
+    if [ -n "$existing" ]; then
+        max=$(echo "$existing" | sed -nE "s/.*${PRE}\.([0-9]+)$/\1/p" | sort -n | tail -n 1)
+        if [ -n "$max" ]; then n=$((max + 1)); fi
+    fi
+    new_tag="${core}-${PRE}.${n}"
+else
+    new_tag="$core"
+fi
+
+echo "Latest tag: $latest"
+echo "Next tag:   $new_tag"
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "(dry-run; no tag created or pushed)"
+    exit 0
+fi
+
+git tag "$new_tag"
+git push origin "$new_tag"
+
+echo ""
+echo "Tag pushed. Release workflow URL:"
+remote=$(git remote get-url origin | sed 's/\.git$//')
+if [[ "$remote" =~ github\.com[/:]([^/]+/[^/]+) ]]; then
+    echo "  https://github.com/${BASH_REMATCH[1]}/actions"
+fi
