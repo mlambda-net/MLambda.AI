@@ -31,6 +31,10 @@
   <PropertyGroup>
     <IsPackable Condition="'$(OutputType)' == 'Exe' And '$(PackAsTool)' != 'true' And '$(IsPackable)' == ''">false</IsPackable>
     <IsPackable Condition="'$(NativeLib)' != '' And '$(IsPackable)' == ''">false</IsPackable>
+    <!-- Every library is a package; what only exercises or shows one is not: tests and the suites named
+         like them, samples, benchmarks, scenes, fakes, demos and fixtures. -->
+    <IsPackable Condition="'$(IsPackable)' == '' And '$(IsTestProject)' == 'true'">false</IsPackable>
+    <IsPackable Condition="'$(IsPackable)' == '' And ($(MSBuildProjectName.EndsWith('.Cases')) Or $(MSBuildProjectName.EndsWith('.Sample')) Or $(MSBuildProjectName.EndsWith('.Samples')) Or $(MSBuildProjectName.EndsWith('.Bench')) Or $(MSBuildProjectName.EndsWith('.Benchmarks')) Or $(MSBuildProjectName.EndsWith('.Scenes')) Or $(MSBuildProjectName.EndsWith('.Fake')) Or $(MSBuildProjectName.Contains('.Demo')) Or $(MSBuildProjectName.Contains('Fixture')))">false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

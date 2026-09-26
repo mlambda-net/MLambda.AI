@@ -1,11 +1,12 @@
 name: CI
 
 # Build + test on every push and pull request, MOUNTED: this commit is built inside a Genesis checkout,
-# where Hilbert, Shin and Church are source.
+# where Hilbert, Shin and Church are source. A push to master (or a manual run on master) publishes the
+# RC X.Y.(Z+n)-rc; a tag vX.Y.Z (`./versioning patch`) publishes the release and a GitHub release.
 #
 # A COPY OF GENESIS'S dotnet.yml (mode mounted), NOT A CALL TO IT: this repository is public and Genesis is
 # private, and a public repository cannot use a private repository's reusable workflow. Keep the steps in
-# step with MLambda.Genesis/.github/workflows/dotnet.yml. Nothing here is packable, so nothing publishes.
+# step with MLambda.Genesis/.github/workflows/dotnet.yml.
 #
 # GENESIS_DEPLOY_KEYS: one read-only deploy key per MLambda repo. A pull request from a fork gets no secrets,
 # so only branches of this repository build mounted.
@@ -13,6 +14,7 @@ name: CI
 on:
   push:
     branches: [master]
+    tags: ['v[0-9]+.[0-9]+.[0-9]+', 'v[0-9]+.[0-9]+.[0-9]+-*']
   pull_request:
   workflow_dispatch:
 
@@ -21,9 +23,11 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
-  contents: read
+  contents: write
+  packages: write
 
 env:
+  FEED: https://nuget.pkg.github.com/mlambda-net/index.json
   DOTNET_NOLOGO: 'true'
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 
@@ -31,9 +35,14 @@ jobs:
   mounted:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+        working-directory: genesis/modules/MLambda.AI
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0          # tags + history: the version is counted from them
           path: self
 
       - uses: webfactory/ssh-agent@v0.9.1
@@ -41,30 +50,63 @@ jobs:
           ssh-private-key: ${{ secrets.GENESIS_DEPLOY_KEYS }}
 
       - name: Lay out the tree
-        shell: bash
+        working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
           url=git@github.com:mlambda-net/MLambda.Genesis.git
           ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
           git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref=master
           echo "Genesis at $ref"
-          git clone -q --depth 1 --branch "$ref" "$url" genesis
+          git clone -q --filter=blob:none --branch "$ref" "$url" genesis
           others=$(git -C genesis config -f .gitmodules --get-regexp '\.path$' | awk '{print $2}' | grep -vx modules/MLambda.AI)
-          git -C genesis submodule update --init --recursive --depth 1 --jobs 8 -- $others
+          git -C genesis submodule update --init --recursive --filter=blob:none --jobs 8 -- $others
           rm -rf genesis/modules/MLambda.AI && mv self genesis/modules/MLambda.AI
+
+      - name: Version
+        id: version
+        run: |
+          set -euo pipefail
+          ver() {
+            local d="$1" ctx="$2" latest n a b c exact
+            latest=$(git -C "$d" tag --list 'v*' --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' | head -n 1 || true)
+            if [ -z "$latest" ]; then latest=v0.0.0; n=$(git -C "$d" rev-list --count HEAD); else n=$(git -C "$d" rev-list --count "$latest..HEAD"); fi
+            base="${latest#v}"; IFS=. read -r a b c <<< "${base%%-*}"
+            exact=$(git -C "$d" tag --points-at HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' | sort -V | tail -n 1 || true)
+            if [ "$ctx" = tag ]; then echo "${GITHUB_REF_NAME#v} release"
+            elif [ "$ctx" = ci ]; then echo "$a.$b.$((c + n))-ci.$GITHUB_RUN_NUMBER ci"
+            elif [ -n "$exact" ]; then echo "${exact#v} release"
+            else echo "$a.$b.$((c + n))-rc rc"; fi
+          }
+          emit() {
+            mkdir -p "$1/eng"
+            printf '<Project>\n  <PropertyGroup>\n    <Version>%s</Version>\n  </PropertyGroup>\n</Project>\n' "$2" > "$1/eng/version.g.props"
+          }
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then ctx=tag
+          elif [[ ( "$GITHUB_EVENT_NAME" == push || "$GITHUB_EVENT_NAME" == workflow_dispatch ) && "$GITHUB_REF" == refs/heads/master ]]; then ctx=master
+          else ctx=ci; fi
+          read -r version kind <<< "$(ver . "$ctx")"
+          emit . "$version"
+          # The siblings built from source are named at the versions they publish themselves.
+          read -r gv gk <<< "$(ver ../.. master)"; emit ../.. "$gv"
+          for p in $(git -C ../.. config -f .gitmodules --get-regexp '\.path$' | awk '{print $2}'); do
+            [ -e "../../$p/.git" ] || continue
+            [ "$p" = modules/MLambda.AI ] && continue
+            read -r mv mk <<< "$(ver "../../$p" master)"; emit "../../$p" "$mv"
+          done
+          echo "$version ($kind)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "kind=$kind"       >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
       - name: Build
-        working-directory: genesis/modules/MLambda.AI
         run: dotnet build MLambda.AI.slnx -c Release -m:1
 
       - name: Test
-        working-directory: genesis/modules/MLambda.AI
         run: >
-          dotnet test MLambda.AI.slnx -c Release --no-build --blame-hang-timeout 15m
+          dotnet test MLambda.AI.slnx -c Release --no-build --blame-hang-timeout 15m --blame-hang-dump-type none
           --logger "trx;LogFileName=results.trx" --logger "console;verbosity=minimal"
 
       - name: Test results
@@ -75,3 +117,30 @@ jobs:
           path: genesis/modules/MLambda.AI/**/TestResults/*.trx
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Pack
+        run: |
+          dotnet pack MLambda.AI.slnx -c Release --no-build -o "$RUNNER_TEMP/nupkgs"
+          ls -1 "$RUNNER_TEMP/nupkgs" 2>/dev/null || echo "nothing packable"
+
+      - name: Publish
+        if: steps.version.outputs.kind != 'ci'
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          pkgs=("$RUNNER_TEMP"/nupkgs/*.nupkg)
+          [ ${#pkgs[@]} -gt 0 ] || { echo "nothing to publish"; exit 0; }
+          for p in "${pkgs[@]}"; do
+            dotnet nuget push "$p" --source "$FEED" --api-key "$TOKEN" --skip-duplicate
+          done
+
+      - name: GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          pre=(); [[ "$GITHUB_REF_NAME" == *-* ]] && pre=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --generate-notes "${pre[@]}" \
+            --title "${GITHUB_REPOSITORY#*/} ${{ steps.version.outputs.version }}" "$RUNNER_TEMP"/nupkgs/*.nupkg
