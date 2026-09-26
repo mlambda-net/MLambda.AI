@@ -24,7 +24,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <!-- A MISSING GENESIS CHECKOUT IS ONE SENTENCE, NOT NINE MISSING-PROJECT ERRORS.
