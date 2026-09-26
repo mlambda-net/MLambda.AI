@@ -7,7 +7,6 @@ agent ConditionAgent(id: String) : Risk
   belief exposure(thousands: Int)
   belief tolerance(thousands: Int)
   belief ceiling(thousands: Int)
-  belief settled(done: Int)
 
   desire Decided reachable by [Buy, Negotiate, Walk]
 
@@ -18,7 +17,9 @@ agent ConditionAgent(id: String) : Risk
   intend Negotiate for Decided when B(self) exposure(x) ∧ B(self) tolerance(t) ∧ B(self) ceiling(c) ∧ x > t ∧ x ≤ c
   intend Walk      for Decided when B(self) exposure(x) ∧ B(self) ceiling(c) ∧ x > c
 
-  achieved Decided when B(self) settled(1)
+  -- MET ONCE THE HOST SAYS IT ACTED: the vocabulary's `settled(child, how)`, the verdict it carried out
+  -- and "acted" -- see ValuationAgent.ha.
+  achieved Decided when B(self) settled(_verdict, "acted")
 
   plan Buy       ↦ Purchase.Proceed
   plan Negotiate ↦ Purchase.Counter

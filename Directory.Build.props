@@ -1,4 +1,10 @@
 <Project>
+  <!-- The Genesis build standard: sibling modules by source inside Genesis, by package alone. See eng/Genesis.props. -->
+  <Import Project="$(MSBuildThisFileDirectory)eng/Genesis.props" />
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/mlambda-net/MLambda.AI</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/mlambda-net/MLambda.AI</PackageProjectUrl>
+  </PropertyGroup>
   <!-- THE ONLY FILE THAT KNOWS WHERE HILBERT LIVES. Every project writes $(HilbertRoot)\… or
        $(GenesisRoot)\… and nothing else, so migrating to NuGet later is a change here plus one
        ItemGroup per project.

@@ -65,12 +65,17 @@ public class AgentsTests
     public async Task A_decision_is_met_once_the_host_says_it_acted()
     {
         // HS0062 forced an `achieved` rule, and this is what it means: the agent does not decide that it
-        // has decided. The host acts, then asserts `settled`.
+        // has decided. The host acts, then asserts the vocabulary's `settled(child, how)`: the verdict it
+        // carried out, and "acted".
         var engine = Valuing(50);
 
         Assert.Empty(await Rows(engine.Met("v"), goal => goal));
 
-        engine.AssertAll([new Val.SettledFact("v", 1)]);
+        // NON-VACUOUS: the host's word is read, so a verdict that settled some other way decides nothing.
+        engine.AssertAll([new Val.SettledFact("v", "Buy", "refused")]);
+        Assert.Empty(await Rows(engine.Met("v"), goal => goal));
+
+        engine.AssertAll([new Val.SettledFact("v", "Buy", "acted")]);
 
         Assert.Equal(["Decided"], await Rows(engine.Met("v"), goal => goal));
     }

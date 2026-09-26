@@ -1,0 +1,64 @@
+<Project>
+  <!--
+    GENESIS.TARGETS — byte-identical copy at <module>/eng/Genesis.targets; canonical copy in
+    MLambda.Genesis/eng/module/. Import it from the module's Directory.Build.targets. Genesis.props says
+    what the two modes are.
+
+    GenesisReference → ProjectReference (LOCAL) or PackageReference (PACKAGES). It lives in .targets, not
+    .props, because the items are declared in each .csproj and a transform only sees items that exist.
+    It is a static ItemGroup, not a target, so restore, the IDE and design-time builds all see the real
+    references without running anything.
+
+        <GenesisReference Include="MLambda.Grammar.Aleph" Module="MLambda.Grammar" />
+        <GenesisReference Include="MLambda.Gui.Vulkan" Module="MLambda.Gui" Path="platform/MLambda.Gui.Vulkan/MLambda.Gui.Vulkan.csproj" />
+        <GenesisReference Include="MLambda.Actors.Core" Module="MLambda.Actors" Version="2.2.4" />
+
+      Module   the Genesis module (folder under modules/) that holds the project. Required: a package id
+               says nothing reliable about its module (MLambda.Church.Semantic.Generator).
+      Path     the project inside the module; default src/<Id>/<Id>.csproj.
+      Version  the package version in PACKAGES mode; default $(GenesisPackageVersion).
+
+    Other metadata (Private, ExcludeAssets, OutputItemType, ReferenceOutputAssembly…) is carried to the
+    reference unchanged, so it means the same thing in both modes.
+  -->
+  <Import Project="$(MSBuildThisFileDirectory)Genesis.props" Condition="'$(GenesisPropsImported)' != 'true'" />
+
+  <!--
+    WHAT IS NOT A PACKAGE. Plain executables (CLIs, demos, servers) and NativeAOT libraries ship as
+    binaries, not as library references. A dotnet tool (PackAsTool) or a project that sets IsPackable
+    itself is left alone. This is here, after the project body, because OutputType is only known then.
+  -->
+  <PropertyGroup>
+    <IsPackable Condition="'$(OutputType)' == 'Exe' And '$(PackAsTool)' != 'true' And '$(IsPackable)' == ''">false</IsPackable>
+    <IsPackable Condition="'$(NativeLib)' != '' And '$(IsPackable)' == ''">false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <GenesisReference Update="@(GenesisReference)">
+      <GenesisProject Condition="'%(Path)' != ''">$(GenesisModulesRoot)%(Module)/%(Path)</GenesisProject>
+      <GenesisProject Condition="'%(Path)' == ''">$(GenesisModulesRoot)%(Module)/src/%(Identity)/%(Identity).csproj</GenesisProject>
+      <GenesisVersion Condition="'%(Version)' != ''">%(Version)</GenesisVersion>
+      <GenesisVersion Condition="'%(Version)' == ''">$(GenesisPackageVersion)</GenesisVersion>
+    </GenesisReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GenesisLocal)' == 'true'">
+    <ProjectReference Include="@(GenesisReference->'%(GenesisProject)')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GenesisLocal)' != 'true'">
+    <PackageReference Include="@(GenesisReference)" />
+    <PackageReference Update="@(GenesisReference)">
+      <Version>%(GenesisVersion)</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="CheckGenesisReferences"
+          BeforeTargets="CollectPackageReferences;_GetProjectReferencesForRestore;ResolveProjectReferences"
+          Condition="'@(GenesisReference)' != ''">
+    <Error Condition="'%(GenesisReference.Module)' == ''"
+           Text="GenesisReference '%(GenesisReference.Identity)' has no Module. Say which Genesis module holds it, e.g. Module=&quot;MLambda.Grammar&quot;." />
+    <Error Condition="'$(GenesisLocal)' == 'true' And !Exists('%(GenesisReference.GenesisProject)')"
+           Text="GenesisReference '%(GenesisReference.Identity)': this module is mounted in Genesis, but %(GenesisReference.GenesisProject) does not exist. Is the submodule initialised, has the project moved (set Path), or build against packages with -p:GenesisLocal=false." />
+  </Target>
+</Project>
