@@ -6,6 +6,8 @@
 // design of Condition.hb depends on both, and the day the corpus changes they should be re-checked.
 namespace MLambda.AI.Actuarial.Tests;
 
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
+
 using MLambda.AI.Actuarial;
 using MLambda.Hilbert.Runtime;
 
@@ -14,22 +16,22 @@ public class ConditionTests
     private static readonly Lazy<House> Corpus = new(() => new House("data/houses.csv"));
 
     /// <summary>[quality, living, age, condition, 1] over the rows the filter keeps.</summary>
-    private static (Matrix Design, Vector Prices) Band(Func<double, bool> ageIn)
+    private static (Tensor Design, Tensor Prices) Band(Func<double, bool> ageIn)
     {
         var house = Corpus.Value;
-        var rows = Enumerable.Range(0, house.Rows).Where(row => ageIn(house.HouseAge.Values[row])).ToList();
+        var rows = Enumerable.Range(0, house.Rows).Where(row => ageIn(house.HouseAge.Values()[row])).ToList();
         var design = new double[rows.Count, 5];
         var prices = new double[rows.Count];
 
         for (var i = 0; i < rows.Count; i++)
         {
             var row = rows[i];
-            design[i, 0] = house.Quality.Values[row];
-            design[i, 1] = house.Living.Values[row];
-            design[i, 2] = house.HouseAge.Values[row];
-            design[i, 3] = house.Condition.Values[row];
+            design[i, 0] = house.Quality.Values()[row];
+            design[i, 1] = house.Living.Values()[row];
+            design[i, 2] = house.HouseAge.Values()[row];
+            design[i, 3] = house.Condition.Values()[row];
             design[i, 4] = 1d;
-            prices[i] = house.Price.Values[row];
+            prices[i] = house.Price.Values()[row];
         }
 
         return (design, prices);
@@ -39,7 +41,7 @@ public class ConditionTests
     {
         var (design, prices) = Band(ageIn);
 
-        return Condition.ConditionModel(design, prices).Values[3];
+        return Condition.ConditionModel(design, prices).Values()[3];
     }
 
     private static readonly Lazy<double> Pooled = new(() => PerPoint(_ => true));
@@ -54,8 +56,8 @@ public class ConditionTests
         // deterioration-from-age model would read this backwards.
         var house = Corpus.Value;
         double MeanCondition(Func<double, bool> ageIn) =>
-            Enumerable.Range(0, house.Rows).Where(row => ageIn(house.HouseAge.Values[row]))
-                .Average(row => house.Condition.Values[row]);
+            Enumerable.Range(0, house.Rows).Where(row => ageIn(house.HouseAge.Values()[row]))
+                .Average(row => house.Condition.Values()[row]);
 
         Assert.Equal(5.01d, MeanCondition(age => age < 10), 2);
         Assert.Equal(6.15d, MeanCondition(age => age >= 60), 2);
@@ -83,13 +85,13 @@ public class ConditionTests
         // it out moves the under-thirty value of a condition point from $8 613.54 to $9 243.34: $630 from
         // one row out of 1 267. It stays in, because hiding it would be the worse choice.
         var house = Corpus.Value;
-        var odd = Enumerable.Range(0, house.Rows).Where(row => house.HouseAge.Values[row] < 0).ToList();
+        var odd = Enumerable.Range(0, house.Rows).Where(row => house.HouseAge.Values()[row] < 0).ToList();
 
         var only = Assert.Single(odd);
-        Assert.Equal(2008d, house.Built.Values[only]);
-        Assert.Equal(2007d, house.Sold.Values[only]);
-        Assert.Equal(5095d, house.Living.Values[only]);
-        Assert.Equal(183850d, house.Price.Values[only]);
+        Assert.Equal(2008d, house.Built.Values()[only]);
+        Assert.Equal(2007d, house.Sold.Values()[only]);
+        Assert.Equal(5095d, house.Living.Values()[only]);
+        Assert.Equal(183850d, house.Price.Values()[only]);
 
         Assert.Equal(9243.34d, PerPoint(age => age is >= 0 and < 30), 0);
     }

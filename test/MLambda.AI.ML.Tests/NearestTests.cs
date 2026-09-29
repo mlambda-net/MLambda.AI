@@ -7,23 +7,24 @@ namespace MLambda.AI.ML.Tests;
 
 using MLambda.AI.ML;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class NearestTests
 {
-    private static Tensor Known() => (Matrix)new double[,]
+    private static Tensor Known() => (Tensor)new double[,]
     {
         { 0d, 0d }, { 0d, 1d }, { 1d, 0d },
         { 10d, 10d }, { 10d, 11d }, { 11d, 10d },
     };
 
     /// <summary>One row per known point, one column per class, 1 where it belongs.</summary>
-    private static Tensor Classes() => (Matrix)new double[,]
+    private static Tensor Classes() => (Tensor)new double[,]
     {
         { 1d, 0d }, { 1d, 0d }, { 1d, 0d },
         { 0d, 1d }, { 0d, 1d }, { 0d, 1d },
     };
 
-    private static Tensor Asked() => (Matrix)new double[,] { { 0.5d, 0.5d }, { 10.5d, 10.5d } };
+    private static Tensor Asked() => (Tensor)new double[,] { { 0.5d, 0.5d }, { 10.5d, 10.5d } };
 
     [Fact]
     public void A_point_near_the_origin_is_class_A_and_one_near_ten_is_class_B()
@@ -31,7 +32,7 @@ public class NearestTests
         // ONE-HOT PER ROW: the first question lands in column 0, the second in column 1.
         var answer = Nearest.ClassifyNear(Asked(), Known(), Classes(), 2d);
 
-        Assert.Equal([1d, 0d, 0d, 1d], answer.Values);
+        Assert.Equal([1d, 0d, 0d, 1d], answer.Values());
     }
 
     [Fact]
@@ -41,7 +42,7 @@ public class NearestTests
         // probability anybody estimated, a count of who turned up.
         var shares = Nearest.SharesNear(Asked(), Known(), Classes(), 3d);
 
-        Assert.Equal([1d, 0d, 0d, 1d], shares.Values.Select(v => Math.Round(v, 6)));
+        Assert.Equal([1d, 0d, 0d, 1d], shares.Values().Select(v => Math.Round(v, 6)));
     }
 
     [Fact]
@@ -52,21 +53,21 @@ public class NearestTests
         // cheaper model is the right one.
         var answer = Nearest.NearestCentre(Asked(), Known(), Classes());
 
-        Assert.Equal([1d, 0d, 0d, 1d], answer.Values);
+        Assert.Equal([1d, 0d, 0d, 1d], answer.Values());
     }
 
     [Fact]
     public void Regression_averages_the_nearest_known_values()
     {
         // No training at all: the answer is the mean of the k nearest targets, computed now.
-        Tensor known = (Matrix)new double[,] { { 0d }, { 1d }, { 2d }, { 10d } };
-        Tensor values = (Vector)new double[] { 0d, 10d, 20d, 100d };
-        Tensor asked = (Matrix)new double[,] { { 0.9d } };
+        Tensor known = (Tensor)new double[,] { { 0d }, { 1d }, { 2d }, { 10d } };
+        Tensor values = (Tensor)new double[] { 0d, 10d, 20d, 100d };
+        Tensor asked = (Tensor)new double[,] { { 0.9d } };
 
         var answer = Nearest.RegressNear(asked, known, values, 3d);
 
         // The three nearest to 0.9 are 0, 1 and 2 -- whose values average to 10. The outlier at
         // 10 is not one of them, which is the whole point of asking only the neighbours.
-        Assert.Equal(10d, answer.Values[0], 6);
+        Assert.Equal(10d, answer.Values()[0], 6);
     }
 }

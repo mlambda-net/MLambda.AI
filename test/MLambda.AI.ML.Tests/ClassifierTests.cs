@@ -1,6 +1,8 @@
 // ClassifierTests.cs — a class is one more index.
 namespace MLambda.AI.ML.Tests;
 
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
+
 using MLambda.AI.ML;
 using MLambda.Hilbert.Runtime;
 
@@ -21,7 +23,7 @@ public class ClassifierTests
     // A column of ones is the fix, and it is the same fix `Line` uses to get an intercept: a model
     // that only knows how to weight columns gets a constant by being handed a column that is
     // always one. `Bias_free_networks_are_stuck_at_zero_on_the_origin` below shows the failure.
-    private static Matrix Xs() => new double[,]
+    private static Tensor Xs() => new double[,]
     {
         { 0d, 0d, 1d }, { 0d, 1d, 1d }, { 1d, 0d, 1d }, { 1d, 1d, 1d },
     };
@@ -36,13 +38,13 @@ public class ClassifierTests
     private const double GoodSeed = 1d;
     private const double StuckSeed = 7d;
 
-    private static Matrix XsWithoutBias() => new double[,]
+    private static Tensor XsWithoutBias() => new double[,]
     {
         { 0d, 0d }, { 0d, 1d }, { 1d, 0d }, { 1d, 1d },
     };
 
     /// <summary>XOR again, now as two classes: column 0 is "off", column 1 is "on".</summary>
-    private static Matrix Ys() => new double[,]
+    private static Tensor Ys() => new double[,]
     {
         { 1d, 0d }, { 0d, 1d }, { 0d, 1d }, { 1d, 0d },
     };
@@ -63,7 +65,7 @@ public class ClassifierTests
     public void Every_row_of_shares_is_a_distribution()
     {
         // WHAT THE SOFTMAX IS FOR: non-negative, and each row sums to one.
-        var shares = new Classifier(3, 8, 2, seed: 7).Shares(Xs()).Values;
+        var shares = new Classifier(3, 8, 2, seed: 7).Shares(Xs()).Values();
 
         for (var row = 0; row < 4; row++)
         {
@@ -81,8 +83,8 @@ public class ClassifierTests
         // MONOTONE, so the scores and the shares rank the classes identically. That is why the
         // softmax can live at the call site: taking it out of the network loses nothing.
         var net = new Classifier(3, 8, 2, seed: 7);
-        var scores = net.Eval(Xs()).Values;
-        var shares = net.Shares(Xs()).Values;
+        var scores = net.Eval(Xs()).Values();
+        var shares = net.Shares(Xs()).Values();
 
         for (var row = 0; row < 4; row++)
         {
@@ -96,8 +98,8 @@ public class ClassifierTests
     [Fact]
     public void Training_reduces_the_error()
     {
-        var before = new Classifier(3, 8, 2, seed: GoodSeed).Loss(Xs(), Ys()).Values[0];
-        var after = Trained().Loss(Xs(), Ys()).Values[0];
+        var before = new Classifier(3, 8, 2, seed: GoodSeed).Loss(Xs(), Ys()).Values()[0];
+        var after = Trained().Loss(Xs(), Ys()).Values()[0];
 
         Assert.True(after < before / 2, $"loss went from {before:F4} to {after:F4}");
     }
@@ -122,7 +124,7 @@ public class ClassifierTests
             net.Train(XsWithoutBias(), Ys(), 0.5);
         }
 
-        var origin = net.Eval(XsWithoutBias()).Values;
+        var origin = net.Eval(XsWithoutBias()).Values();
 
         Assert.Equal(0d, origin[0]);
         Assert.Equal(0d, origin[1]);
@@ -146,15 +148,15 @@ public class ClassifierTests
         //
         // Real training restarts from several seeds and keeps the best, for exactly this reason.
         var net = Trained(StuckSeed, steps: 500);
-        var weightsAt500 = net.First.Values.ToArray();
+        var weightsAt500 = net.First.Values().ToArray();
 
         for (var step = 0; step < 1000; step++)
         {
             net.Train(Xs(), Ys(), 0.5);
         }
 
-        Assert.Equal(weightsAt500, net.First.Values);
-        Assert.True(net.Loss(Xs(), Ys()).Values[0] > 0.1d, "expected seed 7 to stay stuck");
+        Assert.Equal(weightsAt500, net.First.Values());
+        Assert.True(net.Loss(Xs(), Ys()).Values()[0] > 0.1d, "expected seed 7 to stay stuck");
     }
 
     [Fact]
@@ -163,10 +165,10 @@ public class ClassifierTests
         // NON-VACUOUS: the test above would pass for a network whose Train did nothing at all.
         // Seed 1 at the same step is converged but not frozen -- its weights still change.
         var net = Trained(GoodSeed, steps: 500);
-        var weightsAt500 = net.First.Values.ToArray();
+        var weightsAt500 = net.First.Values().ToArray();
 
         net.Train(Xs(), Ys(), 0.5);
 
-        Assert.NotEqual(weightsAt500, net.First.Values);
+        Assert.NotEqual(weightsAt500, net.First.Values());
     }
 }

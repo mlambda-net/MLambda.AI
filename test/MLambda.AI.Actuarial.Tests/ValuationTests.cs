@@ -9,19 +9,20 @@ namespace MLambda.AI.Actuarial.Tests;
 
 using MLambda.AI.Actuarial;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class ValuationTests
 {
     /// <summary>The design: quality, living area, age, and a column of ones for the intercept.</summary>
-    private static Matrix Design(House house)
+    private static Tensor Design(House house)
     {
         var rows = new double[house.Rows, 4];
 
         for (var row = 0; row < house.Rows; row++)
         {
-            rows[row, 0] = house.Quality.Values[row];
-            rows[row, 1] = house.Living.Values[row];
-            rows[row, 2] = house.HouseAge.Values[row];
+            rows[row, 0] = house.Quality.Values()[row];
+            rows[row, 1] = house.Living.Values()[row];
+            rows[row, 2] = house.HouseAge.Values()[row];
             rows[row, 3] = 1d;
         }
 
@@ -34,7 +35,7 @@ public class ValuationTests
         var house = new House("data/houses.csv");
         var design = Design(house);
 
-        return (house, Valuation.FairValueCoefficients(design, house.Price), Valuation.SpreadOf(design, house.Price).Values[0]);
+        return (house, Valuation.FairValueCoefficients(design, house.Price), Valuation.SpreadOf(design, house.Price).Values()[0]);
     });
 
     [Fact]
@@ -42,7 +43,7 @@ public class ValuationTests
     {
         // Solved independently: $26 009.12 per quality point, $63.07 per square foot, −$495.41 per
         // year of age, and an intercept of −$54 266.41.
-        var b = Fitted.Value.Coefficients.Values;
+        var b = Fitted.Value.Coefficients.Values();
 
         Assert.Equal(26009.1216d, b[0], 2);
         Assert.Equal(63.0729d, b[1], 3);
@@ -55,7 +56,7 @@ public class ValuationTests
     {
         // The signs a buyer would expect. Tested separately from the exact values above, because a
         // fit could match to four decimals on the wrong design and this is the sanity check on that.
-        var b = Fitted.Value.Coefficients.Values;
+        var b = Fitted.Value.Coefficients.Values();
 
         Assert.True(b[0] > 0, "quality should raise the price");
         Assert.True(b[1] > 0, "living area should raise the price");
@@ -74,9 +75,9 @@ public class ValuationTests
     public void A_house_has_a_fair_value_from_what_houses_like_it_sold_for()
     {
         // Quality 7, 1 800 square feet, 20 years old: $231 420.47, computed independently.
-        Matrix house = new double[,] { { 7d, 1800d, 20d, 1d } };
+        Tensor house = new double[,] { { 7d, 1800d, 20d, 1d } };
 
-        var fair = Valuation.FairValueOf(Fitted.Value.Coefficients, house).Values[0];
+        var fair = Valuation.FairValueOf(Fitted.Value.Coefficients, house).Values()[0];
 
         Assert.Equal(231420.47d, fair, 0);
     }

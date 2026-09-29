@@ -8,6 +8,7 @@
 // works. It says nothing about generalisation, and nothing printed here pretends otherwise.
 using MLambda.AI.ML;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 if (args.Length == 0)
 {
@@ -42,24 +43,24 @@ static void Line()
     Console.WriteLine("The design matrix carries a column of ones: that is how a line gets an intercept.");
     Console.WriteLine();
 
-    Matrix inputs = new double[,] { { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 } };
-    Vector outputs = new double[] { 4, 7, 10, 13 };
+    Tensor inputs = new double[,] { { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 } };
+    Tensor outputs = new double[] { 4, 7, 10, 13 };
 
     var line = MLambda.AI.ML.Line.LineOf(inputs, outputs);
 
-    Console.WriteLine($"  recovered   y = {line.Values[0]:F3}x + {line.Values[1]:F3}");
+    Console.WriteLine($"  recovered   y = {line.Values()[0]:F3}x + {line.Values()[1]:F3}");
 
-    Matrix further = new double[,] { { 10, 1 } };
+    Tensor further = new double[,] { { 10, 1 } };
     var predicted = MLambda.AI.ML.Line.PredictWith((Tensor)line, (Tensor)further);
 
-    Console.WriteLine($"  at x = 10   predicts {predicted.Values[0]:F3}   (the line says 31)");
-    Console.WriteLine($"  spread      {MLambda.AI.ML.Line.SpreadOf(inputs, outputs).Values[0]:F3}   no noise in, no spread out");
+    Console.WriteLine($"  at x = 10   predicts {predicted.Values()[0]:F3}   (the line says 31)");
+    Console.WriteLine($"  spread      {MLambda.AI.ML.Line.SpreadOf(inputs, outputs).Values()[0]:F3}   no noise in, no spread out");
 
-    Vector noisy = new double[] { 4, 8, 9, 13 };
+    Tensor noisy = new double[] { 4, 8, 9, 13 };
 
     Console.WriteLine();
     Console.WriteLine("Now the same x with some noise in y:");
-    Console.WriteLine($"  spread      {MLambda.AI.ML.Line.SpreadOf(inputs, noisy).Values[0]:F3}");
+    Console.WriteLine($"  spread      {MLambda.AI.ML.Line.SpreadOf(inputs, noisy).Values()[0]:F3}");
     Console.WriteLine();
     Console.WriteLine("A fit without its spread invites false confidence. Both come from one .hb file.");
 }
@@ -69,8 +70,8 @@ static void Perceptron()
     Console.WriteLine("XOR: the smallest problem one layer cannot solve and two layers can.");
     Console.WriteLine();
 
-    Matrix xs = new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
-    Matrix ys = new double[,] { { 0 }, { 1 }, { 1 }, { 0 } };
+    Tensor xs = new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+    Tensor ys = new double[,] { { 0 }, { 1 }, { 1 }, { 0 } };
 
     var net = new MLambda.AI.ML.Perceptron(2, 8, seed: 7);
 
@@ -81,14 +82,14 @@ static void Perceptron()
     {
         if (step is 0 or 10 or 50 or 100 or 250 or 500)
         {
-            Console.WriteLine($"  {step,4}   {net.Loss(xs, ys).Values[0]:G4}");
+            Console.WriteLine($"  {step,4}   {net.Loss(xs, ys).Values()[0]:G4}");
         }
 
         net.Train(xs, ys, 0.5);
     }
 
     Console.WriteLine();
-    Console.WriteLine($"  answers  {Row(net.Eval(xs).Values, 6)}   (XOR is 0 1 1 0)");
+    Console.WriteLine($"  answers  {Row(net.Eval(xs).Values(), 6)}   (XOR is 0 1 1 0)");
     Console.WriteLine();
     Console.WriteLine("One answer of the four was never learned. This network has no bias, so at");
     Console.WriteLine("(0, 0) it answers zero whatever its weights — and XOR's target there happens");
@@ -101,9 +102,9 @@ static void Classifier()
     Console.WriteLine("The network is the Perceptron with a wider last layer. That is all a class is.");
     Console.WriteLine();
 
-    Matrix ys = new double[,] { { 1, 0 }, { 0, 1 }, { 0, 1 }, { 1, 0 } };
+    Tensor ys = new double[,] { { 1, 0 }, { 0, 1 }, { 0, 1 }, { 1, 0 } };
 
-    Matrix bare = new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+    Tensor bare = new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
     var noBias = new MLambda.AI.ML.Classifier(2, 8, 2, seed: 1);
 
     for (var step = 0; step < 500; step++)
@@ -112,12 +113,12 @@ static void Classifier()
     }
 
     Console.WriteLine("Without a bias column, after 500 steps:");
-    Console.WriteLine($"  scores at (0,0)   {Row(noBias.Eval(bare).Values.Take(2).ToArray(), 6)}   (should be 1 0)");
+    Console.WriteLine($"  scores at (0,0)   {Row(noBias.Eval(bare).Values().Take(2).ToArray(), 6)}   (should be 1 0)");
     Console.WriteLine("  Zero for both. Every unit multiplies (0, 0) by its weights, and no amount");
     Console.WriteLine("  of training moves a product of zero.");
     Console.WriteLine();
 
-    Matrix biased = new double[,] { { 0, 0, 1 }, { 0, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } };
+    Tensor biased = new double[,] { { 0, 0, 1 }, { 0, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } };
 
     foreach (var seed in new[] { 1d, 7d })
     {
@@ -128,9 +129,9 @@ static void Classifier()
             net.Train(biased, ys, 0.5);
         }
 
-        var right = net.Winner(biased).Values.SequenceEqual(ys.Values);
+        var right = net.Winner(biased).Values().SequenceEqual(ys.Values());
 
-        Console.WriteLine($"With a column of ones, seed {seed}:   loss {net.Loss(biased, ys).Values[0]:G4}   every row right: {right}");
+        Console.WriteLine($"With a column of ones, seed {seed}:   loss {net.Loss(biased, ys).Values()[0]:G4}   every row right: {right}");
     }
 
     Console.WriteLine();
@@ -146,12 +147,12 @@ static void Nearest()
     Console.WriteLine("answer below is worked out at the moment it is asked.");
     Console.WriteLine();
 
-    Tensor known = (Matrix)new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 10, 10 }, { 10, 11 }, { 11, 10 } };
-    Tensor classes = (Matrix)new double[,] { { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } };
-    Tensor asked = (Matrix)new double[,] { { 0.5, 0.5 }, { 10.5, 10.5 } };
+    Tensor known = (Tensor)new double[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 10, 10 }, { 10, 11 }, { 11, 10 } };
+    Tensor classes = (Tensor)new double[,] { { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 } };
+    Tensor asked = (Tensor)new double[,] { { 0.5, 0.5 }, { 10.5, 10.5 } };
 
-    var knn = MLambda.AI.ML.Nearest.ClassifyNear(asked, known, classes, 2d).Values;
-    var centre = MLambda.AI.ML.Nearest.NearestCentre(asked, known, classes).Values;
+    var knn = MLambda.AI.ML.Nearest.ClassifyNear(asked, known, classes, 2d).Values();
+    var centre = MLambda.AI.ML.Nearest.NearestCentre(asked, known, classes).Values();
 
     Console.WriteLine("  asked           k-NN (k=2)   nearest centroid");
     Console.WriteLine($"  (0.5, 0.5)      {(knn[0] == 1 ? "A" : "B"),-12} {(centre[0] == 1 ? "A" : "B")}");

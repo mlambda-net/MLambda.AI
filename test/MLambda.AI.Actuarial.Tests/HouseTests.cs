@@ -23,11 +23,11 @@ public class HouseTests
     {
         var house = Corpus.Value;
 
-        Assert.Equal(12789d, house.Price.Values.Min());
-        Assert.Equal(755000d, house.Price.Values.Max());
-        Assert.Equal(1872d, house.Built.Values.Min());
-        Assert.Equal(1d, house.Quality.Values.Min());
-        Assert.Equal(10d, house.Quality.Values.Max());
+        Assert.Equal(12789d, house.Price.Values().Min());
+        Assert.Equal(755000d, house.Price.Values().Max());
+        Assert.Equal(1872d, house.Built.Values().Min());
+        Assert.Equal(1d, house.Quality.Values().Min());
+        Assert.Equal(10d, house.Quality.Values().Max());
     }
 
     [Fact]
@@ -35,8 +35,8 @@ public class HouseTests
     {
         // 490 rows have no Lot Frontage in the raw file. `fill frontage with median` means none do
         // after the frame has read them.
-        Assert.DoesNotContain(Corpus.Value.Frontage.Values, double.IsNaN);
-        Assert.Equal(2930, Corpus.Value.Frontage.Values.Count);
+        Assert.DoesNotContain(Corpus.Value.Frontage.Values(), double.IsNaN);
+        Assert.Equal(2930, Corpus.Value.Frontage.Values().Length);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class HouseTests
 
         for (var row = 0; row < house.Rows; row++)
         {
-            Assert.Equal(house.Sold.Values[row] - house.Built.Values[row], house.HouseAge.Values[row]);
+            Assert.Equal(house.Sold.Values()[row] - house.Built.Values()[row], house.HouseAge.Values()[row]);
         }
     }
 
@@ -56,12 +56,12 @@ public class HouseTests
     {
         // RL → 1; RM and RH → 2; C (all) → 3; everything else → 0. Counted from the raw file:
         // RL 2273, RM 462, RH 27, C (all) 25, and 143 in FV, I (all) and A (agr).
-        var zones = Corpus.Value.Zone.Values;
+        var zones = Corpus.Value.Zone.Values();
 
-        Assert.Equal(2273, zones.Count(zone => zone == 1d));
-        Assert.Equal(489, zones.Count(zone => zone == 2d));
-        Assert.Equal(25, zones.Count(zone => zone == 3d));
-        Assert.Equal(143, zones.Count(zone => zone == 0d));
+        Assert.Equal(2273, Enumerable.Count(zones, zone => zone == 1d));
+        Assert.Equal(489, Enumerable.Count(zones, zone => zone == 2d));
+        Assert.Equal(25, Enumerable.Count(zones, zone => zone == 3d));
+        Assert.Equal(143, Enumerable.Count(zones, zone => zone == 0d));
     }
 
     [Fact]
@@ -71,10 +71,10 @@ public class HouseTests
         // was remodelled before 1950, and 339 of the 632 pre-1950 houses record exactly 1950 -- the
         // dataset's placeholder. `sinceWork` understates how long those houses have gone untouched.
         var house = Corpus.Value;
-        var oldHouses = Enumerable.Range(0, house.Rows).Where(row => house.Built.Values[row] < 1950).ToList();
+        var oldHouses = Enumerable.Range(0, house.Rows).Where(row => house.Built.Values()[row] < 1950).ToList();
 
-        Assert.Equal(1950d, house.Remodel.Values.Min());
+        Assert.Equal(1950d, house.Remodel.Values().Min());
         Assert.Equal(632, oldHouses.Count);
-        Assert.Equal(339, oldHouses.Count(row => house.Remodel.Values[row] == 1950d));
+        Assert.Equal(339, oldHouses.Count(row => house.Remodel.Values()[row] == 1950d));
     }
 }

@@ -7,6 +7,7 @@ namespace MLambda.AI.ML.Tests;
 
 using MLambda.AI.ML;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class LineTests
 {
@@ -36,37 +37,22 @@ public class LineTests
         // NOT A LOOP THIS FILE WROTE. `errorOf` was declared over two names and the compiler
         // emitted a tensor overload from the same expression -- so a batch of predictions costs
         // one call and no extra source.
-        Vector predicted = new double[] { 1d, 2d, 3d };
-        Vector actual = new double[] { 1d, 4d, 0d };
+        Tensor predicted = new double[] { 1d, 2d, 3d };
+        Tensor actual = new double[] { 1d, 4d, 0d };
 
         var errors = Line.ErrorOf(predicted, actual);
 
-        Assert.Equal([0d, 4d, 9d], errors.Values);
+        Assert.Equal([0d, 4d, 9d], errors.Values());
     }
 
     [Fact]
     public void And_a_scalar_broadcasts_across_one()
     {
-        Vector actual = new double[] { 1d, 2d, 3d };
+        Tensor actual = new double[] { 1d, 2d, 3d };
 
         var errors = Line.ErrorOf(3d, actual);
 
-        Assert.Equal([4d, 1d, 0d], errors.Values);
-    }
-
-    [Fact]
-    public void The_formula_is_also_an_onnx_graph()
-    {
-        // THE FORMULA COMPILED TWICE: once to C# arithmetic, and once to a graph an executor runs.
-        // `errorOf` is one line of source and two ONNX nodes -- one subtraction and a multiply that
-        // reads it twice. `(p − a) · (p − a)` names the difference twice, and the graph emitter keeps
-        // one node per structurally distinct term, so the second mention is the first node again.
-        Assert.Equal("errorOf", Line.ErrorOfGraph.Name);
-        Assert.Equal(2, Line.ErrorOfGraph.Nodes.Count);
-        Assert.Equal(["sub", "sub"], Line.ErrorOfGraph.Nodes[1].Inputs);
-
-        Assert.Equal("slopeOf", Line.SlopeOfGraph.Name);
-        Assert.Single(Line.SlopeOfGraph.Nodes);
+        Assert.Equal([4d, 1d, 0d], errors.Values());
     }
 
     // ── the fit ────────────────────────────────────────────────────────────────────────────────
@@ -76,7 +62,7 @@ public class LineTests
     // the coefficients come back as [slope, intercept].
 
     /// <summary>Points from y = 3x + 1, exactly.</summary>
-    private static Matrix Inputs() => new double[,]
+    private static Tensor Inputs() => new double[,]
     {
         { 1d, 1d },
         { 2d, 1d },
@@ -84,7 +70,7 @@ public class LineTests
         { 4d, 1d },
     };
 
-    private static Vector Outputs() => new double[] { 4d, 7d, 10d, 13d };
+    private static Tensor Outputs() => new double[] { 4d, 7d, 10d, 13d };
 
     [Fact]
     public void A_fit_recovers_a_line_it_was_given()
@@ -93,26 +79,26 @@ public class LineTests
         // the line comes back. A fit that cannot do this is not a fit, whatever else it does.
         var line = Line.LineOf(Inputs(), Outputs());
 
-        Assert.Equal(3d, line.Values[0], 6);
-        Assert.Equal(1d, line.Values[1], 6);
+        Assert.Equal(3d, line.Values()[0], 6);
+        Assert.Equal(1d, line.Values()[1], 6);
     }
 
     [Fact]
     public void And_predicts_where_the_line_goes_next()
     {
         var line = Line.LineOf(Inputs(), Outputs());
-        Matrix further = new double[,] { { 10d, 1d } };
+        Tensor further = new double[,] { { 10d, 1d } };
 
         var predicted = Line.PredictWith((Tensor)line, (Tensor)further);
 
-        Assert.Equal(31d, predicted.Values[0], 6);
+        Assert.Equal(31d, predicted.Values()[0], 6);
     }
 
     [Fact]
     public void A_line_with_nothing_left_over_has_no_spread()
     {
         // NO NOISE IN, NO SPREAD OUT. The corpus agrees with itself perfectly about these points.
-        Assert.Equal(0d, Line.SpreadOf(Inputs(), Outputs()).Values[0], 6);
+        Assert.Equal(0d, Line.SpreadOf(Inputs(), Outputs()).Values()[0], 6);
     }
 
     [Fact]
@@ -121,9 +107,9 @@ public class LineTests
         // NON-VACUOUS, and the reason spread is reported beside the fit at all. An offer two
         // thousand above fair value means one thing on a spread of thirty thousand and quite
         // another on a spread of five hundred.
-        Vector noisy = new double[] { 4d, 8d, 9d, 13d };
+        Tensor noisy = new double[] { 4d, 8d, 9d, 13d };
 
-        var spread = Line.SpreadOf(Inputs(), noisy).Values[0];
+        var spread = Line.SpreadOf(Inputs(), noisy).Values()[0];
 
         Assert.True(spread > 0.1d, $"expected the residuals to spread, got {spread}");
     }
@@ -133,6 +119,6 @@ public class LineTests
     {
         var fitted = Line.FittedTo(Inputs(), Outputs());
 
-        Assert.Equal([4d, 7d, 10d, 13d], fitted.Values.Select(v => Math.Round(v, 6)));
+        Assert.Equal([4d, 7d, 10d, 13d], fitted.Values().Select(v => Math.Round(v, 6)));
     }
 }

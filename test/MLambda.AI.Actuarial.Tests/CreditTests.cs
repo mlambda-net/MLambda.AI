@@ -7,13 +7,14 @@ namespace MLambda.AI.Actuarial.Tests;
 
 using MLambda.AI.Actuarial;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class CreditTests
 {
     private const double Seed = 42d;
 
     /// <summary>The DECLARED hazard coefficients: [loan-to-value, rate, 1]. Not fitted -- there is nothing to fit.</summary>
-    private static readonly Vector Declared = new double[] { 4d, 20d, -6d };
+    private static readonly Tensor Declared = new double[] { 4d, 20d, -6d };
 
     [Fact]
     public void The_synthesised_loan_is_reproducible()
@@ -59,9 +60,9 @@ public class CreditTests
     public void The_hazard_is_proportional_hazards_on_the_declared_coefficients(double ltv, double rate, double hazard, double chance)
     {
         // exp(4 · ltv + 20 · rate − 6), then the chance of at least one event, 1 − exp(−h).
-        Matrix loan = new double[,] { { ltv, rate, 1d } };
+        Tensor loan = new double[,] { { ltv, rate, 1d } };
 
-        var h = Credit.DefaultHazard((Tensor)loan, (Tensor)Declared).Values[0];
+        var h = Credit.DefaultHazard((Tensor)loan, (Tensor)Declared).Values()[0];
 
         Assert.Equal(hazard, h, 5);
         Assert.Equal(chance, Credit.DefaultChance(h), 5);
@@ -73,12 +74,12 @@ public class CreditTests
         // The one qualitative claim the declared coefficients make: borrowing more of the price is
         // riskier. It is a property of the numbers chosen, and the test says so rather than implying
         // the corpus showed it.
-        Matrix low = new double[,] { { 0.60d, 0.05d, 1d } };
-        Matrix high = new double[,] { { 0.95d, 0.05d, 1d } };
+        Tensor low = new double[,] { { 0.60d, 0.05d, 1d } };
+        Tensor high = new double[,] { { 0.95d, 0.05d, 1d } };
 
         Assert.True(
-            Credit.DefaultHazard((Tensor)high, (Tensor)Declared).Values[0] >
-            Credit.DefaultHazard((Tensor)low, (Tensor)Declared).Values[0]);
+            Credit.DefaultHazard((Tensor)high, (Tensor)Declared).Values()[0] >
+            Credit.DefaultHazard((Tensor)low, (Tensor)Declared).Values()[0]);
     }
 
     [Theory]

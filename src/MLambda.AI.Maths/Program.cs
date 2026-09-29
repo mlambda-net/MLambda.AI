@@ -106,7 +106,7 @@ static void Solve()
 
 static void Linear()
 {
-    MLambda.Hilbert.Runtime.Matrix a = new double[,] { { 1, 2 }, { 3, 4 } };
+    MLambda.Hilbert.Tensor.Tensor a = new double[,] { { 1, 2 }, { 3, 4 } };
 
     var named = MLambda.AI.Maths.Linear.Product(a, a);
     var spelled = MLambda.AI.Maths.Linear.Contracted(a, a);
@@ -121,8 +121,8 @@ static void Linear()
     Console.WriteLine("same contraction with different indices.");
     Console.WriteLine();
 
-    MLambda.Hilbert.Runtime.Matrix diagonal = new double[,] { { 2, 0 }, { 0, 3 } };
-    MLambda.Hilbert.Runtime.Vector rhs = new double[] { 4, 9 };
+    MLambda.Hilbert.Tensor.Tensor diagonal = new double[,] { { 2, 0 }, { 0, 3 } };
+    MLambda.Hilbert.Tensor.Tensor rhs = new double[] { 4, 9 };
     var x = MLambda.AI.Maths.Linear.Solved(diagonal, rhs);
 
     Console.WriteLine("And two different things are called solve:");

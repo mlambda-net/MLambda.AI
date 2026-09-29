@@ -14,12 +14,14 @@
 // `Line` gets an intercept.
 namespace MLambda.AI.ML.Tests;
 
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
+
 using MLambda.AI.ML;
 using MLambda.Hilbert.Runtime;
 
 public class PerceptronTests
 {
-    private static Matrix Xs() => new double[,]
+    private static Tensor Xs() => new double[,]
     {
         { 0d, 0d },
         { 0d, 1d },
@@ -27,9 +29,9 @@ public class PerceptronTests
         { 1d, 1d },
     };
 
-    private static Matrix Ys() => new double[,] { { 0d }, { 1d }, { 1d }, { 0d } };
+    private static Tensor Ys() => new double[,] { { 0d }, { 1d }, { 1d }, { 0d } };
 
-    private static double LossOf(Perceptron net) => net.Loss(Xs(), Ys()).Values[0];
+    private static double LossOf(Perceptron net) => net.Loss(Xs(), Ys()).Values()[0];
 
     [Fact]
     public void A_fresh_network_is_not_dead_on_arrival()
@@ -39,8 +41,8 @@ public class PerceptronTests
         // network was dead before it started". So: the weights are drawn, and the answers vary.
         var net = new Perceptron(2, 8, seed: 7);
 
-        Assert.Contains(net.First.Values, weight => weight != 0d);
-        Assert.Contains(net.Eval(Xs()).Values, answer => answer != 0d);
+        Assert.Contains(net.First.Values(), weight => weight != 0d);
+        Assert.Contains(net.Eval(Xs()).Values(), answer => answer != 0d);
     }
 
     [Fact]
@@ -68,11 +70,11 @@ public class PerceptronTests
         // A MODEL HAS STATE, and a `fn` does not. Train once and the weights are different objects
         // with different values -- which is what lets a caller watch a fit happen.
         var net = new Perceptron(2, 8, seed: 7);
-        var firstBefore = net.First.Values.ToArray();
+        var firstBefore = net.First.Values().ToArray();
 
         net.Train(Xs(), Ys(), 0.5);
 
-        Assert.NotEqual(firstBefore, net.First.Values);
+        Assert.NotEqual(firstBefore, net.First.Values());
     }
 
     [Fact]

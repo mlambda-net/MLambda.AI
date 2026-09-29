@@ -16,6 +16,7 @@ using Cond = MLambda.AI.Actuarial.ConditionAgent;
 using Cred = MLambda.AI.Actuarial.CreditAgent;
 using Val = MLambda.AI.Actuarial.ValuationAgent;
 using Verdict = MLambda.AI.Actuarial.Adjudicator;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 const double Seed = 42d;
 const double ToleratedRuin = 0.05d;
@@ -25,7 +26,7 @@ Console.WriteLine("Reading 2 930 sales and fitting what the corpus says a house 
 var house = new House("data/houses.csv");
 var rows = house.Rows;
 
-Matrix Design(Func<int, bool> keep, bool withCondition)
+Tensor Design(Func<int, bool> keep, bool withCondition)
 {
     var kept = Enumerable.Range(0, rows).Where(keep).ToList();
     var width = withCondition ? 5 : 4;
@@ -34,13 +35,13 @@ Matrix Design(Func<int, bool> keep, bool withCondition)
     for (var i = 0; i < kept.Count; i++)
     {
         var row = kept[i];
-        design[i, 0] = house.Quality.Values[row];
-        design[i, 1] = house.Living.Values[row];
-        design[i, 2] = house.HouseAge.Values[row];
+        design[i, 0] = house.Quality.Values()[row];
+        design[i, 1] = house.Living.Values()[row];
+        design[i, 2] = house.HouseAge.Values()[row];
 
         if (withCondition)
         {
-            design[i, 3] = house.Condition.Values[row];
+            design[i, 3] = house.Condition.Values()[row];
         }
 
         design[i, width - 1] = 1d;
@@ -49,47 +50,47 @@ Matrix Design(Func<int, bool> keep, bool withCondition)
     return design;
 }
 
-Vector Prices(Func<int, bool> keep) => Enumerable.Range(0, rows).Where(keep).Select(row => house.Price.Values[row]).ToArray();
+Tensor Prices(Func<int, bool> keep) => Enumerable.Range(0, rows).Where(keep).Select(row => house.Price.Values()[row]).ToArray();
 
 // ── the subject: a real sale, found by its attributes rather than by a row number ─────────────────
 
 var subject = Enumerable.Range(0, rows).Single(row =>
-    house.Quality.Values[row] == 6 && house.Living.Values[row] == 1478 &&
-    house.HouseAge.Values[row] == 52 && house.Condition.Values[row] == 3 && house.Price.Values[row] == 156500);
+    house.Quality.Values()[row] == 6 && house.Living.Values()[row] == 1478 &&
+    house.HouseAge.Values()[row] == 52 && house.Condition.Values()[row] == 3 && house.Price.Values()[row] == 156500);
 
-var quality = house.Quality.Values[subject];
-var living = house.Living.Values[subject];
-var age = house.HouseAge.Values[subject];
-var condition = house.Condition.Values[subject];
-var asking = Math.Round(house.Price.Values[subject] * 1.10);
+var quality = house.Quality.Values()[subject];
+var living = house.Living.Values()[subject];
+var age = house.HouseAge.Values()[subject];
+var condition = house.Condition.Values()[subject];
+var asking = Math.Round(house.Price.Values()[subject] * 1.10);
 
 Console.WriteLine();
 Console.WriteLine($"The house   quality {quality}, {living} sq ft, {age} years old, condition rated {condition}");
-Console.WriteLine($"            sold for ${house.Price.Values[subject]:N0} — asked here at 10% more: ${asking:N0}");
+Console.WriteLine($"            sold for ${house.Price.Values()[subject]:N0} — asked here at 10% more: ${asking:N0}");
 Console.WriteLine();
 
 // ── valuation: overpayment, in spreads ────────────────────────────────────────────────────────────
 
 var everything = new Func<int, bool>(_ => true);
 var valuation = Valuation.FairValueCoefficients(Design(everything, false), Prices(everything));
-var spread = Valuation.SpreadOf(Design(everything, false), Prices(everything)).Values[0];
-Matrix subjectRow = new double[,] { { quality, living, age, 1d } };
-var fair = Valuation.FairValueOf(valuation, subjectRow).Values[0];
+var spread = Valuation.SpreadOf(Design(everything, false), Prices(everything)).Values()[0];
+Tensor subjectRow = new double[,] { { quality, living, age, 1d } };
+var fair = Valuation.FairValueOf(valuation, subjectRow).Values()[0];
 var excess = Valuation.ExcessInSpreads(asking, fair, spread);
 
 // ── condition: repair exposure, priced within the house's own age band ───────────────────────────
 
-var band = new Func<int, bool>(row => age < 30 ? house.HouseAge.Values[row] < 30 : house.HouseAge.Values[row] >= 30);
-var perPoint = Condition.ConditionModel(Design(band, true), Prices(band)).Values[3];
+var band = new Func<int, bool>(row => age < 30 ? house.HouseAge.Values()[row] < 30 : house.HouseAge.Values()[row] >= 30);
+var perPoint = Condition.ConditionModel(Design(band, true), Prices(band)).Values()[3];
 var exposure = Condition.RepairExposure(condition, perPoint);
 
 // ── credit: a hazard over a loan that does not exist ─────────────────────────────────────────────
 
 var ltv = Credit.LoanToValueOf(asking, Seed);
 var rate = Credit.RateOf(asking, Seed);
-Matrix loan = new double[,] { { ltv, rate, 1d } };
-Vector declared = new double[] { 4d, 20d, -6d };
-var chance = Credit.DefaultChance(Credit.DefaultHazard((Tensor)loan, (Tensor)declared).Values[0]);
+Tensor loan = new double[,] { { ltv, rate, 1d } };
+Tensor declared = new double[] { 4d, 20d, -6d };
+var chance = Credit.DefaultChance(Credit.DefaultHazard((Tensor)loan, (Tensor)declared).Values()[0]);
 var loss = Credit.LossGivenDefault(asking, ltv);
 
 // ── the agents: each believes its own number, scaled to an integer, and intends a verdict ────────
