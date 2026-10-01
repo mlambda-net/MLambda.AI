@@ -85,7 +85,7 @@ public class PerceptronTests
         var a = new Perceptron(2, 8, seed: 7);
         var b = new Perceptron(2, 8, seed: 7);
 
-        Assert.Equal(a.First.Values, b.First.Values);
+        Assert.Equal(a.First.Values(), b.First.Values());
     }
 
     [Fact]
@@ -95,6 +95,6 @@ public class PerceptronTests
         var a = new Perceptron(2, 8, seed: 7);
         var b = new Perceptron(2, 8, seed: 8);
 
-        Assert.NotEqual(a.First.Values, b.First.Values);
+        Assert.NotEqual(a.First.Values(), b.First.Values());
     }
 }

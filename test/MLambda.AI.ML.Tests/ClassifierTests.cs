@@ -108,7 +108,7 @@ public class ClassifierTests
     public void And_once_trained_it_picks_the_right_class_for_every_row()
     {
         // The winner is one-hot per row, so it should equal the targets exactly.
-        Assert.Equal(Ys().Values, Trained().Winner(Xs()).Values);
+        Assert.Equal(Ys().Values(), Trained().Winner(Xs()).Values());
     }
 
     [Fact]

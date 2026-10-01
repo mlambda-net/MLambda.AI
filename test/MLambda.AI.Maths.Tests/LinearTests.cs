@@ -3,14 +3,15 @@ namespace MLambda.AI.Maths.Tests;
 
 using MLambda.AI.Maths;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class LinearTests
 {
     /// <summary>A 2×2 worth checking by hand: [[1, 2], [3, 4]].</summary>
-    private static Matrix Small() => new double[,] { { 1, 2 }, { 3, 4 } };
+    private static Tensor Small() => new double[,] { { 1, 2 }, { 3, 4 } };
 
     /// <summary>The 2×2 identity.</summary>
-    private static Matrix Identity() => new double[,] { { 1, 0 }, { 0, 1 } };
+    private static Tensor Identity() => new double[,] { { 1, 0 }, { 0, 1 } };
 
     [Fact]
     public void A_matrix_product_is_a_contraction_over_one_index()
@@ -42,8 +43,8 @@ public class LinearTests
     {
         // 2x = 4, 3y = 9 — diagonal, so conjugate gradient has an easy time and the answer is
         // checkable in your head.
-        Matrix a = new double[,] { { 2, 0 }, { 0, 3 } };
-        Vector b = new double[] { 4, 9 };
+        Tensor a = new double[,] { { 2, 0 }, { 0, 3 } };
+        Tensor b = new double[] { 4, 9 };
 
         var x = Linear.Solved(a, b);
 

@@ -19,6 +19,7 @@ namespace MLambda.AI.Learning.Tests;
 
 using MLambda.AI.Learning;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class GridworldTests
 {
@@ -31,7 +32,7 @@ public class GridworldTests
     // assertion in this file held on seeds 1 to 4. The seed is fixed so a failure is repeatable.
     private const int Seed = 1;
 
-    private static Vector One(double value) => new double[] { value };
+    private static Tensor One(double value) => new double[] { value };
 
     /// <summary>Q-learning over the cliff, trained once and shared: about five seconds of steps.</summary>
     private static readonly Lazy<(QTable Learner, List<double> Returns)> QLearning = new(() =>
@@ -47,7 +48,7 @@ public class GridworldTests
 
             for (var step = 0; step < StepLimit; step++)
             {
-                var action = CliffWorld.Draw(learner.Act(One(state), Epsilon).Values, random);
+                var action = CliffWorld.Draw(learner.Act(One(state), Epsilon).Values(), random);
                 var (next, reward, done) = CliffWorld.Step(state, action);
 
                 learner.Train(One(state), One(action), One(reward), One(next), One(done ? 1 : 0), Rate, 1d);
@@ -77,13 +78,13 @@ public class GridworldTests
         for (var episode = 0; episode < Episodes; episode++)
         {
             var state = CliffWorld.Start;
-            var action = CliffWorld.Draw(learner.Act(One(state), Epsilon).Values, random);
+            var action = CliffWorld.Draw(learner.Act(One(state), Epsilon).Values(), random);
             var total = 0d;
 
             for (var step = 0; step < StepLimit; step++)
             {
                 var (next, reward, done) = CliffWorld.Step(state, action);
-                var nextAction = CliffWorld.Draw(learner.Act(One(next), Epsilon).Values, random);
+                var nextAction = CliffWorld.Draw(learner.Act(One(next), Epsilon).Values(), random);
 
                 learner.Train(One(state), One(action), One(reward), One(next), One(nextAction), One(done ? 1 : 0), Rate, 1d);
 
@@ -115,7 +116,7 @@ public class GridworldTests
 
         learner.Train(One(14), One(0), One(-1), One(7), One(0), Rate, 1d);
 
-        var q = learner.Q.Values;
+        var q = learner.Q.Values();
 
         Assert.Equal(-0.5d, q[(14 * CliffWorld.Actions) + 0], 9);
         Assert.Equal(1, q.Count(value => value != 0d));
@@ -141,8 +142,8 @@ public class GridworldTests
         offPolicy.Train(One(0), One(0), One(0), One(5), One(0), Rate, 1d);
         onPolicy.Train(One(0), One(0), One(0), One(5), One(0), One(0), Rate, 1d);
 
-        Assert.Equal(5d, offPolicy.Q.Values[0], 9);
-        Assert.Equal(0d, onPolicy.Q.Values[0], 9);
+        Assert.Equal(5d, offPolicy.Q.Values()[0], 9);
+        Assert.Equal(0d, onPolicy.Q.Values()[0], 9);
     }
 
     // ── over the whole cliff: only what held on all four seeds ─────────────────────────────────
@@ -175,7 +176,7 @@ public class GridworldTests
         // steps right along the row beside the cliff, and down -- eight moves. It never goes to the far
         // row, because that is two steps longer and Q-learning does not count the cost of its own
         // exploration.
-        var path = CliffWorld.GreedyPath(QLearning.Value.Learner.Q.Values);
+        var path = CliffWorld.GreedyPath(QLearning.Value.Learner.Q.Values());
 
         Assert.Equal(CliffWorld.Goal, path[^1]);
         Assert.Equal(8, path.Count - 1);
@@ -190,7 +191,7 @@ public class GridworldTests
         // counted that. So its greedy policy goes to the far row, which Q-learning's never does.
         //
         // NON-VACUOUS: the test above shows the far row is NOT where a greedy path goes by default.
-        var path = CliffWorld.GreedyPath(SarsaLearning.Value.Learner.Q.Values);
+        var path = CliffWorld.GreedyPath(SarsaLearning.Value.Learner.Q.Values());
 
         Assert.Contains(path, state => CliffWorld.RowOf(state) == 0);
     }

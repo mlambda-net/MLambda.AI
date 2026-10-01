@@ -7,6 +7,7 @@ namespace MLambda.AI.Learning.Tests;
 
 using MLambda.AI.Learning;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 public class BanditTests
 {
@@ -18,7 +19,7 @@ public class BanditTests
         var arms = Enumerable.Repeat((double)arm, times).ToArray();
         var rewards = Enumerable.Repeat(Payouts[arm], times).ToArray();
 
-        bandit.Train((Vector)arms, (Vector)rewards);
+        bandit.Train((Tensor)arms, (Tensor)rewards);
     }
 
     [Fact]
@@ -30,7 +31,7 @@ public class BanditTests
         var bandit = new Bandit(3, 10d);
         Pull(bandit, arm: 1, times: 1);
 
-        var means = bandit.Means().Values;
+        var means = bandit.Means().Values();
 
         Assert.Equal(10d, means[0]);
         Assert.Equal(0.5d, means[1], 9);
@@ -44,8 +45,8 @@ public class BanditTests
         var bandit = new Bandit(3, 0d);
         Pull(bandit, arm: 2, times: 20);
 
-        Assert.Equal(0.9d, bandit.Means().Values[2], 9);
-        Assert.Equal(20d, bandit.Counts.Values[2]);
+        Assert.Equal(0.9d, bandit.Means().Values()[2], 9);
+        Assert.Equal(20d, bandit.Counts.Values()[2]);
     }
 
     [Fact]
@@ -58,7 +59,7 @@ public class BanditTests
         Pull(bandit, 1, 5);
         Pull(bandit, 2, 5);
 
-        var chances = bandit.Choose(0.3d).Values;
+        var chances = bandit.Choose(0.3d).Values();
 
         Assert.All(chances, chance => Assert.InRange(chance, 0d, 1d));
         Assert.Equal(1d, chances.Sum(), 9);
@@ -79,7 +80,7 @@ public class BanditTests
         Pull(bandit, 1, 5);
         Pull(bandit, 2, 5);
 
-        var chances = bandit.Choose(0.3d).Values;
+        var chances = bandit.Choose(0.3d).Values();
 
         Assert.Equal(0.1d, chances[0], 9);
         Assert.Equal(0.1d, chances[1], 9);
@@ -96,7 +97,7 @@ public class BanditTests
         Pull(bandit, 1, 5);
         Pull(bandit, 2, 5);
 
-        Assert.Equal([0d, 0d, 1d], bandit.Choose(0d).Values.Select(v => Math.Round(v, 9)));
+        Assert.Equal([0d, 0d, 1d], bandit.Choose(0d).Values().Select(v => Math.Round(v, 9)));
     }
 
     [Fact]
@@ -107,7 +108,7 @@ public class BanditTests
         // one and call it the policy -- would be a decision nobody made.
         var fresh = new Bandit(3, 5d);
 
-        Assert.All(fresh.Choose(0d).Values, chance => Assert.Equal(1d / 3d, chance, 9));
+        Assert.All(fresh.Choose(0d).Values(), chance => Assert.Equal(1d / 3d, chance, 9));
     }
 
     [Fact]
@@ -121,7 +122,7 @@ public class BanditTests
         Pull(bandit, 1, 10);
         Pull(bandit, 2, 10);
 
-        var means = bandit.Means().Values;
+        var means = bandit.Means().Values();
 
         Assert.True(means[2] > means[1] && means[1] > means[0], $"means were {string.Join(", ", means)}");
     }

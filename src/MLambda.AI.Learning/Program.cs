@@ -10,6 +10,7 @@ using System.Reflection;
 using MLambda.AI.Learning;
 using MLambda.Hilbert.Proof;
 using MLambda.Hilbert.Runtime;
+using Tensor = MLambda.Hilbert.Tensor.Tensor;
 
 if (args.Length == 0)
 {
@@ -33,7 +34,7 @@ switch (args[0].ToLowerInvariant())
 
 return 0;
 
-static Vector One(double value) => new double[] { value };
+static Tensor One(double value) => new double[] { value };
 
 static void Bandit()
 {
@@ -46,8 +47,8 @@ static void Bandit()
 
     void Show(string moment)
     {
-        var means = bandit.Means().Values;
-        var chances = bandit.Choose(0.3d).Values;
+        var means = bandit.Means().Values();
+        var chances = bandit.Choose(0.3d).Values();
 
         Console.WriteLine($"  {moment,-26} believed {means[0],6:F2} {means[1],6:F2} {means[2],6:F2}" +
                           $"    chance at ε=0.3  {chances[0]:F3} {chances[1]:F3} {chances[2]:F3}");
@@ -57,7 +58,7 @@ static void Bandit()
 
     for (var arm = 0; arm < 3; arm++)
     {
-        bandit.Train((Vector)Enumerable.Repeat((double)arm, 5).ToArray(), (Vector)Enumerable.Repeat(payouts[arm], 5).ToArray());
+        bandit.Train((Tensor)Enumerable.Repeat((double)arm, 5).ToArray(), (Tensor)Enumerable.Repeat(payouts[arm], 5).ToArray());
         Show($"after five pulls of arm {arm}");
     }
 
@@ -129,7 +130,7 @@ static void Cliff()
 
         for (var step = 0; step < 60; step++)
         {
-            var action = Draw(offPolicy.Act(One(state), 0.1).Values, qRandom);
+            var action = Draw(offPolicy.Act(One(state), 0.1).Values(), qRandom);
             var (next, reward, done) = Step(state, action);
             offPolicy.Train(One(state), One(action), One(reward), One(next), One(done ? 1 : 0), 0.5, 1d);
             state = next;
@@ -141,12 +142,12 @@ static void Cliff()
         }
 
         state = Start;
-        var chosen = Draw(onPolicy.Act(One(state), 0.1).Values, sRandom);
+        var chosen = Draw(onPolicy.Act(One(state), 0.1).Values(), sRandom);
 
         for (var step = 0; step < 60; step++)
         {
             var (next, reward, done) = Step(state, chosen);
-            var then = Draw(onPolicy.Act(One(next), 0.1).Values, sRandom);
+            var then = Draw(onPolicy.Act(One(next), 0.1).Values(), sRandom);
             onPolicy.Train(One(state), One(chosen), One(reward), One(next), One(then), One(done ? 1 : 0), 0.5, 1d);
             state = next;
             chosen = then;
@@ -158,8 +159,8 @@ static void Cliff()
         }
     }
 
-    var qPath = GreedyPath(offPolicy.Q.Values);
-    var sPath = GreedyPath(onPolicy.Q.Values);
+    var qPath = GreedyPath(offPolicy.Q.Values());
+    var sPath = GreedyPath(onPolicy.Q.Values());
 
     Console.WriteLine("  Q-learning                      Sarsa");
 
