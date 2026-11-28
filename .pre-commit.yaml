@@ -1,0 +1,48 @@
+# .pre-commit.yaml -- this repository's git hooks, in pre-commit.com's format. mh runs them itself (no Python, no
+# pre-commit needed): `mh hooks install` once (`mh create feature` does it), then git runs `mh hook <stage>`.
+# A change is committed with `mh commit -m "<message>"` (Roy 2026-11-27): the git flow checked (no commit on dev or
+# main; a branch is feature/<name>, bugfix/<name> or hotfix/<name>), every change staged, the pre-commit hooks run in
+# order -- the configuration, the derived tests (aleph test derive), every test (aleph test), the clean (aleph clean:
+# Ayin's rules, Litush's fixes), every test again, Ayin's whole judge (aleph test --verify: 0 warnings, A, A, 95 %) --
+# and, all green, the commit made and its branch pushed. A plain `git commit` runs the same hooks. Reports are written
+# under .report/ and never committed. `mh hook list` lists them.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+repos:
+  - repo: local
+    hooks:
+      - id: ci-config
+        name: the configuration (no .mhub or .litush here; .github as MLambda.Genesis's hub compiles it)
+        entry: mh hub compile --github --check
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: derive
+        name: the derived tests (aleph test derive)
+        entry: aleph test derive
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: test
+        name: every test, green before the clean (aleph test)
+        entry: aleph test
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: clean
+        name: the clean (aleph clean -- Ayin's rules on what the commit changes, Litush's fixes in place)
+        entry: aleph clean --staged --in-place
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: retest
+        name: every test, green after the clean (aleph test)
+        entry: aleph test
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: ayin
+        name: Ayin (aleph test --verify -- 0 warnings, security A, reliability A, coverage at least 95 %)
+        entry: aleph test --verify
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]

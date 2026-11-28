@@ -14,3 +14,5 @@ __pycache__/
 
 # Written by CI from the tags (Genesis dotnet.yml); never committed.
 eng/version.g.props
+# the quality gate's reports (Ayin, Litush, Qof): written under .report/, never committed (Roy 2026-11-27)
+/.report/
